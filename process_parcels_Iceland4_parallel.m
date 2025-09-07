@@ -18,8 +18,7 @@ dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-timerange=1:2140;
-time_batch=10;
+time_batch=2;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -276,8 +275,10 @@ end
 dist_bin = [0, dist_bin]; % 在开头插入0
 dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
 
+num_workers = 20; % 例如使用4个工作节点
+
 if isempty(gcp('nocreate'))
-    parpool('local');
+    parpool('local', num_workers);
 end
 
 % 将外层循环改为 parfor
