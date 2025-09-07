@@ -8,6 +8,7 @@ clear all;close all;clc
 % 
 addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
 addpath('/meddy/simingzhang/Data/Parcels_data')
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,8 +18,9 @@ days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+addpath(input_dir)
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-time_batch=2;
+time_batch=5;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
