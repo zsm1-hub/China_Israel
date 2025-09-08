@@ -8,7 +8,7 @@ dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='/meddy/simingzhang/Data/Parcels_data/';
 % input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
 input_dir='/meddy/simingzhang/Data/Parcels_data/';
-% addpath(genpath('/meddy/simingzhang/Analysis/matlab/croco_tools-v1.0'))
+addpath(genpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF'))
 
 
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
@@ -50,5 +50,7 @@ for ii=1:length(var_names)
 
     disp([var_names{ii}, ' done']);
 end
+
+save([fname(1:end-3),'traj.mat'],'lat','lon','ue','ve');
 
 % close(nc)
