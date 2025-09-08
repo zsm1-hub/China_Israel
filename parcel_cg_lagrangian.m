@@ -11,21 +11,29 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
-nparticles=625; % numbers of particles
+Case='HIT2d'; % wave
+nparticles=2500; % numbers of particles
 days=89.5;  % days
+seconds=0.2;
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-input_dir='/meddy/simingzhang/Data/Parcels_data/';
+% input_dir='/meddy/simingzhang/Data/Parcels_data/';
+% input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_tukey/';
+
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
 
 if strcmpi(Case, 'wave')
-    fname=['wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+    fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 end
 
 if strcmpi(Case, 'nowave')
-    fname=['nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+    fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+end
+
+if strcmpi(Case, 'HIT2d')
+    fname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(seconds),'seconds.nc'];
 end
 
 lon=ncread(fname,'lon');
@@ -123,6 +131,37 @@ xlim([1e3,1e6]./1e3);
 xlabel('km')
 ylabel('m^{2}/s^{3}')
 title('Smooth case: cg flux')
+set(gca,'fontsize',16,'FontWeight','b')
+
+%% hit2d
+clear
+fname='s2sflux_spec_hit_tukey.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+% wave_pars_P625T89.5daysCG_Lag_tukey.mat
+
+jj=1;
+colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
+a1=semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});
+hold on
+
+jj=jj+1;
+load HIT2d_pars_P2500T0.2secondsCG_Lag_tukey.mat
+a2=semilogx(filtscale,Th','LineWidth',1.5,'Color',colors{jj});
+% 
+% jj=jj+1;
+% load wave_pars_P15376T89.5daysCG_Lag_tukey.mat
+% a5=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{jj});
+
+grid on
+% legend(['a1','a2','a3','a4','a5'],{'Eulerian','287','625','2500','15376'}, ...
+%     'Location', 'northeast')
+ylim([-3e-8,3e-8]);
+xlim([1e3,1e6]./1e3);
+xlabel('km')
+ylabel('m^{2}/s^{3}')
+title('HF case: Coarsegraining flux')
 set(gca,'fontsize',16,'FontWeight','b')
 
 
