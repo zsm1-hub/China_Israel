@@ -4,7 +4,7 @@ function [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3, ...
 % SF3=(SF3lll_time+SF3ltt_time)';
 nsamps = size(SF3,2);
 disp(size(SF3));
-disp('SF3 should be  time × r');
+disp('SF3 should be r × time ');
 disp(size(dist_axis));
 disp('dist_axis should be 1 × r');
 
