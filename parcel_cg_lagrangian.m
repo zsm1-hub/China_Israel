@@ -16,10 +16,11 @@ nparticles=2500; % numbers of particles
 days=89.5;  % days
 seconds=0.2;
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
+filt='uni';%spectukey,uni
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 % input_dir='/meddy/simingzhang/Data/Parcels_data/';
 % input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
-input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_tukey/';
+input_dir=['/meddy/simingzhang/Data/Parcels_data/onetime_',filt,'/'];
 
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
@@ -54,7 +55,7 @@ for iii=1:length(xscale)
     eval(['Th(',num2str(iii),')=nanmean(','th',num2str(xscale(iii)),'(:));'])
 end
 % semilogx(xscale.*2e3,Th)
-save([fname(1:end-3),'CG_Lag_tukey.mat'],'Th');
+save([fname(1:end-3),'CG_Lag_]',filt,'.mat'],'Th');
 
 %% plot
 % hf
