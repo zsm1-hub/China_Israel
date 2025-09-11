@@ -1,3 +1,14 @@
+
+% % 
+% % %%%%%%%%%%%%%%%%%%%%%% 直接计算的case
+% % load wave_pars_P2500T89.5daysSF123.mat
+% % a2=semilogx(dist_axis, (SF3lll+SF3ltt), 'linewidth',2,'LineStyle',':');hold on
+% % legend(['a1','a2'],{'chunk','direct'})
+% % 
+% % 
+% % disp(['error chunk-direct :      ',num2str(SF3lll_time+SF3ltt_time-SF3lll-SF3ltt)]);
+
+
 %   data source: Iceland (wave and no wave case)
 %   utility: import parcels data to calc SF2,SF3
 %   doesn't use bootstrap to resample,insteadly, calc time-mean SF2 and SF3 directly
@@ -13,23 +24,14 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-nparticles=289; % numbers of particles
+nparticles=2500; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-filt='spectukey'
-input_dir=['/meddy/simingzhang/Data/Parcels_data/onetime_',filt,'/'];
+input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
 addpath(input_dir)
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 time_batch=1;
-
-% if strcmpi(Case, 'wave')
-%     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
-% end
-% 
-% if strcmpi(Case, 'nowave')
-%     fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
-% end
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -38,11 +40,6 @@ end
 if strcmpi(Case, 'nowave')
     fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 end
-
-if strcmpi(Case, 'HIT2d')
-    fname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(seconds),'seconds.nc'];
-end
-
 
 lon=ncread(fname,'lon');
 lat=ncread(fname,'lat');
@@ -134,6 +131,153 @@ end
 
 
 %% Break up by time and separation bins
+% took 58.9s for GLAD
+% took 146s for LASER 
+% parfor ii=1:num_chunks+1
+%     eval(['load ',[fname(1:end-3),'chunk',num2str(ii,'%02d'),'traj.mat']])
+%     Htraj=traj.H;
+%     tic 
+%     for i=1:length(traj.T_axis)
+%         disp(i)
+%         %id = find(~isnan(traj.trajmat_X(i,:))); % find non-NaN
+% 
+%         %id = find(~isnan(traj.trajmat_X(i,:)) & Htraj(i,:)<-500); % find non-Nan and deep
+%         % id = find(~isnan(traj.trajmat_X(i,:)) & Htraj(i,:)<-500 & ...
+%         %     traj.trajmat_X(i,:)>=-91 & traj.trajmat_X(i,:)<=-84 & ...
+%         %     traj.trajmat_Y(i,:)>=24); % find non-Nan and deep and in similar region to GLAD
+%         id = find(Htraj(i,:)<-500);
+%         % if mod(i,300)==0
+%         %     disp(i)
+%         % end
+% 
+%         if length(id)>1
+%             X = traj.trajmat_X(i,id)';
+%             Y = traj.trajmat_Y(i,id)';
+%             U = traj.trajmat_U(i,id)';
+%             V = traj.trajmat_V(i,id)';
+% 
+%             Xvec = [X, Y];
+% 
+%             pairs_time(i).dist = pdist(Xvec, @dist_geo);
+% 
+%             rx = pdist(Xvec, @dist_rx);
+%             ry = pdist(Xvec, @dist_ry);
+% 
+%             magr = sqrt(rx.^2 + ry.^2);
+% 
+%             rx = rx./magr; ry = ry./magr;
+% 
+%             dux = pdist(U, @dist_du);
+%             duy = pdist(V, @dist_du);
+% 
+%             pairs_time(i).dul = dux.*rx + duy.*ry;
+%             pairs_time(i).dut = duy.*rx - dux.*ry;
+%         else
+%             pairs_time(i).dul = NaN;
+%             pairs_time(i).dut = NaN;
+%             pairs_time(i).dist = NaN;
+%         end
+%     end
+%     toc
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %              4. Calc 2-order and 3-order structure function (time-mean)
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % follow Balwada's routine : "pairtimes2SF.m"
+% 
+%     tpts = length(pairs_time);
+%     %
+%     npairs = zeros(tpts,1);
+%     for i = 1:tpts
+%         % npairs(i) = length(find(~isnan(pairs_time(i).dul)));
+%         npairs(i) = length(pairs_time(i).dist);;
+%     end
+% 
+%     %% % Align pairs in a single vector
+%     % 
+%     dul = zeros(sum(npairs),1);
+%     dut = zeros(sum(npairs),1);
+%     dist = zeros(sum(npairs),1);
+% 
+%     %
+%     % estimate num of pairs
+% 
+%     empty1 = 1;
+%     for i = 1:tpts % time loop
+%         if npairs(i) == 0
+%             continue
+%         end
+% 
+%         if npairs(i) == 1
+%             dist(empty1) = pairs_time(i).dist;
+%             dul(empty1) = pairs_time(i).dul;
+%             dut(empty1) = pairs_time(i).dut;
+%             empty1 = empty1+1;
+%         end
+% 
+%         if npairs(i) >1
+%             dist(empty1: empty1+npairs(i)-1) = pairs_time(i).dist;
+%             dul(empty1: empty1+npairs(i)-1) = pairs_time(i).dul;
+%             dut(empty1: empty1+npairs(i)-1) = pairs_time(i).dut;
+%             empty1 = empty1+npairs(i);
+%         end
+%         disp(i)
+%     end
+% 
+%     %%
+%     clear pairs_time
+% 
+%     gamma = 1.5;
+% 
+%     dist_bin(1) = 10; % in m
+%     dist_bin = gamma.^[0:100]*dist_bin(1);
+%     id = find(dist_bin>1000*10^3,1);
+%     dist_bin = dist_bin(1:id);
+%     dist_bin(2:end+1) = dist_bin(1:end);
+%     dist_bin(1) = 0;
+%     dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+%     % dist_axis=dist_axis(dist_axis>2e3);
+%     % Generate vel axis
+%     % vel_bins = linspace(-2, 2, 50);
+%     % vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+% 
+% 
+%     tic
+%     for i = 1:length(dist_axis)
+%         disp(i)
+%         id = find(dist>= dist_bin(i) & dist<dist_bin(i+1));
+% 
+%         pairs_sep(i).dul = dul(id);
+%         pairs_sep(i).dut = dut(id);
+% 
+%         pairs_per_bin(i) = length(id);
+%         SF1l(i) = nansum(pairs_sep(i).dul.^1);
+%         SF1t(i) = nansum(pairs_sep(i).dut.^1);
+% 
+%         SF2ll(i) = nansum(pairs_sep(i).dul.^2);
+%         SF2tt(i) = nansum(pairs_sep(i).dut.^2);
+%         SF2lt(i) = nansum(pairs_sep(i).dut.*pairs_sep(i).dul);
+% 
+%         SF3lll(i) = nansum(pairs_sep(i).dul.^3);
+%         SF3ltt(i) = nansum(pairs_sep(i).dul.*pairs_sep(i).dut.^2);
+%         nvaild(i)=sum(~isnan(pairs_sep(i).dul));
+%     end
+%     toc
+%     % save([fname(1:end-3),'chunk',num2str(ii,'%02d'),'SForigin.mat'], ...
+%     %     'dist_axis','pairs_sep', ...
+%     % '-v7.3');
+%     save([fname(1:end-3),'chunk',num2str(ii,'%02d'),'SF123.mat'],'dist_axis','nvaild' ,...
+%          'SF1l','SF1t','SF2ll','SF2tt','SF3ltt','SF3lll','time_batch','total_steps','-v7.3');
+%     clear pairs_per_bin;
+%     clear pairs_sep
+%     clear pairs_time
+%     clear dist
+%     clear dul
+%     clear dut
+%     clear npairs
+% end
+% 初始化并行池
+% 初始化并行池
 
 gamma = 1.5;
 dist_bin = gamma.^(0:100) * 10; % 初始距离箱
@@ -253,13 +397,13 @@ parfor ii = 1:num_chunks
             dul_bin = dul(idx_bin);
             dut_bin = dut(idx_bin);
             
-            SF1l(i) = nanmean(dul_bin);
-            SF1t(i) = nanmean(dut_bin);
-            SF2ll(i) = nanmean(dul_bin.^2);
-            SF2tt(i) = nanmean(dut_bin.^2);
-            SF2lt(i) = nanmean(dut_bin .* dul_bin);
-            SF3lll(i) = nanmean(dul_bin.^3);
-            SF3ltt(i) = nanmean(dul_bin .* dut_bin.^2);
+            SF1l(i) = nansum(dul_bin);
+            SF1t(i) = nansum(dut_bin);
+            SF2ll(i) = nansum(dul_bin.^2);
+            SF2tt(i) = nansum(dut_bin.^2);
+            SF2lt(i) = nansum(dut_bin .* dul_bin);
+            SF3lll(i) = nansum(dul_bin.^3);
+            SF3ltt(i) = nansum(dul_bin .* dut_bin.^2);
         end
     end
     toc
@@ -270,7 +414,6 @@ parfor ii = 1:num_chunks
                 SF3ltt, SF3lll, time_batch, total_steps);
 end
 delete(gcp('nocreate'));
-% system('rm *chunk*');
 
 %% join
 np=nparticles;
@@ -293,13 +436,13 @@ for jj=1:length(np)
     for ii = 1:num_chunk
         eval(['load ',input_dir,Case,'_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii,'%02d'),'SF123.mat'])
 
-        SF1t_time(:,ii)=SF1t;
-        SF1l_time(:,ii)=SF1l;
-        SF2tt_time(:,ii)=SF2tt;
-        SF2ll_time(:,ii)=SF2ll;
-        SF3ltt_time(:,ii)=SF3ltt;
-        SF3lll_time(:,ii)=SF3lll;
-        nvaild_time(:,ii)=nvaild;
+        SF1t_time(:,ii)=SF1t./nvaild;
+        SF1l_time(:,ii)=SF1l./nvaild;
+        SF2tt_time(:,ii)=SF2tt./nvaild;
+        SF2ll_time(:,ii)=SF2ll./nvaild;
+        SF3ltt_time(:,ii)=SF3ltt./nvaild;
+        SF3lll_time(:,ii)=SF3lll./nvaild;
+        nvaild_time(:,ii)=nvaild./nvaild;
         disp(ii);
     end
 
@@ -307,16 +450,16 @@ for jj=1:length(np)
         eval(['load ',input_dir,Case,'_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii+1,'%02d'),'SF123.mat'])
         % SF3ltt(isnan(SF3ltt))=0;
         % SF3lll(isnan(SF3lll))=0;
-        SF1t_time(:,ii)=SF1t;
-        SF1l_time(:,ii)=SF1l;
-        SF2tt_time(:,ii)=SF2tt;
-        SF2ll_time(:,ii)=SF2ll;
-        SF3ltt_time(:,ii)=SF3ltt;
-        SF3lll_time(:,ii)=SF3lll;
-
-        nvaild_time(:,ii)=nvaild;
+        SF1t_time(:,ii)=SF1t./nvaild;
+        SF1l_time(:,ii)=SF1l./nvaild;
+        SF2tt_time(:,ii)=SF2tt./nvaild;
+        SF2ll_time(:,ii)=SF2ll./nvaild;
+        SF3ltt_time(:,ii)=SF3ltt./nvaild;
+        SF3lll_time(:,ii)=SF3lll./nvaild;
+        nvaild_time(:,ii)=nvaild./nvaild;
     end
 
+    % 计算平均值
     SF1t_time(SF1t_time==0)=nan;
     SF1l_time(SF1l_time==0)=nan;
 
@@ -327,226 +470,12 @@ for jj=1:length(np)
     SF3ltt_time(SF3ltt_time==0)=nan;
     SF3lll_time(SF3lll_time==0)=nan;
 
-    % SF1l_time=SF1l_time./nvaild_time;
-    % SF1t_time=SF1t_time./nvaild_time;
-    % 
-    % SF2ll_time=SF2ll_time./nvaild_time;
-    % SF2tt_time=SF2tt_time./nvaild_time;
-    % 
-    % SF3lll_time=SF3lll_time./nvaild_time;
-    % SF3ltt_time=SF3ltt_time./nvaild_time;
-
-
-    % semilogx(dist_axis, (SF3lll_time+SF3ltt_time), 'linewidth',2,...
-    % 'Color',colors{jj})
-    % hold on
-    % loglog(dist_axis, abs(SF3lll_time+SF3ltt_time), 'linewidth',2, ...
-    %     'Color',colors{jj})
-    % hold on
-    % loglog(dist_axis, (SF3lll_time+SF3ltt_time), '+', 'linewidth',2, ...
-    %     'Color',colors{jj})
-    % loglog(dist_axis, (-SF3lll_time-SF3ltt_time), 'o', 'linewidth',2, ...
-    %     'Color',colors{jj})
-    % text(dist_axis(1), abs(SF3lll_time(1)+SF3ltt_time(1)),num2str(np(jj)))
 end
-% for avg
-% save([fname(1:end-3),'SF123_alltime.mat'],'dist_axis', ...
-%     'SF1l_time','SF1t_time','SF2ll_time','SF2tt_time','SF3ltt_time','SF3lll_time','-v7.3');
-% for time
 save([fname(1:end-3),'SF123_alltime.mat'],'dist_axis', ...
-    'SF1l_time','SF1t_time','SF2ll_time','SF2tt_time','SF3ltt_time','SF3lll_time','-v7.3');
+    'SF1l_time','SF1t_time','SF2ll_time', ...
+    'SF2tt_time','SF3ltt_time','SF3lll_time','-v7.3');
 % system('rm *chunk*');
 eval(['system(','''','rm ',input_dir,'*chunk*traj*.mat','''',')'])
-eval(['system(','''','rm ',input_dir,'*chunk*SF123*.mat','''',')'])
+disp('done')
+eval(['system(','''','rm ',input_dir,'*chunk*SF123.mat','''',')'])
 
-% clear
-% load nowave_pars_P289T89.5daysSF123.mat
-% SF3_=(SF3lll+SF3ltt)';
-% 
-% load nowave_pars_P289T89.5daysSF123test.mat
-% SF3_test=(SF3lll_time+SF3ltt_time)';
-% 
-% semilogx(dist_axis,SF3_);hold on
-% semilogx(dist_axis,SF3_test);
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %              5. plot 2-order and 3-order structure function
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % 前面计算的SF123都是同一时刻或者同一dist_bin的累加，还没有取平均
-% %这里需要平均下
-% 
-% % 
-% % clear
-% np=[289,625,2500,15376];
-% colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
-% for jj=1:length(np)
-%     npart=np(jj);
-%     SF1l_time=0;
-%     SF1t_time=0;
-%     SF2ll_time=0;
-%     SF2tt_time=0;
-%     SF3ltt_time=0;
-%     SF3lll_time=0;
-%     nvaild_time=0;
-% 
-%     % 集合之前分开计算的chunk
-%     ii=1;
-%     eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii,'%02d'),'SF123.mat']);
-%     num_chunk=floor(total_steps./time_batch);
-%     remainder=mod(total_steps,time_batch);
-% 
-%     for ii = 1:num_chunk
-%         eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii,'%02d'),'SF123.mat'])
-% 
-%         SF1t_time=SF1t_time+SF1t;
-%         SF1l_time=SF1l_time+SF1l;
-%         SF2tt_time=SF2tt_time+SF2tt;
-%         SF2ll_time=SF2ll_time+SF2ll;
-%         SF3ltt_time=SF3ltt_time+SF3ltt;
-%         SF3lll_time=SF3lll_time+SF3lll;
-%         nvaild_time=nvaild_time+nvaild;
-%         disp(ii);
-%     end
-% 
-%     if remainder>0
-%         eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii+1,'%02d'),'SF123.mat'])
-%         % SF3ltt(isnan(SF3ltt))=0;
-%         % SF3lll(isnan(SF3lll))=0;
-%         SF1t_time=SF1t_time+SF1t;
-%         SF1l_time=SF1l_time+SF1l;
-%         SF2tt_time=SF2tt_time+SF2tt;
-%         SF2ll_time=SF2ll_time+SF2ll;
-%         SF3ltt_time=SF3ltt_time+SF3ltt;
-%         SF3lll_time=SF3lll_time+SF3lll;
-% 
-%         nvaild_time=nvaild_time+nvaild;
-%     end
-% 
-%     % 计算平均值
-%     SF1t_time(SF1t_time==0)=nan;
-%     SF1l_time(SF1l_time==0)=nan;
-% 
-% 
-%     SF2tt_time(SF2tt_time==0)=nan;
-%     SF2ll_time(SF2ll_time==0)=nan;
-% 
-%     SF3ltt_time(SF3ltt_time==0)=nan;
-%     SF3lll_time(SF3lll_time==0)=nan;
-% 
-%     SF1l_time=SF1l_time./nvaild_time;
-%     SF1t_time=SF1t_time./nvaild_time;
-% 
-%     SF2ll_time=SF2ll_time./nvaild_time;
-%     SF2tt_time=SF2tt_time./nvaild_time;
-% 
-%     SF3lll_time=SF3lll_time./nvaild_time;
-%     SF3ltt_time=SF3ltt_time./nvaild_time;
-% 
-% 
-%     % semilogx(dist_axis, (SF3lll_time+SF3ltt_time), 'linewidth',2,...
-%     % 'Color',colors{jj})
-%     % hold on
-%     loglog(dist_axis, abs(SF3lll_time+SF3ltt_time), 'linewidth',2, ...
-%         'Color',colors{jj})
-%     hold on
-%     loglog(dist_axis, (SF3lll_time+SF3ltt_time), '+', 'linewidth',2, ...
-%         'Color',colors{jj})
-%     loglog(dist_axis, (-SF3lll_time-SF3ltt_time), 'o', 'linewidth',2, ...
-%         'Color',colors{jj})
-%     % text(dist_axis(1), abs(SF3lll_time(1)+SF3ltt_time(1)),num2str(np(jj)))
-% end
-% 
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %              6. 对5这种分块计算和上个版本不分块计算的验证
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% clear
-% clf
-% %%%%%%%%%%%%%%%%%%%%%  分块计算的case
-% np=[2500];
-% colors={'#D95319'};
-% for jj=1:length(np)
-%     npart=np(jj);
-%     SF1l_time=0;
-%     SF1t_time=0;
-%     SF2ll_time=0;
-%     SF2tt_time=0;
-%     SF3ltt_time=0;
-%     SF3lll_time=0;
-%     nvaild_time=0;
-% 
-%     % 集合之前分开计算的chunk，并计算SF123的平均
-%     ii=1;
-%     eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii,'%02d'),'SF123.mat']);
-%     num_chunk=floor(total_steps./time_batch);
-%     remainder=mod(total_steps,time_batch);
-% 
-%     for ii = 1:num_chunk
-%         eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii,'%02d'),'SF123.mat'])
-% 
-%         SF1t_time=SF1t_time+SF1t;
-%         SF1l_time=SF1l_time+SF1l;
-%         SF2tt_time=SF2tt_time+SF2tt;
-%         SF2ll_time=SF2ll_time+SF2ll;
-%         SF3ltt_time=SF3ltt_time+SF3ltt;
-%         SF3lll_time=SF3lll_time+SF3lll;
-%         nvaild_time=nvaild_time+nvaild;
-%         disp(ii);
-%     end
-% 
-%     if remainder>0
-%         eval(['load wave_pars_P',num2str(npart),'T89.5dayschunk',num2str(ii+1,'%02d'),'SF123.mat'])
-%         % SF3ltt(isnan(SF3ltt))=0;
-%         % SF3lll(isnan(SF3lll))=0;
-%         SF1t_time=SF1t_time+SF1t;
-%         SF1l_time=SF1l_time+SF1l;
-%         SF2tt_time=SF2tt_time+SF2tt;
-%         SF2ll_time=SF2ll_time+SF2ll;
-%         SF3ltt_time=SF3ltt_time+SF3ltt;
-%         SF3lll_time=SF3lll_time+SF3lll;
-% 
-%         nvaild_time=nvaild_time+nvaild;
-%     end
-% 
-%     SF1t_time(SF1t_time==0)=nan;
-%     SF1l_time(SF1l_time==0)=nan;
-% 
-% 
-%     SF2tt_time(SF2tt_time==0)=nan;
-%     SF2ll_time(SF2ll_time==0)=nan;
-% 
-%     SF3ltt_time(SF3ltt_time==0)=nan;
-%     SF3lll_time(SF3lll_time==0)=nan;
-% 
-%     SF1l_time=SF1l_time./nvaild_time;
-%     SF1t_time=SF1t_time./nvaild_time;
-% 
-%     SF2ll_time=SF2ll_time./nvaild_time;
-%     SF2tt_time=SF2tt_time./nvaild_time;
-% 
-%     SF3lll_time=SF3lll_time./nvaild_time;
-%     SF3ltt_time=SF3ltt_time./nvaild_time;
-% 
-% 
-%     a1=semilogx(dist_axis, (SF3lll_time+SF3ltt_time), 'linewidth',0.5,...
-%     'Color',colors{jj})
-%     hold on
-%     % loglog(dist_axis, abs(SF3lll_time+SF3ltt_time)./nvaild_time, 'linewidth',2, ...
-%     %     'Color',colors{jj})
-%     % hold on
-%     % loglog(dist_axis, (SF3lll_time+SF3ltt_time)./nvaild_time, '+', 'linewidth',2, ...
-%     %     'Color',colors{jj})
-%     % loglog(dist_axis, (-SF3lll_time-SF3ltt_time)./nvaild_time, 'o', 'linewidth',2, ...
-%     %     'Color',colors{jj})
-% end
-% 
-% 
-% 
-% %%%%%%%%%%%%%%%%%%%%%% 直接计算的case
-% load wave_pars_P2500T89.5daysSF123.mat
-% a2=semilogx(dist_axis, (SF3lll+SF3ltt), 'linewidth',2,'LineStyle',':');hold on
-% legend(['a1','a2'],{'chunk','direct'})
-% 
-% 
-% disp(['error chunk-direct :      ',num2str(SF3lll_time+SF3ltt_time-SF3lll-SF3ltt)]);
