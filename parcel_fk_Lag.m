@@ -71,6 +71,8 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
 nparticles=[289,625,2500,15376]; % numbers of particles
+% nparticles=[289,625,2500]; % numbers of particles
+
 % nparticles=[289]; % numbers of particles
 
 days=89.5;  % days
@@ -127,18 +129,30 @@ for ii=1:length(nparticles)
 
     end
     [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,2,300e3,'log','RLS',lambda);
-
+    dstr=14;
     figure(1)
     subplot(2,2,ii)
-    B{ii}=semilogx(1./kf./1e3,SpecFlux,'Marker','x','Color',colors{ii},'LineWidth',1.5);
+    B{ii}=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii},'LineWidth',1.5);
     hold on
+    
     eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_tukey.mat']);
     C{ii}=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii},'LineStyle','--');
+    % eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_uni.mat']);
+    % F{ii}=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii},'LineStyle',':');
+    % eval(['load ',Case,'_Eulerian_SF3.mat'])
+    % N=287;dstr=14;dot=202;
+    % [r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+    % [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),1,200e3,'log','RLS',lambda);
+    % F{ii}=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
+    % 'Color','k');
     % semilogx(filtscale./1e3,Thm_Eulerian','LineWidth',1.5,'Color',[.7, .7, .7],'LineStyle','-');
     grid on
-    legend([B{ii},C{ii}],{'SF3-fitting fk','Lag cg fk'},'Location','southeast');
-
-    ylim([-1e-7,1.5e-7]);
+    legend([B{ii},C{ii}],{'SF3-fitting fk','Lag cg-spec fk'},'Location','southeast');
+    if ii==4
+        ylim([-1e-7,1.5e-7]);
+    else
+        ylim([-1e-7,1.5e-7]);
+    end
     xlim([1e3,1e6]./1e3);
     xlabel('km')
     ylabel('m^{2}/s^{3}')
@@ -146,10 +160,12 @@ for ii=1:length(nparticles)
     set(gca,'fontsize',16,'FontWeight','b')
 
     figure(2)
+    % semilogx(1./kf./1e3,ebs(1:end-1).*kf','Marker','x','Color',colors{ii},'LineWidth',1.5)
     semilogx(1./kf./1e3,ebs(1:end-1),'Marker','x','Color',colors{ii},'LineWidth',1.5)
     hold on
     grid on
     xlim([1e3,1e6]./1e3);
+    % ylim([-8e-8,8e-8]);
     ylim([-2.5e-3,2.5e-3]);
     xlabel('km')
     ylabel('m^{2}/s^{3}')
@@ -203,3 +219,128 @@ for ii=1:length(nparticles)
 end
 legend([A{1},A{2},A{3},A{4}],{'289','625','2500','15376'},'Location','southeast');
 
+%%
+% SF3 way Eulerian / Lagragian, and CG Eulerian
+clear
+Case='wave';
+fname='s2sflux_spec_hf.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+lambda=1e-10;
+ii=4
+nparticles=[289,625,2500,15376];
+
+% wave_pars_P625T89.5daysCG_Lag_tukey.mat
+
+jj=1;
+colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
+a1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});
+hold on
+
+
+eval(['load ',Case,'_Eulerian_SF3.mat'])
+N=287;dstr=6;dot=202;rescale=2;xscale=xscale.*sqrt(2);
+
+[r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),1,200e3,'log','RLS',lambda);
+a6=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
+'Color','k');
+% a7=semilogx(1./kf(dstr:end)./1e3.*rescale,SpecFlux(dstr:end),'LineWidth',1.5, ...
+% 'Color','k','LineStyle','--');
+
+% nparticles=[15376];
+clear fname
+fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
+eval(['load ',fname{ii}(1:end-3),'SF123.mat']);
+if ii>2
+    SF3=(SF3lll_time+SF3ltt_time)';
+    SF1=(SF1l_time+SF1t_time)';
+    SF1L=(SF1l_time)';
+    SF1T=(SF1t_time)';
+else
+    SF3=(SF3lll+SF3ltt)';
+    SF1=(SF1l+SF1t)';
+    SF1L=(SF1l)';
+    SF1T=(SF1t)';
+
+end
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,2,300e3,'log','RLS',lambda);
+dstr=14;
+a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
+eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_tukey.mat']);
+a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
+
+grid on
+legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
+    'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+    'Location', 'northeast')
+ylim([-0.2e-7,0.5e-7]);
+xlim([1e3,1e6]./1e3);
+xlabel('km')
+ylabel('m^{2}/s^{3}')
+title('HF case')
+set(gca,'fontsize',16,'FontWeight','b')
+
+%%sm%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%sm
+clear
+Case='nowave';
+fname='s2sflux_spec_hf.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+lambda=1e-10;
+ii=4
+nparticles=[289,625,2500,15376];
+
+% wave_pars_P625T89.5daysCG_Lag_tukey.mat
+
+jj=1;
+colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
+a1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});
+hold on
+
+
+eval(['load ',Case,'_Eulerian_SF3.mat'])
+N=287;dstr=6;dot=202;rescale=2;xscale=xscale.*sqrt(2);
+
+[r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),1,200e3,'log','RLS',lambda);
+a6=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
+'Color','k');
+% a7=semilogx(1./kf(dstr:end)./1e3.*rescale,SpecFlux(dstr:end),'LineWidth',1.5, ...
+% 'Color','k','LineStyle','--');
+
+% nparticles=[15376];
+clear fname
+fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
+eval(['load ',fname{ii}(1:end-3),'SF123.mat']);
+if ii>2
+    SF3=(SF3lll_time+SF3ltt_time)';
+    SF1=(SF1l_time+SF1t_time)';
+    SF1L=(SF1l_time)';
+    SF1T=(SF1t_time)';
+else
+    SF3=(SF3lll+SF3ltt)';
+    SF1=(SF1l+SF1t)';
+    SF1L=(SF1l)';
+    SF1T=(SF1t)';
+
+end
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,2,300e3,'log','RLS',lambda);
+dstr=14;
+a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
+eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_tukey.mat']);
+a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
+
+grid on
+legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
+    'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+    'Location', 'northeast')
+ylim([-0.2e-7,0.5e-7]);
+xlim([1e3,1e6]./1e3);
+xlabel('km')
+ylabel('m^{2}/s^{3}')
+title('Smooth case')
+set(gca,'fontsize',16,'FontWeight','b')
