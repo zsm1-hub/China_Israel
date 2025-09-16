@@ -1,4 +1,4 @@
-function [r,SF3,SFL1,SFT1]=calc_radial(SFL1,SFT1,N,xscale)
+function [r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale)
 [X, Y] = meshgrid(-N/2:N/2-1, -N/2:N/2-1);
 % x1=X(end/2+1:end,end/2+1:end);
 % y1=Y(end/2+1:end,end/2+1:end);
