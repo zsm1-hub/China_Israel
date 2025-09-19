@@ -13,14 +13,22 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='nowave'; % wave
-nparticles=15376; % numbers of particles
+nparticles=2500; % numbers of particles
 days=89.5;  % days
+ini='_grid'; % grid rough repeat
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+% input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+if strcmpi(ini, '_grid')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
+end
+if strcmpi(ini, '_rough')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
+end
+
 addpath(input_dir)
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-time_batch=5;
+time_batch=10;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -277,7 +285,7 @@ end
 dist_bin = [0, dist_bin]; % 在开头插入0
 dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
 
-num_workers = 20; % 例如使用4个工作节点
+num_workers = 4; % 例如使用4个工作节点
 
 if isempty(gcp('nocreate'))
     parpool('local', num_workers);
@@ -482,7 +490,7 @@ for jj=1:length(np)
     %     'Color',colors{jj})
     % text(dist_axis(1), abs(SF3lll_time(1)+SF3ltt_time(1)),num2str(np(jj)))
 end
-save([fname(1:end-3),'SF123.mat'],'dist_axis', ...
+save([fname(1:end-3),'SF123',ini,'.mat'],'dist_axis', ...
     'SF1l_time','SF1t_time','SF2ll_time','SF2tt_time','SF3ltt_time','SF3lll_time','-v7.3');
 system('rm *chunk*');
 

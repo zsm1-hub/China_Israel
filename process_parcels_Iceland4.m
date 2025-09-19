@@ -16,16 +16,23 @@ nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-input_dir='/meddy/simingzhang/Data/Parcels_data/';
+ini='_rough'
+if strcmpi(ini, '_grid')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
+end
+if strcmpi(ini, '_rough')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
+end
+% input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
 
 if strcmpi(Case, 'wave')
-    fname=['wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+    fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 end
 
 if strcmpi(Case, 'nowave')
-    fname=['nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+    fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 end
 
 lon=ncread(fname,'lon');
@@ -181,6 +188,10 @@ gamma = 1.5;
 
 dist_bin(1) = 10; % in m
 dist_bin = gamma.^[0:100]*dist_bin(1);
+
+% dist_bin for cg
+% dist_bin=[1:18 21:3:48 54:6:114].*2e3;
+
 id = find(dist_bin>1000*10^3,1);
 dist_bin = dist_bin(1:id);
 dist_bin(2:end+1) = dist_bin(1:end);
@@ -219,36 +230,37 @@ toc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Some exploratory plots below
 % SF2
-
-figure
-loglog(dist_axis, SF2ll, 'linewidth',2)
-hold all
-loglog(dist_axis, SF2tt, 'linewidth',2)
-
-loglog(dist_axis, SF2ll+SF2tt, 'linewidth',2)
-
-
-loglog(dist_axis, 1e-4*dist_axis.^(2/3), '--', 'color','k')
-loglog(dist_axis, 1e-7*dist_axis.^(2), '--', 'color','k')
+% 
+% figure
+% loglog(dist_axis, SF2ll, 'linewidth',2)
+% hold all
+% loglog(dist_axis, SF2tt, 'linewidth',2)
+% 
+% loglog(dist_axis, SF2ll+SF2tt, 'linewidth',2)
+% 
+% 
+% loglog(dist_axis, 1e-4*dist_axis.^(2/3), '--', 'color','k')
+% loglog(dist_axis, 1e-7*dist_axis.^(2), '--', 'color','k')
 
 %axis([10 1000e3 5e-5 5e-1])
 
 %% SF3 
-figure
-loglog(dist_axis, abs(SF3lll+SF3ltt), 'linewidth',2)
-hold all
-loglog(dist_axis, SF3lll+SF3ltt, '+', 'linewidth',2)
-loglog(dist_axis, -SF3lll-SF3ltt, 'o', 'linewidth',2)
+% figure
+% loglog(dist_axis, abs(SF3lll+SF3ltt), 'linewidth',2)
+% hold all
+% loglog(dist_axis, SF3lll+SF3ltt, '+', 'linewidth',2)
+% loglog(dist_axis, -SF3lll-SF3ltt, 'o', 'linewidth',2)
 % axis([10 1000e3 1e-8 1])
 
 % save([fname(1:end-3),'SF.mat'],'dist_axis','SF2ll','SF2tt','SF3ltt','SF3lll');
 % save([fname(1:end-3),'wholetime','SF.mat'],'dist_axis','SF2ll','SF2tt','SF3ltt','SF3lll');
 
-save([fname(1:end-3),'SForigin.mat'],'dist_axis','pairs_sep', ...
-    '-v7.3');
-save([fname(1:end-3),'SF123.mat'],'dist_axis', ...
+% save([fname(1:end-3),'SForigin.mat'],'dist_axis','pairs_sep', ...
+%     '-v7.3');
+save([fname(1:end-3),'SF123',ini,'.mat'],'dist_axis', ...
     'SF1l','SF1t','SF2ll','SF2tt','SF3ltt','SF3lll','-v7.3');
-
+% save([fname(1:end-3),'SF123_c.mat'],'dist_axis', ...
+%     'SF1l','SF1t','SF2ll','SF2tt','SF3ltt','SF3lll','-v7.3');
 %% 
 load wave_pars_P289T89.5daysSF123.mat
 loglog(dist_axis, abs(SF3lll+SF3ltt), 'linewidth',2)

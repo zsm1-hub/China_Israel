@@ -24,14 +24,23 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-nparticles=2500; % numbers of particles
+nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+ini='_grid'
+if strcmpi(ini, '_grid')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
+end
+if strcmpi(ini, '_rough')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
+end
+% input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
 addpath(input_dir)
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 time_batch=1;
+num_workers = 4; % 例如使用4个工作节点
+
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -288,7 +297,6 @@ end
 dist_bin = [0, dist_bin]; % 在开头插入0
 dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
 
-num_workers = 20; % 例如使用4个工作节点
 
 if isempty(gcp('nocreate'))
     parpool('local', num_workers);
@@ -442,7 +450,7 @@ for jj=1:length(np)
         SF2ll_time(:,ii)=SF2ll./nvaild;
         SF3ltt_time(:,ii)=SF3ltt./nvaild;
         SF3lll_time(:,ii)=SF3lll./nvaild;
-        nvaild_time(:,ii)=nvaild./nvaild;
+        nvaild_time(:,ii)=nvaild;
         disp(ii);
     end
 
@@ -456,7 +464,7 @@ for jj=1:length(np)
         SF2ll_time(:,ii)=SF2ll./nvaild;
         SF3ltt_time(:,ii)=SF3ltt./nvaild;
         SF3lll_time(:,ii)=SF3lll./nvaild;
-        nvaild_time(:,ii)=nvaild./nvaild;
+        nvaild_time(:,ii)=nvaild;
     end
 
     % 计算平均值
@@ -471,8 +479,8 @@ for jj=1:length(np)
     SF3lll_time(SF3lll_time==0)=nan;
 
 end
-save([fname(1:end-3),'SF123_alltime.mat'],'dist_axis', ...
-    'SF1l_time','SF1t_time','SF2ll_time', ...
+save([fname(1:end-3),'SF123_alltime',ini,'.mat'],'dist_axis', ...
+    'SF1l_time','SF1t_time','SF2ll_time','nvaild_time', ...
     'SF2tt_time','SF3ltt_time','SF3lll_time','-v7.3');
 % system('rm *chunk*');
 eval(['system(','''','rm ',input_dir,'*chunk*traj*.mat','''',')'])
