@@ -76,7 +76,7 @@ disp('done')
 
 %% initial
 colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
-
+ini='_grid'
 jj=4;
 load wave_pars_P15376T89.5daystraj_grid.mat
 a1=scatter(lon(1,:),lat(1,:),'LineWidth',1.2,'MarkerFaceColor',colors{jj}, ...
@@ -85,7 +85,7 @@ a1=scatter(lon(1,:),lat(1,:),'LineWidth',1.2,'MarkerFaceColor',colors{jj}, ...
 jj=jj-1;
 load wave_pars_P2500T89.5daystraj_grid.mat
 a2=scatter(lon(1,:),lat(1,:),'LineWidth',1.2,'MarkerFaceColor',colors{jj}, ...
-    'MarkerEdgeColor','none');
+    'MarkerEdgeColor','none');hold on
 
 jj=jj-1;
 load wave_pars_P625T89.5daystraj_grid.mat
@@ -103,8 +103,9 @@ plot(lon_g(:,1),lat_g(:,1),'Color','r','LineWidth',1,'LineStyle','--');
 plot(lon_g(:,end),lat_g(:,end),'Color','r','LineWidth',1,'LineStyle','--');
 xlabel('Longitude')
 ylabel('Latitude')
-title([Case,': P',num2str(nparticles),' initial position'])
+title([ini(2:end),'  initial position'])
 legend([a1,a2,a3,a4],{'15376','2500','625','289'})
+% legend([a2,a3,a4],{'2500','625','289'})
 set(gca,'fontsize',14,'FontWeight','b')
 %% traj
 
