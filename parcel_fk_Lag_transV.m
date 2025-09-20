@@ -291,6 +291,13 @@ ii=4
 jj=1
 rescale=1;
 colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
+colors_rgb = {...
+    [.7,.7,.7],...
+    [0, 114/255, 189/255], ...   % #0072BD
+    [217/255, 83/255, 25/255], ... % #D95319
+    [237/255, 177/255, 32/255], ... % #EDB120
+    [126/255, 47/255, 142/255] ... % #7E2F8E
+};
 figure(1)
 semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});hold on
 fname='s2sflux_spec_hit_uni.0002.nc';
@@ -342,10 +349,26 @@ for j=1:199
         r(1:dot),0.009,6.32,'log','RLS',lambda);
 end
 std1=std(SpecFlux, 0, 2, 'omitnan');
- x_fill = [1./kf./1e3, fliplr(1./kf./1e3)];
+x_fill = [1./kf, fliplr(1./kf)];
 % y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
 y_fill = [(nanmean(SpecFlux,2)+std1)', fliplr((nanmean(SpecFlux,2)-std1)')];
-fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
+semilogx(1./kf,nanmean(SpecFlux,2),'Color',colors{ii},'LineWidth',1.5);hold on
+fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none')
+
+semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});hold on
+fname='s2sflux_spec_hit_uni.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color','k');
+
+fname='s2sflux_spec_hit_tukey.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',[.7,.7,.7]);
+grid on
+ylim([-20,20])
 
 % load HIT2d_pars_P2500T0.2secondsCG_Lag_uni_grid.mat
 % a3=semilogx(filtscale,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
