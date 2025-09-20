@@ -73,6 +73,8 @@ for ii=1:length(nparticles)
     for i = 1:size(SpecFlux,1)    
         CI_SpecFlux(:,i) = prctile(SpecFlux(i,:), [95,5]);
     end
+    std1=std(SpecFlux, 0, 2, 'omitnan');
+
     % [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(nanmean(SF3,2),dist_axis,2,300e3,'log','RLS',lambda);
     % std_over_time = std(data, 'omitnan', 2);
     % shadedErrorBar_semilogx((1./kf)/1e3, mean_ebs(1:end-1), CI_ebs(:,1:end-1) ...
@@ -88,7 +90,8 @@ for ii=1:length(nparticles)
     hold on
     % clear x_fill;clear y_fill
     x_fill = [1./kf./1e3, fliplr(1./kf./1e3)];
-    y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
+    % y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
+    y_fill = [(nanmean(SpecFlux,2)+std1)', fliplr((nanmean(SpecFlux,2)-std1)')];
     fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
 
     eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
@@ -114,6 +117,8 @@ for ii=1:length(nparticles)
     grid on
     [x45,y45]=get_line_loglog(4/5,1,1e-4,0,2);
     loglog(x45,y45,'LineWidth',1.5,'Color','k')
+    [x23,y23]=get_line_loglog(2/3,1,1e-4,0,2);
+    loglog(x23,y23,'LineWidth',1.5,'Color','b')
     
     xlim([1e3,1e6]./1e3);
     ylim([1e-5,1e-2]);

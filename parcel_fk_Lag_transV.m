@@ -289,8 +289,9 @@ filtscale=ncread(fname,'filtscale');
 lambda=1e-10;
 ii=4
 jj=1
+rescale=1;
 colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
-
+figure(1)
 semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});hold on
 fname='s2sflux_spec_hit_uni.0002.nc';
 ncdisp(fname)
@@ -303,49 +304,85 @@ grid on
 load HIT2d_Eulerian_SF3.mat
 lambda=8e-1;
 dot=362;
+% [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32,'log','RLS',lambda);
+
 [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32,'log','RLS',lambda);
 
 
-rescale=2;
 a6=semilogx(1./kf.*rescale,SpecFlux,'LineWidth',1.5, ...
 'Color',colors{jj+1});
 
-load HIT2d_pars_P2500T0.2secondsCG_Lag_uni_grid.mat
-a3=semilogx(filtscale,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
+
+figure(2)
+loglog(r,abs(SF3),'Color',colors{ii},'LineWidth',1.5)
+% semilogx(dist_axis./1e3,SF1L,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','--')
+% semilogx(dist_axis./1e3,SF1T,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','-.')
+hold on
+loglog(r,-(SF3),'Color',colors{ii},'LineWidth',1.5,'Marker','+')
+loglog(r,(SF3),'Color',colors{ii},'LineWidth',1.5,'Marker','o')
+[x32,y32]=get_line_loglog(3/2,1e-2,1e-2,-2,0);
+loglog(x32,y32,'LineWidth',1.5,'color','k')
+[x45,y45]=get_line_loglog(4/5,1e-2,1e-2,-2,0);
+loglog(x45,y45,'LineWidth',1.5,'color','b')
+grid on
+
+figure(3)
+%div
+SF3or=(SF3(2:end)-SF3(1:end-1))./(r(2:end)-r(1:end-1));
+r2=0.5.*(r(2:end)+r(1:end-1));
+loglog(r2,SF3or,'LineWidth',1.5,'color','b')
+
+figure(4)
+semilogx(r,(SF3),'Color',colors{ii},'LineWidth',1.5);hold on
+semilogx(r,nanmean(SF3_time,1),'Color',colors{ii+1},'LineWidth',1.5);
+
+figure(5)
+for j=1:199
+    [SpecFlux(:,j),Vt(:,j),ebs(:,j),kf,lf]=Fk_fitting_SF3(SF3_time(j,1:dot)', ...
+        r(1:dot),0.009,6.32,'log','RLS',lambda);
+end
+std1=std(SpecFlux, 0, 2, 'omitnan');
+ x_fill = [1./kf./1e3, fliplr(1./kf./1e3)];
+% y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
+y_fill = [(nanmean(SpecFlux,2)+std1)', fliplr((nanmean(SpecFlux,2)-std1)')];
+fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
+
+% load HIT2d_pars_P2500T0.2secondsCG_Lag_uni_grid.mat
+% a3=semilogx(filtscale,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
 
 % a7=semilogx(1./kf(dstr:end)./1e3.*rescale,SpecFlux(dstr:end),'LineWidth',1.5, ...
 % 'Color','k','LineStyle','--');
 
 % nparticles=[15376];
-clear fname
-fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
-eval(['load ',fname{ii}(1:end-3),'SF123',ini,'.mat']);
-if ii>2
-    SF3=(SF3lll_time+SF3ltt_time);
-    SF1=(SF1l_time+SF1t_time)';
-    SF1L=(SF1l_time)';
-    SF1T=(SF1t_time)';
-else
-    SF3=(SF3lll+SF3ltt)';
-    SF1=(SF1l+SF1t)';
-    SF1L=(SF1l)';
-    SF1T=(SF1t)';
-
-end
-[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,1,300e3,'log','RLS',lambda);
-dstr=14;
-% dstr=1;
-a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
-eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
-a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
-
-grid on
-legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
-    'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
-    'Location', 'northeast')
-ylim([-0.2e-7,0.5e-7]);
-xlim([1e3,1e6]./1e3);
-xlabel('km')
-ylabel('m^{2}/s^{3}')
-title('Smooth case')
-set(gca,'fontsize',16,'FontWeight','b')
+% clear fname
+% fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
+% eval(['load ',fname{ii}(1:end-3),'SF123',ini,'.mat']);
+% if ii>2
+%     SF3=(SF3lll_time+SF3ltt_time);
+%     SF1=(SF1l_time+SF1t_time)';
+%     SF1L=(SF1l_time)';
+%     SF1T=(SF1t_time)';
+% else
+%     SF3=(SF3lll+SF3ltt)';
+%     SF1=(SF1l+SF1t)';
+%     SF1L=(SF1l)';
+%     SF1T=(SF1t)';
+% 
+% end
+% [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,1,300e3,'log','RLS',lambda);
+% dstr=14;
+% % dstr=1;
+% a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
+% eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
+% a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
+% 
+% grid on
+% legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
+%     'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+%     'Location', 'northeast')
+% ylim([-0.2e-7,0.5e-7]);
+% xlim([1e3,1e6]./1e3);
+% xlabel('km')
+% ylabel('m^{2}/s^{3}')
+% title('Smooth case')
+% set(gca,'fontsize',16,'FontWeight','b')
