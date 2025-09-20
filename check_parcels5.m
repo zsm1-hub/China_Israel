@@ -1,36 +1,3 @@
-clear
-load wave_pars_P289T89.5daysSF123_c.mat
-SF3_c=SF3lll+SF3ltt;
-
-load wave_pars_P289T89.5daysSF123_alltime.mat
-SF3_p=nanmean(SF3lll_time+SF3ltt_time,2);
-
-% load wave289test.mat
-load wave_pars_P289T89.5daysSF123_p.mat
-SF3_p4=nanmean(SF3lll_time+SF3ltt_time,2);
-
-load wave_pars_P625T89.5daysSF123_alltime.mat
-SF3_625_p=nanmean(SF3lll_time+SF3ltt_time,2);
-
-
-a1=semilogx(dist_axis,SF3_c,'LineWidth',1.5);hold on
-a2=semilogx(dist_axis,SF3_p,'LineWidth',1.5);
-a3=semilogx(dist_axis,SF3_p4,'LineWidth',1.5);
-a4=semilogx(dist_axis,SF3_625_p,'Marker','+','LineWidth',1.5);
-legend([a1,a2,a3,a4],{'chuanxing','bingx289','bingx289P4','bingx625'})
-
-
-loglog(dist_axis,abs(SF3_p));hold on
-loglog(dist_axis,-(SF3_p),'Marker','+');
-loglog(dist_axis,(SF3_p),'Marker','o');
-loglog(dist_axis,abs(SF3_625_p));
-loglog(dist_axis,-(SF3_625_p),'Marker','+');
-loglog(dist_axis,(SF3_625_p),'Marker','o');
-
-
-loglog(dist_axis,abs(SF3_p));hold on
-loglog(dist_axis,-(SF3_p),'Marker','+');
-loglog(dist_axis,(SF3_p),'Marker','o');
 
 %%
 clear all;close all;clc
@@ -54,6 +21,7 @@ input_dir='/meddy/simingzhang/Data/Parcels_data/';
 % timerange=1:2140;
 inv_style='RLS';
 lambda=1e-10;
+ini='_grid';
 
 % if strcmpi(Case, 'wave')
 %     fname=['wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -88,7 +56,7 @@ C={'c1','c2','c3','c4'}
 
 for ii=1:length(nparticles)
     fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(days),'days.nc'];
-    eval(['load ',fname{ii}(1:end-3),'SF123_alltime.mat']);
+    eval(['load ',fname{ii}(1:end-3),'SF123_alltime',ini,'.mat']);
     % eval(['load ',fname{ii}(1:end-3),'SF123.mat']);
     % if ii~=2
     %     SF3=(SF3lll_time+SF3ltt_time);
@@ -123,7 +91,7 @@ for ii=1:length(nparticles)
     y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
     fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
 
-    eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_tukey.mat']);
+    eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
     C{ii}=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii},'LineStyle','--');
     % semilogx(filtscale./1e3,Thm_Eulerian','LineWidth',1.5,'Color',[.7, .7, .7],'LineStyle','-');
     grid on
@@ -144,6 +112,8 @@ for ii=1:length(nparticles)
     semilogx(dist_axis./1e3,-(SF3t),'Color',colors{ii},'LineWidth',1.5,'Marker','+')
     semilogx(dist_axis./1e3,(SF3t),'Color',colors{ii},'LineWidth',1.5,'Marker','o')
     grid on
+    [x45,y45]=get_line_loglog(4/5,1,1e-4,0,2);
+    loglog(x45,y45,'LineWidth',1.5,'Color','k')
     
     xlim([1e3,1e6]./1e3);
     ylim([1e-5,1e-2]);
