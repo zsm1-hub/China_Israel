@@ -169,25 +169,25 @@ for ii=1:length(nparticles)
     grid on
     xlim([1e3,1e6]./1e3);
     % ylim([-8e-8,8e-8]);
-    ylim([-2.5e-3,2.5e-3]);
+    ylim([-1.5e-3,1.5e-3]);
     xlabel('km')
     ylabel('m^{2}/s^{3}')
     title([Case,': energy injection'])
     set(gca,'fontsize',16,'FontWeight','b')
 
 
-    figure(3)
-    semilogx(dist_axis./1e3,SF1,'Marker','x','Color',colors{ii},'LineWidth',1.5)
-    % semilogx(dist_axis./1e3,SF1L,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','--')
-    % semilogx(dist_axis./1e3,SF1T,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','-.')
-    hold on
-    grid on
-    xlim([1e3,1e6]./1e3);
-    ylim([0,1]);
-    xlabel('km')
-    ylabel('m/s')
-    title([Case,': SF1'])
-    set(gca,'fontsize',16,'FontWeight','b')
+    % figure(3)
+    % semilogx(dist_axis./1e3,SF1,'Marker','x','Color',colors{ii},'LineWidth',1.5)
+    % % semilogx(dist_axis./1e3,SF1L,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','--')
+    % % semilogx(dist_axis./1e3,SF1T,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','-.')
+    % hold on
+    % grid on
+    % xlim([1e3,1e6]./1e3);
+    % ylim([0,1]);
+    % xlabel('km')
+    % ylabel('m/s')
+    % title([Case,': SF1'])
+    % set(gca,'fontsize',16,'FontWeight','b')
 
 
     figure(4)
@@ -224,7 +224,7 @@ legend([A{1},A{2},A{3},A{4}],{'289','625','2500','15376'},'Location','southeast'
 
 %%
 % SF3 way Eulerian / Lagragian, and CG Eulerian
-clear
+clear;close
 Case='wave';
 ini='_grid';%grid,rough,repeat
 fname='s2sflux_spec_hf.0002.nc';

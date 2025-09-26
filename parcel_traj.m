@@ -22,10 +22,10 @@ input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 grd='/meddy/simingzhang/Data/RB_iceland_data/niskin2km_500m_grd.nc'
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
-% np1=[289,625,2500,15376];
-np1=[289,625,2500];
+np1=[289,625,2500,15376];
+% np1=[289,625,2500];
 
-ini='_rough';%grid, rough, repeat
+ini='_grid';%grid, rough, repeat
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -47,6 +47,9 @@ for ii=1:length(np1)
 
     lon=ncread(fname,'lon');
     lat=ncread(fname,'lat');
+
+    ue=ncread(fname,'ue');
+    ve=ncread(fname,'ve');
 
     lon_g=ncread(grd,'lon_rho');
     lat_g=ncread(grd,'lat_rho');
@@ -125,7 +128,7 @@ Case='wave'; % wave
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_rough'
+ini='_grid'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -136,8 +139,8 @@ end
 grd='/meddy/simingzhang/Data/RB_iceland_data/niskin2km_500m_grd.nc'
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
-% np1=[289,625,2500,15376];
-np1=[289,625,2500];
+np1=[289,625,2500,15376];
+% np1=[289,625,2500];
 
 for ii=1:length(np1)
     nparticles=np1(ii);
@@ -243,12 +246,12 @@ addpath('/meddy/simingzhang/Data/RB_iceland_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 % nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_rough'
+ini='_grid'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -259,8 +262,8 @@ end
 grd='/meddy/simingzhang/Data/RB_iceland_data/niskin2km_500m_grd.nc'
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 timerange=1:2140;
-% np1=[289,625,2500,15376];
-np1=[289,625,2500];
+np1=[289,625,2500,15376];
+% np1=[289,625,2500];
 
 colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
 colors_rgb = {...
@@ -297,6 +300,8 @@ for ii=1:length(np1)
     disp(fname)
     lon=lon(1:2148,:);
     lat=lat(1:2148,:);
+    % ue=ue(1:2148,:);
+    % ve=ve(1:2148,:);
     for t=1:size(lon,1)-1
         U(t,:)=(spheric_dist(lat(t,:),lat(t,:),lon(t,:),lon(t+1,:)))./dt.*...
             sign(lon(t+1,:)-lon(t,:));
@@ -306,11 +311,19 @@ for ii=1:length(np1)
     u1=zeros(2148,nparticles);v1=zeros(2148,nparticles);
     u1(1:end-1,:)=U;v1(1:end-1,:)=V;
     u1(end,:)=u1(end-1,:);v1(end,:)=v1(end-1,:);
+    % u1=ue;v1=ve;
+   
 
     % find whole time exist particles
-    J=find(sum(~isnan(lat),1)==2148);
+    % J=find(sum(~isnan(lat),1)==2148);
+    J=1:nparticles;
     u2=u1(:,J);
     v2=v1(:,J);
+    J=1:nparticles;
+    % u2=u1(:,J);
+    % v2=v1(:,J);
+    % u2(isnan(u2))=0;
+    % v2(isnan(v2))=0;
     omega1=[-2148/2:2148/2-1]./2148*1/1;
     om=omega1((end+1)/2+1:end);
     
@@ -367,4 +380,142 @@ toc
 
 saveas(gcf,[Case,'Lagspec.png'],'png')
 
+% saveas(gcf,[Case,'testLagspec.png'],'png')
 
+
+%% snapshot of Ro and particles
+clear all;close all;clc
+addpath(genpath('D:\colorbar'))
+addpath(genpath('E:\DATA\RoyBarkan\RB_iceland_data\RB_iceland_data'))
+addpath(genpath('D:\LIN2023\crocotools'))
+
+colorbar1=textread('BlWhRe.txt');
+tindex=250;
+
+Case='nowave'; % wave
+% nparticles=625; % numbers of particles
+days=89.5;  % days
+dt=3600; % s  Advection_RK4 delta_t drift时间间隔
+nparticles=15376;
+% input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
+ini='_grid'
+
+
+grdname='niskin2km_500m_grd.nc'
+fnamew='z_niskin2km_his_hf_depth_500m_grd.0002.nc'
+
+if strcmpi(Case, 'wave')
+    fnamew='z_niskin2km_his_hf_depth_500m_grd.0002.nc'
+end
+if strcmpi(Case, 'nowave')
+    fnamew='z_niskin2km_his_smooth_depth_500m_grd.0002.nc'
+end
+
+ncdisp(fnamew)
+ncdisp(grdname)
+
+lon_r=ncread(grdname,'lon_rho');
+lat_r=ncread(grdname,'lat_rho');
+ocean_time=ncread(fnamew,'ocean_time');
+dx=1./ncread(grdname,'pm');
+dy=1./ncread(grdname,'pn');
+f=ncread(grdname,'f');
+
+u=ncread(fnamew,'u');
+v=ncread(fnamew,'v');
+
+u1=(u2rho_2d((squeeze(u(:,:,:,tindex)))'))';
+v1=(v2rho_2d((squeeze(v(:,:,:,tindex)))'))';
+clear u;clear v;
+
+vx=v2rho_2d((v1(2:end,:)-v1(1:end-1,:))./(0.5.*(dx(2:end,:)+dx(1:end-1,:))));
+uy=u2rho_2d((u1(:,2:end)-u1(:,1:end-1))./(0.5.*(dy(:,2:end)+dy(:,1:end-1))));
+Ro=(vx-uy)./f;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if strcmpi(ini, '_grid')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
+end
+if strcmpi(ini, '_rough')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
+end
+
+if strcmpi(Case, 'wave')
+    fname=['wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+end
+
+if strcmpi(Case, 'nowave')
+    fname=['nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+end
+disp(fname)
+
+eval(['load ',fname(1:end-3),'traj',ini,'.mat'])
+lonp=lon(tindex,:);
+latp=lat(tindex,:);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clf
+figure(1)
+
+pcolor(lon_r,lat_r,Ro);shading interp
+hold on
+scatter(lonp,latp,.5,'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+colormap(colorbar1)
+colorbar
+caxis([-2,2])
+set(gca, 'Color', [.7,.7,.7]);
+title([Case,'_P',num2str(nparticles),' snapshot: ',num2str(tindex),' h'], ...
+    'Interpreter','none')
+set(gca, 'fontsize',14,'FontWeight','b');
+
+Ro_E=Ro;
+eval(['load ',Case,'_P',num2str(nparticles),'_Rodivof',ini,'.mat'])
+Ro_L15376=Ro(tindex,:);
+eval(['load ',Case,'_P',num2str(2500),'_Rodivof',ini,'.mat'])
+Ro_L2500=Ro(tindex,:);
+eval(['load ',Case,'_P',num2str(625),'_Rodivof',ini,'.mat'])
+Ro_L625=Ro(tindex,:);
+eval(['load ',Case,'_P',num2str(289),'_Rodivof',ini,'.mat'])
+Ro_L289=Ro(tindex,:);
+
+x_min=-5;x_max=5;
+xi = linspace(x_min, x_max, 700); % 500个点用于平滑曲线
+dxi=xi(2)-xi(1);
+% [pdf_L, ~] = ksdensity(Ro_L, xi, 'BoundaryCorrection', 'reflection', ...
+%     'Support', [x_min, x_max]);
+% [pdf_E, ~] = ksdensity(reshape(Ro_E,[1,287*287]), xi, 'BoundaryCorrection', 'reflection', ...
+%     'Support', [x_min, x_max]);
+
+[pdf_L15376, ~] = ksdensity(Ro_L15376, xi, ...
+    'Support', [x_min, x_max]);
+[pdf_L2500, ~] = ksdensity(Ro_L2500, xi, ...
+    'Support', [x_min, x_max]);
+[pdf_L625, ~] = ksdensity(Ro_L625, xi, ...
+    'Support', [x_min, x_max]);
+[pdf_L289, ~] = ksdensity(Ro_L289, xi, ...
+    'Support', [x_min, x_max]);
+[pdf_E, ~] = ksdensity(reshape(Ro_E,[1,287*287]), xi, ...
+    'Support', [x_min, x_max]);
+colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
+figure(2)
+semilogy(xi, pdf_E,'LineWidth', 2,'LineStyle','--','Color',[.7,.7,.7]);hold on
+semilogy(xi, pdf_L289,'LineWidth', 2,'Color',colors{1});
+semilogy(xi, pdf_L625,'LineWidth', 2,'Color',colors{2});
+semilogy(xi, pdf_L2500,'LineWidth', 2,'Color',colors{3});
+semilogy(xi, pdf_L15376,'LineWidth', 2,'Color',colors{4});
+% plot(xi, pdf_E,'LineWidth', 2,'LineStyle','--','Color',[.7,.7,.7]);hold on
+% plot(xi, pdf_L289,'LineWidth', 2,'Color',colors{1});
+% plot(xi, pdf_L625,'LineWidth', 2,'Color',colors{2});
+% plot(xi, pdf_L2500,'LineWidth', 2,'Color',colors{3});
+% plot(xi, pdf_L15376,'LineWidth', 2,'Color',colors{4});
+
+% plot(xi, pdf_L,'LineWidth', 2);hold on
+% plot(xi, pdf_E,'LineWidth', 2,'LineStyle','--');
+grid on
+% ylim([1e-3,1e1])
+xlim([-5,5])
+
+% sum(dxi.*pdf_L)
+%% hot pot
+datestr(double(ocean_time./86400)+datenum(2000,1,1))

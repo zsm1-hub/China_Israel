@@ -12,8 +12,10 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='nowave'; % wave
-ini='_grid';
-np1=[289,625,2500,15376]
+ini='_rough';
+% np1=[289,625,2500,15376]
+np1=[289,625,2500]
+
 for iii=1:length(np1)
         nparticles=np1(iii);
     % nparticles=15376; % numbers of particles

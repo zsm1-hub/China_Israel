@@ -201,37 +201,39 @@ N=287;dstr=6;dot=202;rescale=2;xscale=xscale.*sqrt(2);
 
 [r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
 [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),1,200e3,'log','RLS',lambda);
-a6=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
+a2=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
 'Color','k');
 % a7=semilogx(1./kf(dstr:end)./1e3.*rescale,SpecFlux(dstr:end),'LineWidth',1.5, ...
 % 'Color','k','LineStyle','--');
 
 % nparticles=[15376];
-clear fname
-fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
-eval(['load ',fname{ii}(1:end-3),'SF123',ini,'.mat']);
-if ii>2
-    SF3=(SF3lll_time+SF3ltt_time);
-    SF1=(SF1l_time+SF1t_time)';
-    SF1L=(SF1l_time)';
-    SF1T=(SF1t_time)';
-else
-    SF3=(SF3lll+SF3ltt)';
-    SF1=(SF1l+SF1t)';
-    SF1L=(SF1l)';
-    SF1T=(SF1t)';
-
-end
-[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,1,300e3,'log','RLS',lambda);
-dstr=14;
+% clear fname
+% fname{ii,:}=[Case,'_pars_P',num2str(nparticles(ii)),'T',num2str(89.5),'days.nc'];
+% eval(['load ',fname{ii}(1:end-3),'SF123',ini,'.mat']);
+% if ii>2
+%     SF3=(SF3lll_time+SF3ltt_time);
+%     SF1=(SF1l_time+SF1t_time)';
+%     SF1L=(SF1l_time)';
+%     SF1T=(SF1t_time)';
+% else
+%     SF3=(SF3lll+SF3ltt)';
+%     SF1=(SF1l+SF1t)';
+%     SF1L=(SF1l)';
+%     SF1T=(SF1t)';
+% 
+% end
+% [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3,dist_axis,1,300e3,'log','RLS',lambda);
+% dstr=14;
 % dstr=1;
-a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
-eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
-a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
+% a4=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'Marker','x','Color',colors{ii+1},'LineWidth',1.5);
+% eval(['load ',Case,'_pars_P',num2str(nparticles(ii)),'T89.5daysCG_Lag_spectukey',ini,'.mat']);
+% a2=semilogx(filtscale./1e3,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
 
 grid on
-legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
-    'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+% legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
+%     'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+%     'Location', 'northeast')
+legend(['a1','a2'],{'Eulerian cg fk','Eulerian-SF3-fitting fk'}, ...
     'Location', 'northeast')
 ylim([-0.2e-7,0.5e-7]);
 xlim([1e3,1e6]./1e3);
@@ -409,3 +411,54 @@ ylim([-20,20])
 % ylabel('m^{2}/s^{3}')
 % title('Smooth case')
 % set(gca,'fontsize',16,'FontWeight','b')
+
+%% Eulerian cg and SF3-fitting fk
+clear;close all
+Case='nowave';
+ini='_grid';
+if strcmpi(Case, 'wave')
+    fname='s2sflux_spec_hf.0002.nc';
+    Case1='HF'
+end
+
+if strcmpi(Case, 'nowave')
+    fname='s2sflux_spec_smooth.0002.nc';
+    Case1='SM'
+end
+
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+lambda=1e-10;
+ii=4
+nparticles=[289,625,2500,15376];
+
+% wave_pars_P625T89.5daysCG_Lag_tukey.mat
+
+jj=1;
+colors={[.7,.7,.7],'#0072BD','#D95319','#EDB120','#7E2F8E'};
+a1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});
+hold on
+
+
+eval(['load ',Case,'_Eulerian_SF3.mat'])
+N=287;dstr=6;dot=202;rescale=2;xscale=xscale.*sqrt(2);
+
+[r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),1,200e3,'log','RLS',lambda);
+a2=semilogx(1./kf(dstr:end)./1e3,SpecFlux(dstr:end),'LineWidth',1.5, ...
+'Color','k');
+a3=semilogx(1./kf(dstr:end)./1e3.*rescale,SpecFlux(dstr:end),'LineWidth',1.5, ...
+'Color','k','linestyle','--');
+grid on
+% legend(['a1','a2','a4','a6'],{'Eulerian cg fk','Eulerian-SF3-fitting fk', ...
+%     'P15376 Lag SF3-fitting fk','P15376 Lag cg fk'}, ...
+%     'Location', 'northeast')
+legend(['a1','a2','a3'],{'Eulerian cg fk','Eulerian-SF3-fitting fk','SF3-fk rescale'}, ...
+    'Location', 'northeast')
+ylim([-0.2e-7,0.2e-7]);
+xlim([1e3,1e6]./1e3);
+xlabel('km')
+ylabel('m^{2}/s^{3}')
+title([Case1,' case'])
+set(gca,'fontsize',16,'FontWeight','b')
