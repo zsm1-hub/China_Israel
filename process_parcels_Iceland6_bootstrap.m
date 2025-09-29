@@ -175,6 +175,6 @@ parfor ii = 1:num_chunks+1
         end
     end
     toc
-    saveResults_pairs(fname, ii, nvaild, ...
-                pairs_time, total_steps);
+    saveResults_pairs(fname, ii, ...
+                pairs_time);
 end
