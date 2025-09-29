@@ -8,27 +8,24 @@ clear all;close all;clc
 % 
 addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
 addpath('/meddy/simingzhang/Data/Parcels_data')
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-nparticles=15376; % numbers of particles
+nparticles=625; % numbers of particles
 days=89.5;  % days
-ini='_grid'; % grid rough repeat
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-% input_dir='/meddy/simingzhang/Data/Parcels_data/onetime_spectukey/';
+ini='_grid'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
 if strcmpi(ini, '_rough')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
 end
-
-addpath(input_dir)
+% input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-time_batch=1;
+timerange=1:2140;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -41,9 +38,21 @@ end
 lon=ncread(fname,'lon');
 lat=ncread(fname,'lat');
 
+% ue=ncread(fname,'ue').*1852.*60.*cos(lat.*pi./180);
+% ve=ncread(fname,'ve').*1852.*60;
+
 ue=ncread(fname,'ue');
 ve=ncread(fname,'ve');
 
+% read coarse-graining
+% xscale=[2,4,6,8,10,12,16,20,30,50,60,100];
+% PI=zeros(1,length(xscale));
+% for iii=1:length(xscale)
+%     pistr=['pi',num2str(xscale(iii))];
+%     eval(['pi',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
+%     eval(['PI(',num2str(iii),')=nanmean(','pi',num2str(xscale(iii)),'(:));'])
+% end
+% semilogx(xscale,PI)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %              2. Calc Lagrangian Velocity and save *traj.mat
@@ -71,37 +80,7 @@ traj.trajmat_U=u;traj.trajmat_V=v;
 traj.H=-520.*ones(size(v,1),size(v,2));
 traj.T_axis=linspace(dt, (size(v,1))*dt, size(v,1))./86400;
 
-% save([fname(1:end-3),'traj.mat'],'traj');
-
-%%%%%%%%%%%%%%%%%%% 时间维度按time_batchsize分块，防止内存溢出
-TRAJ=traj;
-total_steps = size(traj.trajmat_X, 1);  % 511
-num_chunks = floor(total_steps / time_batch);  % 10
-remainder = mod(total_steps, time_batch);      % 11
-clear traj;
-
-
-for i = 1:num_chunks
-    % 当前分块的索引范围
-    start_idx = (i-1)*time_batch + 1;
-    end_idx = i*time_batch;
-    
-    % 提取当前分块的数据
-    traj = struct();
-    traj.trajmat_X = TRAJ.trajmat_X(start_idx:end_idx, :);
-    traj.trajmat_Y = TRAJ.trajmat_Y(start_idx:end_idx, :);
-    traj.trajmat_U = TRAJ.trajmat_U(start_idx:end_idx, :);
-    traj.trajmat_V = TRAJ.trajmat_V(start_idx:end_idx, :);
-    traj.H = TRAJ.H(start_idx:end_idx, :);
-    traj.T_axis = TRAJ.T_axis(start_idx:end_idx);
-    
-    % 保存为MAT文件
-    % save([fname(1:end-3),'traj.mat'],'traj');
-    save([fname(1:end-3),'chunk',num2str(i,'%02d'),'traj.mat'], 'traj');
-    fprintf('Saved chunk %d (steps %d-%d)\n', i, start_idx, end_idx);
-end
-
-
+save([fname(1:end-3),'traj.mat'],'traj');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 3. Calc pairs of particles' variables 
@@ -110,71 +89,223 @@ end
 % follow Balwada's routine : "trajectories2binnedpairs_vectorized.m"
 % need code "dist_rx.m","dist_ry.m","dist_geo.m","dist_du.m"
 
+Htraj=traj.H;
+%% Break up by time and separation bins
+% took 58.9s for GLAD
+% took 146s for LASER 
+tic 
+for i=1:length(traj.T_axis)
+    disp(i)
+    %id = find(~isnan(traj.trajmat_X(i,:))); % find non-NaN
+    
+    %id = find(~isnan(traj.trajmat_X(i,:)) & Htraj(i,:)<-500); % find non-Nan and deep
+    % id = find(~isnan(traj.trajmat_X(i,:)) & Htraj(i,:)<-500 & ...
+    %     traj.trajmat_X(i,:)>=-91 & traj.trajmat_X(i,:)<=-84 & ...
+    %     traj.trajmat_Y(i,:)>=24); % find non-Nan and deep and in similar region to GLAD
+    id = find(Htraj(i,:)<-500);
+    % if mod(i,300)==0
+    %     disp(i)
+    % end
+    
+    if length(id)>1
+        X = traj.trajmat_X(i,id)';
+        Y = traj.trajmat_Y(i,id)';
+        U = traj.trajmat_U(i,id)';
+        V = traj.trajmat_V(i,id)';
+        
+        Xvec = [X, Y];
+        
+        pairs_time(i).dist = pdist(Xvec, @dist_geo);
+        
+        rx = pdist(Xvec, @dist_rx);
+        ry = pdist(Xvec, @dist_ry);
+        
+        magr = sqrt(rx.^2 + ry.^2);
+        
+        rx = rx./magr; ry = ry./magr;
+        
+        dux = pdist(U, @dist_du);
+        duy = pdist(V, @dist_du);
+        
+        pairs_time(i).dul = dux.*rx + duy.*ry;
+        pairs_time(i).dut = duy.*rx - dux.*ry;
+    else
+        pairs_time(i).dul = NaN;
+        pairs_time(i).dut = NaN;
+        pairs_time(i).dist = NaN;
+    end
+end
+toc
+%% clear
+p1=pairs_time;
+clear pairs_time;
+pairs_time=clear_nan_in_pairs_time(p1);
 
+%% error
+Ttot = days*24*3600;
+tpts = length(pairs_time);
+%
+npairs = zeros(tpts,1);
+for i = 1:tpts
+    npairs(i) = length(find(~isnan(pairs_time(i).dul)));
+end
+
+%% Make into a single vector
+%
+dul = zeros(sum(npairs),1);
+dut = zeros(sum(npairs),1);
+dist = zeros(sum(npairs),1);
+
+%
+% estimate num of pairs
+
+empty1 = 1;
+for i = 1:tpts % time loop
+    if npairs(i) == 0
+        continue
+    end
+    
+    if npairs(i) == 1
+        dist(empty1) = pairs_time(i).dist;
+        dul(empty1) = pairs_time(i).dul;
+        dut(empty1) = pairs_time(i).dut;
+        empty1 = empty1+1;
+    end
+    
+    if npairs(i) >1
+        dist(empty1: empty1+npairs(i)-1) = pairs_time(i).dist;
+        dul(empty1: empty1+npairs(i)-1) = pairs_time(i).dul;
+        dut(empty1: empty1+npairs(i)-1) = pairs_time(i).dut;
+        empty1 = empty1+npairs(i);
+    end
+    
+end
+
+%%
+clear pairs_time
 
 gamma = 1.5;
-dist_bin = gamma.^(0:100) * 10; % 初始距离箱
-id_stop = find(dist_bin > 1000e3, 1); % 找到第一个超过1000km的箱子
-if ~isempty(id_stop)
-    dist_bin = dist_bin(1:id_stop);
+
+dist_bin(1) = 10; % in m
+dist_bin = gamma.^[0:100]*dist_bin(1);
+id = find(dist_bin>1000*10^3,1);
+dist_bin = dist_bin(1:id);
+dist_bin(2:end+1) = dist_bin(1:end);
+dist_bin(1) = 0;
+dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+
+
+% Generate vel axis
+vel_bins = linspace(-2, 2, 50);
+vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+%%
+tic
+
+pairs_sep = struct('dul', 'dut');
+
+for i = 1:length(dist_axis)
+    disp(i)
+    id = find(dist>= dist_bin(i) & dist<dist_bin(i+1));
+    
+    pairs_sep(i).dul = dul(id);
+    pairs_sep(i).dut = dut(id);
 end
-dist_bin = [0, dist_bin]; % 在开头插入0
-dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
+toc
+%%
+% Compute mean SF2 to use for estimating DOF
 
-num_workers = 4; % 例如使用4个工作节点
-
-if isempty(gcp('nocreate'))
-    parpool('local', num_workers);
+for i = 1:length(dist_axis)
+    %pairs_per_bin(i) = length(id);
+    %SF1l(i) = nanmean(pairs_sep(i).dul.^1);
+    %SF1t(i) = nanmean(pairs_sep(i).dut.^1);
+    
+    SF2ll(i) = nanmean(pairs_sep(i).dul.^2);
+    SF2tt(i) = nanmean(pairs_sep(i).dut.^2);
+    %SF2lt(i) = nanmean(pairs_sep(i).dut.*pairs_sep(i).dul);
+    
+    %SF3lll(i) = nanmean(pairs_sep(i).dul.^3);
+    %SF3ltt(i) = nanmean(pairs_sep(i).dul.*pairs_sep(i).dut.^2);
 end
 
-% 将外层循环改为 parfor
-parfor ii = 1:num_chunks+1
-    % 使用函数加载数据以避免 eval 在并行环境中的问题
-    traj = loadTrajData(fname, ii);
+
+%% test for setting up block bootstrap
+
+test_flag =0 ;
+if test_flag == 1
+    ts = 1:12;
+    blockSize = 2;
+    numBlocks = length(ts) / blockSize;           % must be integer
+    %blocks = reshape(ts, [numBlocks,blockSize])  % reshape into non-overlapping blocks
+    blocks = reshape(ts, [blockSize, numBlocks])';
+    nSamples = 10;
+    samples = bootstrp(1, @(x)x', blocks);
+    % the funny x' thing happens because the data is being converted to a row vector
     
-    Htraj = traj.H;
-    tic 
+end
+%% Degree of freedom using time of process and total length of experiment
+%
+%%%%%%
+%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+Tscale_tot = 1./(((SF2ll +SF2tt).^0.5)./dist_axis);
+Tscale_ll = 1./(((SF2ll).^0.5)./dist_axis);
+Tscale_tt = 1./(((SF2tt).^0.5)./dist_axis);
+
+dof = ceil(Ttot./Tscale_tot); % this is essentially T_tot/T_scale(r)
+
+%%
+for i = 1:length(pairs_sep)
+    npairs_sep(i) = length(pairs_sep(i).dul);
+    n_blocks_sep(i) =  dof(i); % number of blocks at that separation (basically the dof)
+    nsamps_per_block_sep(i) = ceil(npairs_sep(i)/ n_blocks_sep(i));
+end
+
+
+clear SF3 SF3_mean SF3_stderr
+
+num_boot = 599;
+SF3 = zeros(length(dist_axis), num_boot);
+SF3_mean = zeros(length(dist_axis),1);
+SF3_stderr = zeros(length(dist_axis),1);
+
+%%
+tic
+for i = 1:length(dist_axis)
     
-    % 预分配 pairs_time 数组
-    pairs_time = struct('dist', cell(1, length(traj.T_axis)), ...
-                       'dul', cell(1, length(traj.T_axis)), ...
-                       'dut', cell(1, length(traj.T_axis)));
     
-    for i = 1:length(traj.T_axis)
-        % 使用逻辑索引替代 find 提高效率
-        id = Htraj(i,:) < -500;
+    disp(i)
+    blocksize = nsamps_per_block_sep(i);
+    %blocksize = 1;
+    numblocks = floor(npairs_sep(i)/ blocksize);
+    
+    if npairs_sep(i)>10
+        n = numblocks*blocksize;
         
-        if sum(id) > 1
-            X = traj.trajmat_X(i,id)';
-            Y = traj.trajmat_Y(i,id)';
-            U = traj.trajmat_U(i,id)';
-            V = traj.trajmat_V(i,id)';
-            
-            Xvec = [X, Y];
-            
-            % 计算距离
-            pairs_time(i).dist = pdist(Xvec, @dist_geo);
-            
-            rx = pdist(Xvec, @dist_rx);
-            ry = pdist(Xvec, @dist_ry);
-            
-            magr = sqrt(rx.^2 + ry.^2);
-            
-            rx = rx./magr; 
-            ry = ry./magr;
-            
-            dux = pdist(U, @dist_du);
-            duy = pdist(V, @dist_du);
-            
-            pairs_time(i).dul = dux.*rx + duy.*ry;
-            pairs_time(i).dut = duy.*rx - dux.*ry;
-        else
-            pairs_time(i).dul = NaN;
-            pairs_time(i).dut = NaN;
-            pairs_time(i).dist = NaN;
-        end
+        blocks_dul = reshape(pairs_sep(i).dul(1:n), [blocksize, numblocks])';
+        blocks_dut = reshape(pairs_sep(i).dut(1:n), [blocksize, numblocks])';
+        
+        SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
+        
+        % create blocks of bootstrap samples
+        %SF3_bs = bootstrp(num_boot, @(x)x', SF3_samp');
+        % calculate means of each bootstrap sample
+        %SF3 = mean(SF3_bs, 2);
+        
+        SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
+        % the double mean above first takes mean over the blocks, then averages
+        % the different blocks.
+    else
+        SF3(i,:) = NaN;
     end
-    toc
-    saveResults_pairs(fname, ii, ...
-                pairs_time);
+    % Mean and standard error of the estimates
+    SF3_mean(i) = mean(SF3(i,:));
+    SF3_stderr(i) = std(SF3(i,:)); % boot strap std err is the std of bs estimates
+    
 end
+toc
+outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(days),...
+    'bootstrap.mat']
+% [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
+     'dist_axis', 'dist_bin')
