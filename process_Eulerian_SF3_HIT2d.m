@@ -28,6 +28,7 @@ RR=((xx-max(x)/2).^2+(zz-max(z)/2).^2).^0.5;
 N=512;
 
 
+
 for j=1:Nt
 
     load(['HIT2D_t_' num2str(4000+j-1) '.mat'])
@@ -38,7 +39,7 @@ for j=1:Nt
     u=real(ifft2(hu1));
     v=real(ifft2(hw1));
     % [S3L_Roy1(j,:,:),S3T_Roy1(j,:,:)]=calc_SF3(u,w,N);
-    [X, Y] = meshgrid(-N/2:N/2-1, -N/2:N/2-1);
+    % [X, Y] = meshgrid(-N/2:N/2-1, -N/2:N/2-1);
 
     % for direct=1:size(u,1)
     %     u1=u(direct,:);
@@ -72,17 +73,51 @@ for j=1:Nt
         % %%%%%%%%%%%%%% x direct
         % SLx(j,direct,:)=3.*Cu_uu-3.*Cuu_u;
         % STx(j,direct,:)=Cu_vv-Cvv_u-2.*Cuv_v+2.*Cv_uv;
-    [x1,y1,S3L(j,:,:),S3T(j,:,:)]=test4_calc_SF3(u,v,N);
+    [S3L(j,:,:),S3T(j,:,:)]=test4_calc_SF3(u,v,N);
     % end
     disp(j)
 end
+xscale=2*pi/N;
+S3L1=squeeze(nanmean(S3L,1));
+S3T1=squeeze(nanmean(S3T,1));
+[r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+for j=1:Nt
+    S3L2=S3L(j,:);
+    S3T2=S3T(j,:);
+    [r,SF3_time(j,:),S3L1_time(j,:),S3T1_time(j,:)]=calc_radial(S3L2,S3T2,N,xscale);
+    disp(j)
+end
 
-[~, S3L1_iso] = calc_ispec2(x1(1,:), y1(:,1), nanmean(S3L,1), 2);
-[rbin, S3T1_iso] = calc_ispec2(x1(1,:), y1(:,1), nanmean(S3T,1), 2);
+save('HIT2d_Eulerian_SF3.mat','r','SF3','S3L1','S3T1','SF3_time','S3L1_time','S3T1_time');
 
-rbin1=diag(rbin);
-SF3=(S3L1_iso+S3T1_iso);
+lambda=8e-1;
+dot=362;
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32,'log','RLS',lambda);
 
-loglog(rbin1,abs(SF3));hold on
-loglog(rbin1,-(SF3),'Marker','+');
-loglog(rbin1,(SF3),'Marker','o');
+
+% [~, S3L1_iso] = calc_ispec2(x1(1,:), y1(:,1), nanmean(S3L,1), 2);
+% [rbin, S3T1_iso] = calc_ispec2(x1(1,:), y1(:,1), nanmean(S3T,1), 2);
+% 
+% rbin1=diag(rbin);
+% SF3=(S3L1_iso+S3T1_iso);
+
+figure(1)
+% loglog(r,abs(SF3));hold on
+% loglog(r,-(SF3),'Marker','+');
+% loglog(r,(SF3),'Marker','o');
+
+% loglog(lf,abs(Vt));
+% loglog(lf,-(Vt),'Marker','+');
+% loglog(lf,(Vt),'Marker','o');
+
+semilogx(r,(SF3));hold on
+semilogx(lf,(Vt));
+grid on
+
+
+figure(2)
+semilogx(1./kf,SpecFlux,'Marker','+')
+grid on
+
+figure(3)
+semilogx(kf,ebs(1:end-1),'Marker','x')

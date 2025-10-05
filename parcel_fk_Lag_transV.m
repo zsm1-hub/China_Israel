@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=[289,625,2500,15376]; % numbers of particles
 % nparticles=[289,625,2500]; % numbers of particles
 
@@ -109,14 +109,14 @@ for ii=1:length(nparticles)
 
     figure(2)
     % semilogx(1./kf./1e3,ebs(1:end-1).*kf','Marker','x','Color',colors{ii},'LineWidth',1.5)
-    semilogx(1./kf./1e3,ebs(1:end-1),'Marker','x','Color',colors{ii},'LineWidth',1.5)
+    semilogx(kf.*1e3,ebs(1:end-1).*kf','Marker','x','Color',colors{ii},'LineWidth',1.5)
     hold on
     grid on
-    xlim([1e3,1e6]./1e3);
+    xlim(1./[1e6,1e3].*1e3);
     % ylim([-8e-8,8e-8]);
-    ylim([-2.5e-3,2.5e-3]);
-    xlabel('km')
-    ylabel('m^{2}/s^{3}')
+    ylim([-.5e-7,.5e-7]);
+    xlabel('k 1/km')
+    ylabel('k*ebs m^{2}/s^{3}')
     title([Case,': energy injection'])
     set(gca,'fontsize',16,'FontWeight','b')
 
@@ -136,19 +136,19 @@ for ii=1:length(nparticles)
 
 
     figure(4)
-    A{ii}=loglog(dist_axis./1e3,abs(SF3),'Color',colors{ii},'LineWidth',1.5)
+    % A{ii}=loglog(dist_axis./1e3,abs(SF3),'Color',colors{ii},'LineWidth',1.5)
     % semilogx(dist_axis./1e3,SF1L,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','--')
     % semilogx(dist_axis./1e3,SF1T,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','-.')
+    semilogx(dist_axis./1e3,(SF3)./dist_axis','Color',colors{ii},'LineWidth',1.5,'Marker','+')
     hold on
-    semilogx(dist_axis./1e3,-(SF3),'Color',colors{ii},'LineWidth',1.5,'Marker','+')
-    semilogx(dist_axis./1e3,(SF3),'Color',colors{ii},'LineWidth',1.5,'Marker','o')
+    % semilogx(dist_axis./1e3,(SF3),'Color',colors{ii},'LineWidth',1.5,'Marker','o')
     grid on
     
     xlim([1e3,1e6]./1e3);
-    ylim([1e-5,1e-2]);
+    ylim([-6e-8,12e-8]);
     xlabel('km')
-    ylabel('m^{3}/s^{3}')
-    title([Case,': SF3'])
+    ylabel('m^{2}/s^{3}')
+    title([Case,': SF3/r'])
     set(gca,'fontsize',16,'FontWeight','b')
 
     figure(5)
@@ -315,11 +315,24 @@ lambda=8e-1;
 dot=362;
 % [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32,'log','RLS',lambda);
 
-[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32,'log','RLS',lambda);
+kf1=fliplr(1./filtscale'.*2.*pi);
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32, ...
+    'fuc','RLS',lambda,kf1);
 
 
-a6=semilogx(1./kf.*rescale,SpecFlux,'LineWidth',1.5, ...
+a6=semilogx(1./kf.*rescale.*(2.*pi),SpecFlux,'LineWidth',1.5, ...
 'Color',colors{jj+1});
+
+load HIT2d_fftfk.mat
+semilogx(1./K1D,specFlux_mean,'LineWidth',1.5, ...
+'Color','g')
+
+kf1=K1D.*2.*pi;
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32, ...
+    'fuc','RLS',lambda,kf1);
+
+semilogx(1./kf.*rescale.*(2.*pi),SpecFlux,'LineWidth',1.5, ...
+'Color','r');
 
 
 figure(2)
@@ -335,11 +348,6 @@ loglog(x32,y32,'LineWidth',1.5,'color','k')
 loglog(x45,y45,'LineWidth',1.5,'color','b')
 grid on
 
-figure(3)
-%div
-SF3or=(SF3(2:end)-SF3(1:end-1))./(r(2:end)-r(1:end-1));
-r2=0.5.*(r(2:end)+r(1:end-1));
-loglog(r2,SF3or,'LineWidth',1.5,'color','b')
 
 figure(4)
 semilogx(r,(SF3),'Color',colors{ii},'LineWidth',1.5);hold on
@@ -348,13 +356,13 @@ semilogx(r,nanmean(SF3_time,1),'Color',colors{ii+1},'LineWidth',1.5);
 figure(5)
 for j=1:199
     [SpecFlux(:,j),Vt(:,j),ebs(:,j),kf,lf]=Fk_fitting_SF3(SF3_time(j,1:dot)', ...
-        r(1:dot),0.009,6.32,'log','RLS',lambda);
+        r(1:dot)./sqrt(2),0.009,6.32,'log','RLS',lambda);
 end
 std1=std(SpecFlux, 0, 2, 'omitnan');
-x_fill = [1./kf, fliplr(1./kf)];
+x_fill = [1./kf.*rescale, fliplr(1./kf.*rescale)];
 % y_fill = [CI_SpecFlux(1,:), fliplr(CI_SpecFlux(2,:))];
 y_fill = [(nanmean(SpecFlux,2)+std1)', fliplr((nanmean(SpecFlux,2)-std1)')];
-semilogx(1./kf,nanmean(SpecFlux,2),'Color',colors{ii},'LineWidth',1.5);hold on
+semilogx(1./kf.*rescale,nanmean(SpecFlux,2),'Color',colors{ii},'LineWidth',1.5);hold on
 fill(x_fill, y_fill, colors_rgb{ii}, 'FaceAlpha', 0.3, 'EdgeColor', 'none')
 
 semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',colors{jj});hold on
@@ -371,6 +379,11 @@ filtscale=ncread(fname,'filtscale');
 semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color',[.7,.7,.7]);
 grid on
 ylim([-20,20])
+
+figure(6)
+semilogx(r,(S3T1_time+S3L1_time)','LineWidth',1.5);hold on
+grid on
+
 
 % load HIT2d_pars_P2500T0.2secondsCG_Lag_uni_grid.mat
 % a3=semilogx(filtscale,Th','LineWidth',1.5,'Color',colors{ii+1},'LineStyle','--');
