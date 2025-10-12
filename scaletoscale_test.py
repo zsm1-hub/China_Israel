@@ -153,7 +153,7 @@ def sfilter_corr(ur, r, pad_ratio=0.1, bry='periodic'):
     KX_pad, KY_pad = np.meshgrid(kx_pad[:nk_pad], ky_pad)
     
     # 6. calc cutoff wavenumber
-    nc = Nx / (2.0 * r)  # 
+    nc = Nx / (r)  # 
     
     # 7. mask
     K2 = KX_pad**2 + KY_pad**2
@@ -204,11 +204,12 @@ else:
     N0 = len(Narray)
 
 if Case=='hit':
-    Narray = list(range(1,18))
+    Narray = list(range(2,18))
     Narray.extend(list(range(18,int(48),int(3))))
     Narray.extend(list(range(48,int(120),int(6))))
     Narray.extend(list(range(120,int(240),int(12))))
     Narray.extend(list(range(240,int(520),int(24))))
+    Narray.append(512)
     N0 = len(Narray)
 
 if Case=='aviso':
