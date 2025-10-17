@@ -9,7 +9,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='HIT2d'; % wave
-nparticles=65536; % numbers of particles
+nparticles=222784; % numbers of particles
 num_to_select = 5000;
 days=89.5;  % days
 seconds=0.05;  % days

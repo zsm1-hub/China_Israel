@@ -441,7 +441,8 @@ set(gca,'fontsize',14,'FontWeight','b')
 %% check lagrangian SF3 and fitting
 clear
 % load test2500_1.mat
-load test5000_2.mat; % 65536 randoms 5000
+% load test5000_2.mat; % 65536 randoms 5000
+load test.mat; % 
 kf1=1./dist_axis'.*2.*pi
 
 str1=0.0;
@@ -468,6 +469,7 @@ set(gca,'fontsize',14,'FontWeight','b')
 ylim([-5,20])
 % [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3_mean,dist_axis,0.009,6.32, ...
 %     'log','RLS',1e-10);
+
 [residual_norms, solution_norms,...
 lambda_opt_idx]=Fk_fitting_SF3_Lcurve(SF3_mean(1:end),dist_axis(1:end),str1,en1, ...
     'fuc','RLS',[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
@@ -519,17 +521,32 @@ kf1=K1D.*2.*pi;
 a3=semilogx(1./kf.*(2.*pi),SpecFlux,'LineWidth',1.5, ...
 'Color','r');
 
-a4=semilogx(1./kf_L.*2.*pi,SpecFlux_L,'LineWidth',1.5,'Color',[1, 0.5, 0]);
+a4=semilogx(1./kf_L.*2.*pi,SpecFlux_L,'LineWidth',1.5,'Color',[0.95, 0.8, 0.9]);
 
+load HIT2d_pars_P5000T0.05secondstraj.mat
+a5=semilogx(filtscale(2:end),nanmean(Th_all,2),'LineWidth',1.5,'Color', ...
+    [0.95, 0.85, 0.7]);
 
 grid on
-ylim([-12,5])
+ylim([-12,8])
 xlabel('r [m]')
 ylabel('\Pi [m^{2}/s^{3}]')
 % legend([a1,a2,a3,a4,a5],{'cg spec','cg uni','fft-specflux','RLS','RLS (angular k)'})
 % legend([a1,a2,a3,a4],{'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'})
-legend([a1,a2,a3,a4], ...
-    {'FFT specflux','CG (sfilt)','RLS (angular k)','Lag P5000 RLS'}, ...
+legend([a1,a2,a3,a4,a5], ...
+    {'FFT specflux','CG (sfilt)','RLS (angular k)','Lag P5000 RLS','Lag P5000 CG'}, ...
     "location",'northeast')
 title(['HIT2d: CG vs RLS cross-scale energy flux'],'Interpreter','latex')
 set(gca,'fontsize',14,'FontWeight','b')
+
+figure(8)
+% dkk=mean(abs(K1D(2:end)-K1D(1:end-1)));
+semilogx(K1D.*2.*pi,-divFlux_mean,'LineWidth',1.5, ...
+'Color','k')
+hold on
+grid on
+% dk=-(kf(2:end)-kf(1:end-1)).*2.*pi
+semilogx(kf_L,ebs_L(1:end-1).*v2rho_2d(abs(diff(kf_L))),'LineWidth',1.5, ...
+'Color','r');
+
+% size(kf_L)
