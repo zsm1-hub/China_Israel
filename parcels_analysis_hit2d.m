@@ -56,7 +56,7 @@ for ii=1:length(np1)
         pistr=['th',num2str(xscale(iii))];
         eval(['th',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
         eval(['Th(',num2str(iii),')=nanmean(','th',num2str(xscale(iii)),'(:));'])
-        eval(['Th_all(',num2str(iii),',:)=nanmean(','th',num2str(xscale(iii)),',2);'])
+        eval(['Th_all(',num2str(iii),',:)=nanmean(','th',num2str(xscale(iii)),'(1:183,:),2);'])
     end
     % semilogx(xscale.*2e3,Th)
     
@@ -391,9 +391,20 @@ for ii=1:length(np1)
 
     
     figure(1)
-    semilogx(filtscale,nanmean(Th_all,2))
+    A{ii}=semilogx(filtscale,nanmean(Th_all,2),'LineWidth',1.5,'LineStyle','-')
     
-    % hold on
+    hold on
+    grid on
+    ylim([-10,5]);
+    xlabel('r [m]')
+    ylabel('\Pi [m^{2}/s^{3}]')
+    % legend([a1,a2,a3,a4,a5],{'cg spec','cg uni','fft-specflux','RLS','RLS (angular k)'})
+    % legend([a1,a2,a3,a4],{'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'})
+    % legend([a1,a2,a3,a4], ...
+    %     {'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'}, ...
+    %     "location",'northeast')
+    title(['HIT2d: CG vs RLS cross-scale energy flux'],'Interpreter','latex')
+    set(gca,'fontsize',14,'FontWeight','b')
     % plot(lon_g(1,:),lat_g(1,:),'Color','r','LineWidth',1,'LineStyle','-');
     % plot(lon_g(end,:),lat_g(end,:),'Color','r','LineWidth',1,'LineStyle','-');
     % plot(lon_g(:,1),lat_g(:,1),'Color','r','LineWidth',1,'LineStyle','-');
@@ -424,3 +435,101 @@ for ii=1:length(np1)
     % saveas(gcf,['HIT2d_P',num2str(nparticles),'traj'],'png')
     % clf
 end
+legend([A{1},A{2},A{3}],{'P324','P676','P2704'})
+set(gca,'fontsize',14,'FontWeight','b')
+
+%% check lagrangian SF3 and fitting
+clear
+% load test2500_1.mat
+load test5000_2.mat; % 65536 randoms 5000
+kf1=1./dist_axis'.*2.*pi
+
+str1=0.0;
+en1=1.7;
+figure(3)
+a1=semilogx(dist_axis,SF3_mean./dist_axis','LineWidth',1.5)
+hold on
+load HIT2d_Eulerian_SF3.mat
+lambda=8e-1;
+dot=362;
+a2=semilogx(r,SF3./r,'LineWidth',1.5)
+
+grid on
+xlabel('r [m]')
+ylabel('SF3/r [m^{2}/s^{3}]')
+% legend([a1,a2,a3,a4,a5],{'cg spec','cg uni','fft-specflux','RLS','RLS (angular k)'})
+% legend([a1,a2,a3,a4],{'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'})
+legend([a1,a2], ...
+    {'Lagrangian SF3/r (P5000)','Eulerian SF3/r (fft)'}, ...
+    "location",'southwest')
+title(['HIT2d: The convergence of Third-order structure function'],'Interpreter','latex')
+set(gca,'fontsize',14,'FontWeight','b')
+
+ylim([-5,20])
+% [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3_mean,dist_axis,0.009,6.32, ...
+%     'log','RLS',1e-10);
+[residual_norms, solution_norms,...
+lambda_opt_idx]=Fk_fitting_SF3_Lcurve(SF3_mean(1:end),dist_axis(1:end),str1,en1, ...
+    'fuc','RLS',[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15],kf1);
+
+
+clf
+kf1=1./dist_axis'.*2.*pi
+[SpecFlux_L,Vt_L,ebs_L,kf_L,lf_L]=Fk_fitting_SF3(SF3_mean(1:end),dist_axis(1:end),str1,en1, ...
+    'fuc','RLS',1e-3,kf1);
+
+figure(2)
+a1=semilogx(dist_axis,SF3_mean./dist_axis','LineWidth',1.5);hold on
+a2=semilogx(lf_L,Vt_L./lf_L','LineStyle','none','Marker','+','LineWidth',1.5);
+grid on
+xlabel('r [m]')
+ylabel('SF3/r [m^{2}/s^{3}]')
+legend([a1,a2], ...
+    {'Lagrangian SF3/r (P5000)','RLS-fitting'}, ...
+    "location",'southwest')
+title(['HIT2d: The convergence of Third-order structure function'],'Interpreter','latex')
+set(gca,'fontsize',14,'FontWeight','b')
+
+ylim([-5,20])
+
+
+figure(1)
+load HIT2d_fftfk.mat
+a1=semilogx(1./K1D,specFlux_mean,'LineWidth',1.5, ...
+'Color','k','LineStyle','-'); 
+hold on
+
+
+fname='s2sflux_spec_hit_tukey.0002.nc';
+ncdisp(fname)
+Thm_Eulerian=ncread(fname,'Thm');
+filtscale=ncread(fname,'filtscale');
+a2=semilogx(filtscale,Thm_Eulerian,'LineWidth',1.5,'Color', ...
+    'b');
+
+kf1=K1D.*2.*pi;
+% kf1=1./filtscale.*2.*pi;
+[SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32, ...
+    'fuc','RLS',lambda,kf1);
+% [residual_norms, solution_norms,...
+% lambda_opt_idx]=Fk_fitting_SF3_Lcurve(SF3(1:dot)',r(1:dot),0.009,6.32, ...
+%     'fuc','RLS',[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12],kf1);
+a3=semilogx(1./kf.*(2.*pi),SpecFlux,'LineWidth',1.5, ...
+'Color','r');
+
+a4=semilogx(1./kf_L.*2.*pi,SpecFlux_L,'LineWidth',1.5,'Color',[1, 0.5, 0]);
+
+
+grid on
+ylim([-12,5])
+xlabel('r [m]')
+ylabel('\Pi [m^{2}/s^{3}]')
+% legend([a1,a2,a3,a4,a5],{'cg spec','cg uni','fft-specflux','RLS','RLS (angular k)'})
+% legend([a1,a2,a3,a4],{'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'})
+legend([a1,a2,a3,a4], ...
+    {'FFT specflux','CG (sfilt)','RLS (angular k)','Lag P5000 RLS'}, ...
+    "location",'northeast')
+title(['HIT2d: CG vs RLS cross-scale energy flux'],'Interpreter','latex')
+set(gca,'fontsize',14,'FontWeight','b')
