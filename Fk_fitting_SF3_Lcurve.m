@@ -1,5 +1,5 @@
 function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve(SF3, ...
-    dist_axis, mindist, maxdist, kftype, inv_style, lambda_vec, kf1)
+    dist_axis, mindist, maxdist, kftype, inv_style, lambda_vec, kf1,plt)
     % Fk_fitting_SF3_Lcurve - 计算谱通量和能量注入密度，仅绘制L曲线
     %
     % 输入参数:
@@ -39,7 +39,7 @@ function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve(SF3, ..
     
     % 创建波数向量
     if strcmp(kftype, 'log')
-        kf = logspace(log10(1/max(R)), log10(1/min(R)), length(R)-1);
+        kf = logspace(log10(1/max(R)), log10(1/min(R)), length(R)-1).*2.*pi;
     else
         kf = kf1;
     end
@@ -113,33 +113,34 @@ function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve(SF3, ..
                 % 找到L曲线拐点（曲率最大点）
                 [~, lambda_opt_idx] = max_curvature(log10(residual_norms), log10(solution_norms));
                 lambda_opt = lambda_vec(lambda_opt_idx);
-                
-                % 绘制L曲线
-                figure(1);
-                loglog(residual_norms, solution_norms, 'b-o', 'LineWidth', 1.5);
-                hold on;
-                plot(residual_norms(lambda_opt_idx), solution_norms(lambda_opt_idx), ...
-                    'ro', 'MarkerSize', 10, 'LineWidth', 2);
-                
-                % 添加标签和标题
-                xlabel('Residual Norm $\|A\mathbf{x} - \mathbf{b}\|_2$', ...
-                    'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
-                ylabel('Solution Norm $\|\mathbf{x}\|_2$', ...
-                    'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
-                title(sprintf('L-curve for Regularization Parameter Selection'), ...
-                    'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
-                grid on;
-                legend('L-curve', 'Optimal \lambda', 'Location', 'best');
-                
-                
-                % 添加λ值标注
-                for i = 1:length(lambda_vec)
-                    text(residual_norms(i), solution_norms(i), ...
-                        sprintf('λ=%.1e', lambda_vec(i)), ...
-                        'FontSize', 10, 'HorizontalAlignment', 'left');
+                if plt==1
+                    % 绘制L曲线
+                    figure(1);
+                    loglog(residual_norms, solution_norms, '-o', 'LineWidth', 1.5);
+                    hold on;
+                    plot(residual_norms(lambda_opt_idx), solution_norms(lambda_opt_idx), ...
+                        'ro', 'MarkerSize', 10, 'LineWidth', 2);
+                    
+                    % 添加标签和标题
+                    xlabel('Residual Norm $\|A\mathbf{x} - \mathbf{b}\|_2$', ...
+                        'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
+                    ylabel('Solution Norm $\|\mathbf{x}\|_2$', ...
+                        'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
+                    title(sprintf('L-curve for Regularization Parameter Selection'), ...
+                        'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'bold');
+                    grid on;
+                    legend('L-curve', 'Optimal \lambda', 'Location', 'best');
+                    
+                    
+                    % 添加λ值标注
+                    for i = 1:length(lambda_vec)
+                        text(residual_norms(i), solution_norms(i), ...
+                            sprintf('λ=%.1e', lambda_vec(i)), ...
+                            'FontSize', 10, 'HorizontalAlignment', 'left');
+                    end
                 end
+                set(gca, 'FontSize', 14, 'FontWeight', 'bold');
             end
-            set(gca, 'FontSize', 14, 'FontWeight', 'bold');
             % 使用最优λ求解
             n_cols = size(A, 2);
             A_aug = [A; sqrt(lambda_opt) * eye(n_cols)];
