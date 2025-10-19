@@ -7,12 +7,12 @@ inv_style='RLS';
 
 if strcmpi(Case, 'wave')
     % cgname='s2sflux_spec_hf.0002.nc';
-    cgname='s2sflux_spec_hf_kaiser_corr.0002.nc';
+    cgname=['s2sflux_spec_hf_',win,'_corr.0002.nc'];
     cgstd='wavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
 end
 
 if strcmpi(Case, 'nowave')
-    cgname='s2sflux_spec_smooth_kaiser_corr.0002.nc';
+    cgname=['s2sflux_spec_smooth_',win,'_corr.0002.nc'];
     cgstd='nowavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
 end
 
