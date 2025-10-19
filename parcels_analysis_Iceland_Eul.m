@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-win='kaiser'
+win='hann'
 param_Eul_cg_sf3fk
 
 % figure(1)
@@ -33,7 +33,7 @@ r_fit = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi, SpecFlux_E(dstr:end));
 grid on
 ylim([-2e-8,2e-8]);
 xlim([1e3,1e6]./1e3);
-xlabel('$$\mathbf{[km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % title('Hf: CG vs sf3-RLS flux')
 legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
@@ -59,7 +59,7 @@ a2=semilogx(lf_E./1e3,Vt_E./lf_E','LineWidth',1.5,'LineStyle','none', ...
 grid on
 xlim([1e3,1e6]./1e3);
 ylim([-3,4].*1e-8)
-xlabel('$$\mathbf{[km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % title('Hf: SF3/r and fitting (RLS)')
 % legend([a1,a2],{'SF3/r','fitting (RLS)'})
@@ -83,7 +83,7 @@ c2=semilogx(kf_E.*1e3./2./pi,ebs_E(1:end-1).*dk_E','LineWidth',1.5, ...
 grid on
 ylim([-1,1].*1e-8)
 xlim([1e-6,1e-3].*1e3)
-xlabel('$$\mathbf{[1/km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{\epsilon_j*dk_j \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 legend([c1,c2],{['CG (',win,')'],'SF3-fitting (RLS)'})
 text(0.05, 0.95, 'c) Hf', 'Units', 'normalized', ...
@@ -116,7 +116,7 @@ end
 grid on
 ylim([-2e-8,2e-8]);
 xlim([1e3,1e6]./1e3);
-xlabel('$$\mathbf{[km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(k) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % title('Hf: CG vs sf3-RLS flux')
 legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
@@ -142,7 +142,7 @@ a2=semilogx(lf_E./1e3,Vt_E./lf_E','LineWidth',1.5,'LineStyle','none', ...
 grid on
 xlim([1e3,1e6]./1e3);
 ylim([-3,4].*1e-8)
-xlabel('$$\mathbf{[km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % title('Hf: SF3/r and fitting (RLS)')
 % legend([a1,a2],{'SF3/r','fitting (RLS)'})
@@ -166,7 +166,7 @@ c2=semilogx(kf_E.*1e3./2./pi,ebs_E(1:end-1).*dk_E','LineWidth',1.5, ...
 grid on
 ylim([-1,1].*1e-8)
 xlim([1e-6,1e-3].*1e3)
-xlabel('$$\mathbf{[1/km]}$$','Interpreter','latex')
+xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{\epsilon_j*dk_j \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 legend([c1,c2],{['CG (',win,')'],'SF3-fitting (RLS)'})
 text(0.05, 0.95, 'f) Smooth', 'Units', 'normalized', ...
