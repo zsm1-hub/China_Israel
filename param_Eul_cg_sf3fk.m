@@ -8,12 +8,14 @@ fitstr=1;
 lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12];
 N=287;dstr=1;dot=202;
-colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
+colors={'#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE'};
 colors_rgb = {...
     [0, 114/255, 189/255], ...   % #0072BD
     [217/255, 83/255, 25/255], ... % #D95319
     [237/255, 177/255, 32/255], ... % #EDB120
-    [126/255, 47/255, 142/255] ... % #7E2F8E
+    [126/255, 47/255, 142/255], ... % #7E2F8E
+    [0.4660, 0.6740, 0.1880],...
+    [0.3010, 0.7450, 0.9330]
 };
 
 if strcmpi(Case, 'wave')
@@ -43,8 +45,8 @@ kf1=fliplr(1./filtscale'.*2.*pi);
 
 
 eval(['load ',Case,'_Eulerian_SF3.mat'])
-
 [r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
+SF3=nanmean(S3L1_alltime(timerange,:)+S3T1_alltime(timerange,:),1);
 clear SpecFlux_E;clear kf_E;
 [SpecFlux_E,Vt_E,ebs_E,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3(fitstr:dot)', ...
     r(fitstr:dot),1,500e3,'fuc','RLS',lambda,kf1,0);
