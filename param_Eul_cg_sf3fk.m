@@ -3,16 +3,29 @@ days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 input_dir='/meddy/simingzhang/Data/Parcels_data/';
 inv_style='RLS';
-
+rescale=1;
+fitstr=1;
+lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12];
+N=287;dstr=1;dot=202;
+colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
+colors_rgb = {...
+    [0, 114/255, 189/255], ...   % #0072BD
+    [217/255, 83/255, 25/255], ... % #D95319
+    [237/255, 177/255, 32/255], ... % #EDB120
+    [126/255, 47/255, 142/255] ... % #7E2F8E
+};
 
 if strcmpi(Case, 'wave')
     % cgname='s2sflux_spec_hf.0002.nc';
     cgname=['s2sflux_spec_hf_',win,'_corr.0002.nc'];
+    % cgname=['s2sflux_spec_hf_',win,'.0002.nc'];
     cgstd='wavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
 end
 
 if strcmpi(Case, 'nowave')
     cgname=['s2sflux_spec_smooth_',win,'_corr.0002.nc'];
+    % cgname=['s2sflux_spec_smooth_',win,'.0002.nc'];
     cgstd='nowavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
 end
 
@@ -23,24 +36,10 @@ filtscale=ncread(cgname,'filtscale');
 Thm_Eulerian=Thm_Eulerian(2:end);
 filtscale=filtscale(2:end);
 
-colors={'#0072BD','#D95319','#EDB120','#7E2F8E'};
-colors_rgb = {...
-    [0, 114/255, 189/255], ...   % #0072BD
-    [217/255, 83/255, 25/255], ... % #D95319
-    [237/255, 177/255, 32/255], ... % #EDB120
-    [126/255, 47/255, 142/255] ... % #7E2F8E
-};
-A={'a1','a2','a3','a4'}
-B={'b1','b2','b3','b4'}
-C={'c1','c2','c3','c4'}
-kf1=fliplr(1./filtscale'.*2.*pi);
-rescale=1;
-fitstr=1;
-lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12];
-N=287;dstr=1;dot=202;
 
-% for ii=1:length(nparticles)
+
+kf1=fliplr(1./filtscale'.*2.*pi);
+
 
 
 eval(['load ',Case,'_Eulerian_SF3.mat'])
