@@ -105,7 +105,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'a) Hf P289', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -156,7 +157,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'b) Hf P625', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -203,7 +205,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'c) Hf P2500', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -285,7 +288,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'd) Sm P289', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -329,7 +333,8 @@ xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'e) Sm P625', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -373,7 +378,8 @@ xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'SF3-fitting (RLS)',['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
 text(0.03, 0.95, 'f) Sm P2500', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -388,4 +394,4 @@ text(10^0.1,-1.2e-8,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpret
 text(10^0.1,-1.5e-8,['$\mathbf{\ r_{RLS \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
     'Color',colors{6})
 set(gca,'fontsize',12,'fontweight','bold')
-saveas(gcf,['Eul_CG_vs_RLS_',win],'png')
+saveas(gcf,['Eul_CG',win,'_vs_RLS_Fr'],'png')
