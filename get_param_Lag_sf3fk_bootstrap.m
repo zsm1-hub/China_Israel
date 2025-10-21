@@ -1,3 +1,4 @@
+
 function [SpecFlux_Lagm,Vt_Lagm,ebs_Lagm,kf_Lag,...
     lf_Lag,CI_ebs,CI_Vt,...
     CI_SpecFlux,Th_Lag]=get_param_Lag_sf3fk_bootstrap(Case,nparticles,lambda,timerange);
@@ -7,12 +8,13 @@ function [SpecFlux_Lagm,Vt_Lagm,ebs_Lagm,kf_Lag,...
 % fname=[Case,'_pars_P',num2str(nparticles),'T960bootstrap.mat'];
 % fname=[Case,'_pars_P',num2str(nparticles),'T1440bootstrap.mat'];
 fname=[Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),'bootstrap.mat'];
-
+% load filtscale.mat
 load(fname);
 Th_Lag=nanmean(Th_all,2);
 SF3_Lag=nanmean(SF3,2);
 SF3_Lag_all=(SF3);
 
+% kf1=1./filtscale.*2.*pi;
 kf1=1;
 for jj=1:size(SF3,2)
 [SpecFlux_Lag(:,jj),Vt_Lag(:,jj),ebs_Lag(:,jj),kf_Lag,...
