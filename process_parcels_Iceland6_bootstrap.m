@@ -11,7 +11,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
@@ -25,8 +25,10 @@ if strcmpi(ini, '_rough')
 end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-timerange=1:1920;
+% timerange=1:1920;
 % timerange=1:720;
+timerange=1:1200;
+timerange=1:720;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];

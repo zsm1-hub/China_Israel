@@ -10,7 +10,8 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-win='hann'
+win='kaiser'
+timerange=1:2148;
 param_Eul_cg_sf3fk
 
 % figure(1)
@@ -99,6 +100,7 @@ set(gca,'fontsize',12,'fontweight','bold')
 
 %%%%%%%%%%%%%%%%%%nowave%%%%%%%%%%%%%%%%%
 Case='nowave'; % wave
+
 param_Eul_cg_sf3fk
 
 subplot(2,3,4)
@@ -180,3 +182,103 @@ set(gca,'fontsize',12,'fontweight','bold')
 
 % close(figure(1))
 saveas(gcf,['Eul_CG_vs_RLS_',win],'png')
+
+
+%% different window
+% clear all;close all;clc
+% % addpath('D:\LIN2023\model\RoyBarkan\LLC4320/')
+% % addpath('D:\LIN2023\crocotools\Preprocessingtools') % add function "spheric_dist.m"
+% % 
+% addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
+% addpath('/meddy/simingzhang/Data/Parcels_data')
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %                          1. Basic setup and read data
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Case='wave'; % wave
+% win='kaiser'
+% param_Eul_cg_sf3fk
+% 
+% % figure(1)
+% screenSize = get(0, 'ScreenSize');
+% % 创建figure并设置位置
+% figure('Position', [0, 0, screenSize(3), screenSize(4)]);
+% 
+% 
+% subplot(2,2,1)
+% b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
+% hold on
+% r_cg = findXatYZero(filtscale./1e3, Thm_Eulerian);
+% 
+% b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+%     'LineWidth',1.5, ...
+% 'Color','k');
+% r_fit = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi, SpecFlux_E(dstr:end));
+% 
+% win='kaiser3'
+% param_Eul_cg_sf3fk
+% b3=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{2});
+% win='hann'
+% param_Eul_cg_sf3fk
+% b4=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{3});
+% 
+% 
+% grid on
+% ylim([-2e-8,2e-8]);
+% xlim([1e3,1e6]./1e3);
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % title('Hf: CG vs sf3-RLS flux')
+% legend([b1,b2,b3,b4],{['CG (','kaiser1',')'],'SF3-fitting (RLS)','CG (kaiser3)','CG (hann)'})
+% text(0.05, 0.95, 'a) Hf', 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% % text(10^0.1,-1.2e-8,['$\mathbf{CG \ r_{F=0}= }$',num2str(r_cg)],'Interpreter','latex', ...
+% %     'Color',colors{1})
+% % text(10^0.1,-1.5e-8,['$\mathbf{Fitting \ r_{F=0}= }$',num2str(r_fit)],'Interpreter','latex')
+% 
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%% nowave %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Case='nowave'; % wave
+% win='kaiser'
+% param_Eul_cg_sf3fk
+% subplot(2,2,2)
+% b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
+% hold on
+% r_cg = findXatYZero(filtscale./1e3, Thm_Eulerian);
+% 
+% b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+%     'LineWidth',1.5, ...
+% 'Color','k');
+% r_fit = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi, SpecFlux_E(dstr:end));
+% 
+% win='kaiser3'
+% param_Eul_cg_sf3fk
+% b3=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{2});
+% win='hann'
+% param_Eul_cg_sf3fk
+% b4=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{3});
+% 
+% 
+% grid on
+% ylim([-2e-8,2e-8]);
+% xlim([1e3,1e6]./1e3);
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % title('Hf: CG vs sf3-RLS flux')
+% legend([b1,b2,b3,b4],{['CG (','kaiser1',')'],'SF3-fitting (RLS)','CG (kaiser3)','CG (hann)'})
+% text(0.05, 0.95, 'a) Hf', 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% % text(10^0.1,-1.2e-8,['$\mathbf{CG \ r_{F=0}= }$',num2str(r_cg)],'Interpreter','latex', ...
+% %     'Color',colors{1})
+% % text(10^0.1,-1.5e-8,['$\mathbf{Fitting \ r_{F=0}= }$',num2str(r_fit)],'Interpreter','latex')
+% 
+% set(gca,'fontsize',12,'fontweight','bold')
