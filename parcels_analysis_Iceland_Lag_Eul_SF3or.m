@@ -83,7 +83,7 @@ x_fill = [1./kf_Lag(1:dend)./1e3.*2.*pi, fliplr(1./kf_Lag(1:dend)./1e3.*2.*pi)];
 % r_fit = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi, SpecFlux_E(dstr:end));
 
 x_coords = [4, 200, 200, 4];  % x坐标：左边界4，右边界200
-y_coords = [-4e-8, -4e-8, 4e-8, 4e-8]; % y坐标：下边界-2e-8，上边界4e-8
+y_coords = [-5e-8, -5e-8, 5e-8, 5e-8]; % y坐标：下边界-2e-8，上边界4e-8
 % 
 % patch(x_coords, y_coords, [0.9 0.9 0.9], 'EdgeColor', 'none'); % 中灰色，无边线
 screenSize = get(0, 'ScreenSize');
@@ -102,7 +102,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{1},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
@@ -133,7 +133,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{1},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -161,7 +161,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{1},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -234,7 +234,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{2},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 
@@ -262,7 +262,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{2},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 
@@ -290,7 +290,7 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag2500./lf_Lag', ...
     'LineWidth',1.5,'Color',colors{2},'LineStyle','none','Marker','+');
 
 grid on
-ylim([-4e-8,4e-8]);
+ylim([-5e-8,5e-8]);
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 
