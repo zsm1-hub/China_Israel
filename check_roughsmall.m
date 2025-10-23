@@ -10,6 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 Case='wave'; % wave
 win='kaiser'
 ini='_roughsmall'
+inv='RLS'
 timerange=1:2148;
 param_Eul_cg_sf3fk
 lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
@@ -31,22 +32,26 @@ timerange=1:2140;
 [SpecFlux_Lag289,Vt_Lag289,ebs_Lag289,kf_Lag,...
     lf_Lag,CI_ebs289,CI_Vt289,...
     CI_SpecFlux289,Th_Lag289]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    289,lambda,timerange);
+    289,lambda,timerange,inv);
 fname=[Case,'_pars_P289','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag289=nanmean(SF3,2);
 
-% timerange=1:720;
-% [SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,~,...
-%     ~,CI_ebs625,CI_Vt625,...
-%     CI_SpecFlux625,Th_Lag625]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-%     625,lambda,timerange);
+timerange=1:2140;
+[SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,~,...
+    ~,CI_ebs625,CI_Vt625,...
+    CI_SpecFlux625,Th_Lag625]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
+    625,lambda,timerange,inv);
+fname=[Case,'_pars_P625','T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+SF3_Lag625=nanmean(SF3,2);
+
 
 timerange=1:720;
 [SpecFlux_Lag2500,Vt_Lag2500,ebs_Lag2500,kf_Lag,...
     lf_Lag,CI_ebs2500,CI_Vt2500,...
     CI_SpecFlux2500,Th_Lag2500]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    2500,lambda,timerange);
+    2500,lambda,timerange,inv);
 fname=[Case,'_pars_P2500','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag2500=nanmean(SF3,2);
@@ -117,8 +122,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting ', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting'})
 text(0.03, 0.95, 'a) Hf P289', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -127,26 +132,121 @@ text(0.03, 0.95, 'a) Hf P289', 'Units', 'normalized', ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 text(10^0.1,-0.6e-8,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
     'Color',colors{1})
-text(10^0.1,-0.9e-8,['$\mathbf{\ r_{RLS \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+text(10^0.1,-0.9e-8,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
 text(10^0.1,-1.2e-8,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
     'Color',colors{4})
-text(10^0.1,-1.5e-8,['$\mathbf{\ r_{RLS \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+text(10^0.1,-1.5e-8,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
     'Color',colors{4})
 
 set(gca,'fontsize',12,'fontweight','bold')
 %%%%%%%%%%%%%%%%%%%%%%%%%debug%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 subplot(2,3,4)
-semilogx(dist_axis./1e3,SF3_Lag289./dist_axis','LineWidth',1.5);
+b1=semilogx(dist_axis./1e3,SF3_Lag289./dist_axis','LineWidth',1.5);
 hold on
-semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','none','Marker', ...
+b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','none','Marker', ...
     '+','LineWidth',1.5);
 
 grid on
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+ylim([-5e-8,8e-8]);
+xlim([1e3,1e6]./1e3);
+xtick([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+
+legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+text(0.03, 0.95, 'd) Hf P289', 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%625
+subplot(2,3,2)
+
+patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
+    'EdgeColor', 'k'); 
+set(gca,'xscale','log')
+hold on
+b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
+hold on
+r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
+
+b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+    'LineWidth',1.5, ...
+'Color','k');
+r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
+
+B1=semilogx(filtscale./1e3,Th_Lag625,'LineWidth',1.5,'Color',colors{5}, ...
+    'LineStyle','--')
+% hold on
+r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag289);
+
+B2=semilogx(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag625(1:dend), ...
+    'LineWidth',1.5,'Color',colors{5})
+r_RLS_Lag = findXatYZero(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag625(1:dend));
+
+fill(x_fill, [CI_SpecFlux625(1,1:dend), fliplr(CI_SpecFlux625(2,1:dend))], ...
+    colors_rgb{5}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
 
 
+grid on
+ylim([-2e-8,4e-8]);
+xlim([1e3,1e6]./1e3);
+xtick([1,4,1e1,1e2,200,1e3])
+% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % title('Hf: CG vs sf3-RLS flux')
+% legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting ', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting'})
+text(0.03, 0.95, 'b) Hf P625', 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+text(10^0.1,-0.6e-8,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
+    'Color',colors{1})
+text(10^0.1,-0.9e-8,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+text(10^0.1,-1.2e-8,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
+    'Color',colors{5})
+text(10^0.1,-1.5e-8,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+    'Color',colors{5})
+
+set(gca,'fontsize',12,'fontweight','bold')
+%%%%%%%%%%%%%%%%%%%%%%%%%debug%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+subplot(2,3,5)
+semilogx(dist_axis./1e3,SF3_Lag625./dist_axis','LineWidth',1.5);
+hold on
+semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','none','Marker', ...
+    '+','LineWidth',1.5);
+
+grid on
+xlim([1e3,1e6]./1e3);
+xtick([1,4,1e1,1e2,200,1e3])
+% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+ylim([-5e-8,8e-8]);
+xlim([1e3,1e6]./1e3);
+xtick([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+
+legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+text(0.03, 0.95, 'e) Hf P625', 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
 
 
 
@@ -190,9 +290,9 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-    ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, 'a) Hf P2500', 'Units', 'normalized', ...
+legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting', ...
+    ['Lag CG (',win,')'],'Lag SF3-fitting (fit)'})
+text(0.03, 0.95, 'c) Hf P2500', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
      'EdgeColor', [.7,.7,.7], ... % 边框颜色
@@ -200,11 +300,12 @@ text(0.03, 0.95, 'a) Hf P2500', 'Units', 'normalized', ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 text(10^0.1,-0.6e-8,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
     'Color',colors{1})
-text(10^0.1,-0.9e-8,['$\mathbf{\ r_{RLS \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+text(10^0.1,-0.9e-8,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+
 text(10^0.1,-1.2e-8,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
-    'Color',colors{4})
-text(10^0.1,-1.5e-8,['$\mathbf{\ r_{RLS \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
-    'Color',colors{4})
+    'Color',colors{6})
+text(10^0.1,-1.5e-8,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+    'Color',colors{6})
 
 set(gca,'fontsize',12,'fontweight','bold')
 
@@ -219,3 +320,17 @@ grid on
 xlim([1e3,1e6]./1e3);
 xtick([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+ylim([-5e-8,8e-8]);
+xlim([1e3,1e6]./1e3);
+xtick([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+
+legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+text(0.03, 0.95, 'f) Hf P2500', 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
