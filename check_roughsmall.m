@@ -7,12 +7,12 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 win='kaiser'
 ini='_roughsmall'
 % ini='_rough'
 % ini='_cruise'
-inv='RLS'
+inv='NNLS'
 timerange=1:2148;
 param_Eul_cg_sf3fk
 % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
@@ -23,7 +23,7 @@ lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
 % end=7;
 range1=2.5e3;
-range2=140e3;
+range2=100e3;
 % all time
 % load wave_pars_P289T89.5daysSF123_alltime_rough.mat
 % SF3_Lag=nanmean(SF3lll_time+SF3ltt_time,2);
@@ -57,7 +57,7 @@ fname=[Case,'_pars_P625','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag625=nanmean(SF3,2);
 
-
+% 
 timerange=1:720;
 [SpecFlux_Lag2500,Vt_Lag2500,ebs_Lag2500,kf_Lag,...
     lf_Lag,CI_ebs2500,CI_Vt2500,...
@@ -328,4 +328,4 @@ text(0.03, 0.95, 'f) Hf P2500', 'Units', 'normalized', ...
      'Margin', 3, ... % 边距
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 set(gca,'fontsize',12,'fontweight','bold')
-saveas(gcf,['Eul_CG',win,'_vs_RLS_Fr',ini,'_',inv],'png')
+% saveas(gcf,['Eul_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_',Case],'png')
