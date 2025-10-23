@@ -7,14 +7,14 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 ini='_roughsmall'
 inv='RLS'
 timerange=1:2148;
 param_Eul_cg_sf3fk
 lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12];
+    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
 dend=7;
 % all time
 % load wave_pars_P289T89.5daysSF123_alltime_rough.mat
@@ -29,6 +29,8 @@ dend=7;
 
 % 480 h bootstrap
 timerange=1:2140;
+% timerange=1:720;
+% timerange=1:1920;
 [SpecFlux_Lag289,Vt_Lag289,ebs_Lag289,kf_Lag,...
     lf_Lag,CI_ebs289,CI_Vt289,...
     CI_SpecFlux289,Th_Lag289]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
@@ -38,6 +40,7 @@ load(fname);
 SF3_Lag289=nanmean(SF3,2);
 
 timerange=1:2140;
+% timerange=1:720;
 [SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,~,...
     ~,CI_ebs625,CI_Vt625,...
     CI_SpecFlux625,Th_Lag625]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
@@ -205,8 +208,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting ', ...
-    ['Lag CG (',win,')'],'Lag SF3-fitting'})
+% legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting ', ...
+%     ['Lag CG (',win,')'],'Lag SF3-fitting'})
 text(0.03, 0.95, 'b) Hf P625', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -239,7 +242,7 @@ xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
-legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+% legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
 text(0.03, 0.95, 'e) Hf P625', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -290,8 +293,8 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 % % title('Hf: CG vs sf3-RLS flux')
 % legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
-legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting', ...
-    ['Lag CG (',win,')'],'Lag SF3-fitting (fit)'})
+% legend([b1,b2,B1,B2],{['Eul CG (',win,')'],'Eul SF3-fitting', ...
+%     ['Lag CG (',win,')'],'Lag SF3-fitting (fit)'})
 text(0.03, 0.95, 'c) Hf P2500', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -326,7 +329,7 @@ xtick([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
-legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+% legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
 text(0.03, 0.95, 'f) Hf P2500', 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -334,3 +337,4 @@ text(0.03, 0.95, 'f) Hf P2500', 'Units', 'normalized', ...
      'Margin', 3, ... % 边距
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 set(gca,'fontsize',12,'fontweight','bold')
+saveas(gcf,['Eul_CG',win,'_vs_RLS_Fr',ini,'_',inv],'png')
