@@ -10,12 +10,20 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 Case='nowave'; % wave
 win='kaiser'
 ini='_roughsmall'
+% ini='_rough'
+% ini='_cruise'
 inv='RLS'
 timerange=1:2148;
 param_Eul_cg_sf3fk
+% lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
+% lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
 lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
-dend=7;
+    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
+% end=7;
+range1=2.5e3;
+range2=140e3;
 % all time
 % load wave_pars_P289T89.5daysSF123_alltime_rough.mat
 % SF3_Lag=nanmean(SF3lll_time+SF3ltt_time,2);
@@ -34,17 +42,17 @@ timerange=1:2140;
 [SpecFlux_Lag289,Vt_Lag289,ebs_Lag289,kf_Lag,...
     lf_Lag,CI_ebs289,CI_Vt289,...
     CI_SpecFlux289,Th_Lag289]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    289,lambda,timerange,inv);
+    289,lambda,timerange,inv,range1,range2);
 fname=[Case,'_pars_P289','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag289=nanmean(SF3,2);
 
-timerange=1:2140;
+% timerange=1:2140;
 % timerange=1:720;
-[SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,~,...
-    ~,CI_ebs625,CI_Vt625,...
+[SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,kf_Lag,...
+    lf_Lag,CI_ebs625,CI_Vt625,...
     CI_SpecFlux625,Th_Lag625]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    625,lambda,timerange,inv);
+    625,lambda,timerange,inv,range1,range2);
 fname=[Case,'_pars_P625','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag625=nanmean(SF3,2);
@@ -54,32 +62,15 @@ timerange=1:720;
 [SpecFlux_Lag2500,Vt_Lag2500,ebs_Lag2500,kf_Lag,...
     lf_Lag,CI_ebs2500,CI_Vt2500,...
     CI_SpecFlux2500,Th_Lag2500]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    2500,lambda,timerange,inv);
+    2500,lambda,timerange,inv,range1,range2);
 fname=[Case,'_pars_P2500','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag2500=nanmean(SF3,2);
 
 
-x_fill = [1./kf_Lag(1:dend)./1e3.*2.*pi, fliplr(1./kf_Lag(1:dend)./1e3.*2.*pi)];
-
-% if timerange(end)<500
-%     if strcmpi(Case, 'wave')
-%         load wave_CG_Eul_T480_rough.mat
-% 
-%     end
-%     if strcmpi(Case, 'nowave')
-%         load nowave_CG_Eul_T480_rough.mat
-%     end
-%     Thm_Eulerian=nanmean(Th_all480,2);
-% end
+x_fill = [1./kf_Lag(1:end)./1e3.*2.*pi, fliplr(1./kf_Lag(1:end)./1e3.*2.*pi)];
 
 
-% b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
-% r_cg = findXatYZero(filtscale./1e3, Thm_Eulerian);
-
-% b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
-%     'LineWidth',1.5, 'Color','k');
-% r_fit = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi, SpecFlux_E(dstr:end));
 
 x_coords = [4, 200, 200, 4];  % x坐标：左边界4，右边界200
 y_coords = [-2e-8, -2e-8, 4e-8, 4e-8]; % y坐标：下边界-2e-8，上边界4e-8
@@ -108,10 +99,10 @@ B1=semilogx(filtscale./1e3,Th_Lag289,'LineWidth',1.5,'Color',colors{4}, ...
 % hold on
 r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag289);
 
-B2=semilogx(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag289(1:dend),'LineWidth',1.5,'Color',colors{4})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag289(1:dend));
+B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end),'LineWidth',1.5,'Color',colors{4})
+r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end));
 
-fill(x_fill, [CI_SpecFlux289(1,1:dend), fliplr(CI_SpecFlux289(2,1:dend))], ...
+fill(x_fill, [CI_SpecFlux289(1,1:end), fliplr(CI_SpecFlux289(2,1:end))], ...
     colors_rgb{4}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
 
 
@@ -188,13 +179,13 @@ r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
 B1=semilogx(filtscale./1e3,Th_Lag625,'LineWidth',1.5,'Color',colors{5}, ...
     'LineStyle','--')
 % hold on
-r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag289);
+r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag625);
 
-B2=semilogx(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag625(1:dend), ...
+B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end), ...
     'LineWidth',1.5,'Color',colors{5})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag625(1:dend));
+r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end));
 
-fill(x_fill, [CI_SpecFlux625(1,1:dend), fliplr(CI_SpecFlux625(2,1:dend))], ...
+fill(x_fill, [CI_SpecFlux625(1,1:end), fliplr(CI_SpecFlux625(2,1:end))], ...
     colors_rgb{5}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
 
 
@@ -253,8 +244,8 @@ set(gca,'fontsize',12,'fontweight','bold')
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
 subplot(2,3,3)
 
 patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
@@ -275,11 +266,11 @@ B1=semilogx(filtscale./1e3,Th_Lag2500,'LineWidth',1.5,'Color',colors{6}, ...
 % hold on
 r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag2500);
 
-B2=semilogx(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag2500(1:dend),'LineWidth', ...
+B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag2500(1:end),'LineWidth', ...
     1.5,'Color',colors{6})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:dend).*2.*pi./1e3,SpecFlux_Lag2500(1:dend));
+r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag2500(1:end));
 
-fill(x_fill, [CI_SpecFlux2500(1,1:dend), fliplr(CI_SpecFlux2500(2,1:dend))], ...
+fill(x_fill, [CI_SpecFlux2500(1,1:end), fliplr(CI_SpecFlux2500(2,1:end))], ...
     colors_rgb{6}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
 
 
