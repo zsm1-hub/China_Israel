@@ -11,24 +11,27 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
-nparticles=625; % numbers of particles
+Case='nowave'; % wave
+nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_rough'
+ini='_roughsmall'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
 if strcmpi(ini, '_rough')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
 end
+if strcmpi(ini, '_roughsmall')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion/';
+end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-% timerange=1:1920;
+timerange=1:2140;
+% timerange=1:960;
+% timerange=1:1200;
 % timerange=1:720;
-timerange=1:1200;
-timerange=1:720;
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -325,7 +328,7 @@ for i = 1:length(dist_axis)
 end
 toc
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    'bootstrap.mat']
+    ini,'bootstrap.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
      'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all')
