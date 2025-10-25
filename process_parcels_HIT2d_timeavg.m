@@ -9,12 +9,12 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='HIT2d'; % wave
-nparticles=222784; % numbers of particles
-num_to_select = 5000;
+nparticles=10000; % numbers of particles
+num_to_select = 10000;
 days=89.5;  % days
-seconds=0.05;  % days
-dt=2.5e-4; % s  Advection_RK4 delta_t drift时间间隔
-timerange=1:180;
+seconds=20;  % days
+dt=0.1; % s  Advection_RK4 delta_t drift时间间隔
+timerange=50:100;
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 input_dir='/meddy/simingzhang/Data/Parcels_data/HIT2d_rough/';
 addpath(input_dir)
@@ -33,7 +33,7 @@ end
 
 
 if strcmpi(Case, 'HIT2d')
-    fname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(seconds),'seconds.nc'];
+    fname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(seconds),'.0seconds.nc'];
     oname=[input_dir,Case,'_pars_P',num2str(num_to_select),'T',num2str(seconds),'seconds.nc'];
 end
 
@@ -47,10 +47,10 @@ num_columns = size(lon, 2); % 65536
 random_indices = randperm(num_columns, num_to_select); % 随机选择不重复索引
 
 % 抽取这些列
-lons = lon(:, random_indices);
-lats = lat(:, random_indices);
-ues = ue(:, random_indices);
-ves = ve(:, random_indices);
+lons = lon(timerange, random_indices);
+lats = lat(timerange, random_indices);
+ues = ue(timerange, random_indices);
+ves = ve(timerange, random_indices);
 
 % read coarse-graining
 xscale=[2:18,21:3:48,54:6:120,132:12:240,264:24:504];
@@ -60,7 +60,7 @@ for iii=1:length(xscale)
     eval(['th',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
     % eval(['Th(',num2str(iii),')=nanmean(','th',num2str(xscale(iii)),'(:));'])
     eval(['Th_all(',num2str(iii),',:)=nanmean(','th', ...
-        num2str(xscale(iii)),'(1:183,','random_indices','),2);'])
+        num2str(xscale(iii)),'(timerange,','random_indices','),2);'])
 end
 %%%%%%%%%%%%%%%%check right?%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 save([oname(1:end-3),'traj.mat'],'lons','lats','ues','ves','Th_all')
@@ -98,10 +98,10 @@ lon=lons;lat=lats;ue=ues;ve=ves;
 % end
 % lon(end,:)=[];lat(end,:)=[];
 
-lon=lon(timerange,:);
-lat=lat(timerange,:);
-u=ue(timerange,:);
-v=ve(timerange,:);
+% lon=lon(timerange,:);
+% lat=lat(timerange,:);
+u=ue;
+v=ve;
 %%%%%%%%%%%%%%%%%%%%%there is a 2D experiment, So I assuming H=-501
 %%%%%%%%%%%%%%%%%%%%%H 没有意义, 只是在Balwada的code里面只采样了500米以上的粒子
 
@@ -214,119 +214,28 @@ for i = 1:tpts % time loop
 end
 
 %%
-clear pairs_time
+% gamma = 1.5; % 
 % 
-% gamma = 1.5;
+% min_scale = 0.001; % 
+% max_scale = pi;    %
 % 
-% dist_bin(1) = 10; % in m
-% dist_bin = gamma.^[0:100]*dist_bin(1);
+% dist_bin = min_scale * gamma.^(0:100); % 
+% id = find(dist_bin > max_scale, 1);    % 
 % 
-% % dist_bin for cg
-% % dist_bin=[1:18 21:3:48 54:6:114].*2e3;
-% 
-% id = find(dist_bin>1000*10^3,1);
-% dist_bin = dist_bin(1:id);
-% dist_bin(2:end+1) = dist_bin(1:end);
-% dist_bin(1) = 0;
-% dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
-% dist_axis=dist_axis(dist_axis>2e3);
-% Generate vel axis
-% vel_bins = linspace(-2, 2, 50);
-% vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
-% min_resolution = 0.0123 * sqrt(2); % 最小分辨率 ≈ 0.0174
-% max_scale = pi * sqrt(2);          % 最大尺度 π×√2 ≈ 4.44
-% 
-% % 计算分箱数量
-% bin_width = min_resolution; % 固定分箱宽度
-% num_bins = ceil(max_scale / bin_width); % 向上取整
-% 
-% % 创建分箱边界
-% dist_bin = (0:num_bins) * bin_width;
-% 
-% % 确保不超过最大尺度
-% if dist_bin(end) > max_scale
-%     dist_bin(end) = max_scale;
+% if isempty(id)
+%     dist_bin = dist_bin; % 
+% else
+%     dist_bin = dist_bin(1:id); % 
 % end
 % 
-% % 计算分箱中心
-% dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
-% num_bins = 20; % 总箱数
-% log_min = log10(6.2832/512.*sqrt(2)); % 1mm
-% log_max = log10(pi.*sqrt(2)); % 6.28m
+% dist_bin = [0, dist_bin]; 
 % 
-% dist_bin = logspace(log_min, log_max, num_bins);
-% % dist_bin = [0, dist_bin]; % 添加0起点
-% dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
-% load HIT2d_Eul_r.mat
-% dist_bin=dist_axis(1:1:end);
-% clear dist_axis
 % dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
 
-% min_val = 1e-20 ;
-% max_val = pi * sqrt(2);
-% 
-% % 设置点数（例如10个点）
-% num_points = 100;
-% 
-% % 在对数空间生成等距点（使用自然对数）
-% log_min = log(min_val);
-% log_max = log(max_val);
-% 
-% % 生成对数空间等距点
-% log_points = linspace(log_min, log_max, num_points);
-% 
-% % 通过指数还原为线性尺度
-% arr = exp(log_points);
-% dist_bin=arr;
-% dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
-% dr=dist_axis(2:end)-dist_axis(1:end-1);
-% disp(dr)
-% a=find(dr>0.0123);
-% disp([num2str(a(1)),'    ',num2str(dist_axis(a(1)))])
-% dist_bin=dist_bin(a(1):end);
-% dist_axis=dist_axis(a(1):end);
-
-% test linear 
-arr = linspace(0.0123,pi.*sqrt(2),120)
-dist_bin=arr;
+load HIT2d_Eul_r.mat
+dist_bin=dist_axis(1:1:end);
+clear dist_axis
 dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
-
-
-% min_val = 0.0123 * sqrt(2); % ≈0.0174
-% max_val = pi * sqrt(2);     % ≈4.4429
-% 
-% % 设置总点数
-% total_points = 30;
-% 
-% % 计算对数空间范围
-% log_min = log(min_val);
-% log_max = log(max_val);
-
-% % 在小尺度区域增加点数密度
-% % 使用分段对数分布：小尺度区域点数更多
-% transition_point = 0.1; % 设置过渡点（可调整）
-% log_transition = log(transition_point);
-% 
-% % 计算小尺度区域点数比例（占总点数的60%）
-% small_scale_ratio = 0.2;
-% num_small_points = round(total_points * small_scale_ratio);
-% num_large_points = total_points - num_small_points;
-% 
-% % 生成小尺度区域的对数点（更密集）
-% small_log_points = linspace(log_min, log_transition, num_small_points);
-% 
-% % 生成大尺度区域的对数点（较稀疏）
-% large_log_points = linspace(log_transition, log_max, num_large_points);
-% 
-% % 合并点并确保唯一性
-% all_log_points = unique([small_log_points, large_log_points]);
-% 
-% % 转换回线性空间
-% dist_bin = exp(all_log_points);
-% 
-% % 计算轴点和间距
-% dist_axis = 0.5 * (dist_bin(1:end-1) + dist_bin(2:end));
-% dr = dist_axis(2:end) - dist_axis(1:end-1);
 
 tic
 for i = 1:length(dist_axis)
@@ -349,5 +258,6 @@ for i = 1:length(dist_axis)
 end
 toc
 SF3_mean=(SF3lll+SF3ltt)'
-
-save([input_dir,'test.mat'],'SF3_mean','dist_axis')
+SF2_mean=(SF2ll+SF2tt)';
+SF3_mean./dist_axis'
+save([input_dir,'test.mat'],'SF3_mean','dist_axis','SF2_mean','Th_all')
