@@ -2,7 +2,8 @@
 %   utility: import parcels data to calc SF2,SF3
 %   doesn't use bootstrap to resample,insteadly, calc time-mean SF2 and SF3 directly
 %   code writer: zsm, modified from Balwada 2022 sciadv supplyment
-%%%%%%%%%%%%%%%%%%%%%% test cruise code , need time align %%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%% test dist_bin code ########################
 clear all;close all;clc
 % addpath('D:\LIN2023\model\RoyBarkan\LLC4320/')
 % addpath('D:\LIN2023\crocotools\Preprocessingtools') % add function "spheric_dist.m"
@@ -17,7 +18,7 @@ nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_cruise'
+ini='_roughsmall'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -28,8 +29,7 @@ if strcmpi(ini, '_roughsmall')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion/';
 end
 if strcmpi(ini, '_cruise')
-    % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion17/';
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
 end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
@@ -45,42 +45,15 @@ end
 if strcmpi(Case, 'nowave')
     fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%         important thing       
-%%%
-%%%%%%%%%% align time %%%%%%%%%%%
-info = ncinfo(fname);
-var_names = {info.Variables.Name};
-Time=ncread(fname,'time');
-% nc=netcdf(fname,'w');
 
-for ii=1:length(var_names)
-    % disp()
-    dt=3600;
-    eval([var_names{ii},'=ncread(fname,','''',var_names{ii},'''',');']);
-    eval(['[Taxis,Traxis]','=(size(',var_names{ii},'));'])
-    eval([upper(var_names{ii}),'=zeros(',num2str(Taxis),',',num2str(Traxis),');'])
-    eval([upper(var_names{ii}),'=trans_time(',var_names{ii},',dt,Time);'])
-    % LAT=trans_time(lat,dt,Time);
-    eval(['clear ',var_names{ii}]);
-    eval([var_names{ii},'=',upper(var_names{ii}),';']);
-    eval(['clear ',upper(var_names{ii})]);
+lon=ncread(fname,'lon');
+lat=ncread(fname,'lat');
 
-    % eval(['nc{','''',var_names{ii},'''','}=',var_names{ii},'''',';']);
+% ue=ncread(fname,'ue').*1852.*60.*cos(lat.*pi./180);
+% ve=ncread(fname,'ve').*1852.*60;
 
-    disp([var_names{ii}, ' done']);
-end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% lon=ncread(fname,'lon');
-% lat=ncread(fname,'lat');
-% 
-% % ue=ncread(fname,'ue').*1852.*60.*cos(lat.*pi./180);
-% % ve=ncread(fname,'ve').*1852.*60;
-% 
-% ue=ncread(fname,'ue');
-% ve=ncread(fname,'ve');
+ue=ncread(fname,'ue');
+ve=ncread(fname,'ve');
 
 lon=lon(timerange,:);
 lat=lat(timerange,:);
@@ -90,8 +63,8 @@ ve=ve(timerange,:);
 xscale=[2:18,21:3:48,54:6:114];
 PI=zeros(1,length(xscale));
 for iii=1:length(xscale)
-    % pistr=['th',num2str(xscale(iii))];
-    % eval(['th',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
+    pistr=['th',num2str(xscale(iii))];
+    eval(['th',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
     % eval(['Th(',num2str(iii),')=nanmean(','th',num2str(xscale(iii)),'(:));'])
     eval(['Th_all(',num2str(iii),',:)=nanmean(','th', ...
         num2str(xscale(iii)),'(timerange,:),2);'])
@@ -238,10 +211,9 @@ end
 
 %%
 clear pairs_time
+gamma = 1.2;
 
-gamma = 1.5;
-
-dist_bin(1) = 10; % in m
+dist_bin(1) = 500; % in m
 dist_bin = gamma.^[0:100]*dist_bin(1);
 id = find(dist_bin>1000*10^3,1);
 dist_bin = dist_bin(1:id);
@@ -270,6 +242,8 @@ toc
 for ij=1:length(pairs_sep)
     nsample(ij)=length(pairs_sep(ij).dul);
 end
+save([Case,'P',num2str(nparticles),ini,'nsamp.mat'], ...
+    'nsample','dist_axis','dist_bin');
 %%
 % Compute mean SF2 to use for estimating DOF
 
@@ -367,5 +341,5 @@ outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(e
     ini,'bootstrap.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nSamples')
+     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nsample')
 

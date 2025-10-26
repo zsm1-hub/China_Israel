@@ -11,12 +11,12 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_cruise'
+ini='_roughsmall'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -237,6 +237,12 @@ for i = 1:length(dist_axis)
     pairs_sep(i).dut = dut(id);
 end
 toc
+%% add by zsm
+for ij=1:length(pairs_sep)
+    nsample(ij)=length(pairs_sep(ij).dul);
+end
+save([Case,'P',num2str(nparticles),ini,'nsamp.mat'], ...
+    'nsample','dist_axis','dist_bin');
 %%
 % Compute mean SF2 to use for estimating DOF
 
@@ -334,5 +340,5 @@ outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(e
     ini,'bootstrap.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all')
+     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nsample')
 
