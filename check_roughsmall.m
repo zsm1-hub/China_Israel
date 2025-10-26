@@ -7,23 +7,36 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 ini='_roughsmall'
 % ini='_rough'
 % ini='_cruise'
-inv='NNLS'
+inv='RLS'
 timerange=1:2148;
 param_Eul_cg_sf3fk
 % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
+%     1e-7,1e-8];
+% % wave, _roughsmall
 % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14];
+%     1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
+% range1=2.5e3;
+% range2=200e3;
+% nowave, _roughsmall
 lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
-% end=7;
+    1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
 range1=2.5e3;
-range2=100e3;
+range2=140e3;
+
+% nowave test new bin
+% lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+%     1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
+% range1=2.5e3;
+% range2=200e3;
+% lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+%     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
+% end=7;
+
 % all time
 % load wave_pars_P289T89.5daysSF123_alltime_rough.mat
 % SF3_Lag=nanmean(SF3lll_time+SF3ltt_time,2);
@@ -47,8 +60,7 @@ fname=[Case,'_pars_P289','T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF3_Lag289=nanmean(SF3,2);
 
-% timerange=1:2140;
-% timerange=1:720;
+
 [SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,kf_Lag,...
     lf_Lag,CI_ebs625,CI_Vt625,...
     CI_SpecFlux625,Th_Lag625]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
@@ -73,7 +85,7 @@ x_fill = [1./kf_Lag(1:end)./1e3.*2.*pi, fliplr(1./kf_Lag(1:end)./1e3.*2.*pi)];
 
 
 x_coords = [4, 200, 200, 4];  % x坐标：左边界4，右边界200
-y_coords = [-2e-8, -2e-8, 4e-8, 4e-8]; % y坐标：下边界-2e-8，上边界4e-8
+y_coords = [-3e-8, -3e-8, 4e-8, 4e-8]; % y坐标：下边界-2e-8，上边界4e-8
 % 
 % patch(x_coords, y_coords, [0.9 0.9 0.9], 'EdgeColor', 'none'); % 中灰色，无边线
 screenSize = get(0, 'ScreenSize');
@@ -103,13 +115,13 @@ B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end),'LineWidth',1.5,
 r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end));
 
 fill(x_fill, [CI_SpecFlux289(1,1:end), fliplr(CI_SpecFlux289(2,1:end))], ...
-    colors_rgb{4}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
+    colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
 
 grid on
-ylim([-2e-8,4e-8]);
+ylim([-3e-8,4e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -142,11 +154,11 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','none','Marker', ...
 
 grid on
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([-5e-8,8e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
@@ -186,13 +198,13 @@ B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end), ...
 r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end));
 
 fill(x_fill, [CI_SpecFlux625(1,1:end), fliplr(CI_SpecFlux625(2,1:end))], ...
-    colors_rgb{5}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
+    colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
 
 grid on
-ylim([-2e-8,4e-8]);
+ylim([-3e-8,4e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -225,11 +237,11 @@ semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','none','Marker', ...
 
 grid on
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([-5e-8,8e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
@@ -271,13 +283,13 @@ B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag2500(1:end),'LineWidth', ..
 r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag2500(1:end));
 
 fill(x_fill, [CI_SpecFlux2500(1,1:end), fliplr(CI_SpecFlux2500(2,1:end))], ...
-    colors_rgb{6}, 'FaceAlpha', 0.1, 'EdgeColor', 'none');
+    colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
 
 grid on
-ylim([-2e-8,4e-8]);
+ylim([-3e-8,4e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -312,11 +324,11 @@ semilogx(lf_Lag./1e3,Vt_Lag2500./lf_Lag','LineStyle','none','Marker', ...
 
 grid on
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([-5e-8,8e-8]);
 xlim([1e3,1e6]./1e3);
-xtick([1,4,1e1,1e2,200,1e3])
+xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
