@@ -13,7 +13,7 @@ ini='_roughsmall_rot'
 % str1=15;
 % end1=26;
 str1=1;
-end1=19;
+end1=18;
 inv='RLS'
 yy1=-0.6e-8;
 yy2=-1.0e-8;
@@ -29,16 +29,15 @@ if strcmpi(Case, 'wave')
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
     lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14];
-    range1=2.5e3;
+    range1=2e3;
     % range2=200e3;
-    range2=300e3;
+    range2=500e3;
 end
 if strcmpi(Case, 'nowave')
     Casemean='Sm';
     % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
-    lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,7e-14];
+    lambda=[1e-8,1e-9,1e-10,1e-11,1e-12];
     range1=2.5e3;
     range2=300e3;
 end
@@ -141,6 +140,10 @@ y_fillSF3_2500=[cisf3_2500(1,:),...
 y_fillebs_2500=[CI_ebs2500(1,:),...
     fliplr(CI_ebs2500(2,:))];
 % 
+if strcmpi(Case, 'nowave')
+    colors_rgb{1}=colors_rgb{2};
+    colors{1}=colors{2};
+end
 
 dk_L=u2rho_2d(abs(diff(kf_Lag)));
 x_fill = [1./kf_Lag(1:end)./1e3.*2.*pi, fliplr(1./kf_Lag(1:end)./1e3.*2.*pi)];

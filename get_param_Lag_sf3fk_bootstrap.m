@@ -45,6 +45,8 @@ end
 SpecFlux_Lagm=nanmean(SpecFlux_Lag,2);
 Vt_Lagm=nanmean(Vt_Lag,2);
 ebs_Lagm=nanmean(ebs_Lag,2);
-
-disp(['process  ',fname,' done']);
+% [SpecFlux_Lag1time,~,~,~,...
+%     ~]=Fk_fitting_SF3_Lcurve(nanmean(SF3_Lag_all,2), ...
+%     dist_axis,2.5e3,500e3,'log','RLS',lambda,kf1,0);
+% disp(['process  ',fname,' done']);
 return

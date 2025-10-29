@@ -23,6 +23,9 @@ for jj=1:size(SF3,2)
     dist_axis,range1,range2,'log',inv,lambda,kf1,0);
 end
 % dist_axis,2.5e3,200e3,'log',inv,lambda,kf1,0);
+% [SpecFlux_Lag,Vt_Lag,ebs_Lag,kf_Lag,...
+%     lf_Lag]=Fk_fitting_SF3_Lcurve(SF3_Lag, ...
+%     dist_axis,range1,range2,'log',inv,lambda,kf1,1);
 
 % clear CI_ebs CI_Vt CI_SpecFlux CI_SF3
 % ebs_varp = ebs;
