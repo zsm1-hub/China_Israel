@@ -13,8 +13,8 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
-nparticles=289; % numbers of particles
+Case='wave'; % wave
+nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
@@ -211,12 +211,12 @@ end
 
 %%
 clear pairs_time
-gamma = 1.2;
+gamma = 1.3;
 
-dist_bin(1) = 500; % in m
+dist_bin(1) = 4000; % in m
 dist_bin = gamma.^[0:100]*dist_bin(1);
-id = find(dist_bin>1000*10^3,1);
-dist_bin = dist_bin(1:id);
+id = find(dist_bin>600*10^3,1);
+dist_bin = dist_bin(1:id-1);
 dist_bin(2:end+1) = dist_bin(1:end);
 dist_bin(1) = 0;
 dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
