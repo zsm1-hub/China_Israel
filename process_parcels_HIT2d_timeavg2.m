@@ -198,7 +198,7 @@ dist_bin = gamma.^[0:100]*dist_bin(1);
 % id = find(dist_bin>3.14*sqrt(2),1);
 id = find(dist_bin>3.14,1);
 
-dist_bin = dist_bin(1:id);
+dist_bin = dist_bin(1:id-1);
 dist_bin(2:end+1) = dist_bin(1:end);
 % modified by zsm
 dist_bin(1) = dist_bin(3)-dist_bin(2); 
