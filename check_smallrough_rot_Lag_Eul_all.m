@@ -7,20 +7,20 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 win='kaiser'
-ini='_roughsmall'
+ini='_roughsmall_rot'
 % str1=15;
 % end1=26;
 str1=1;
 end1=19;
-inv='NNLS'
+inv='RLS'
 yy1=-0.6e-8;
 yy2=-1.0e-8;
 yy3=-1.4e-8;
 yy4=-1.8e-8;
 timerange=1:2148;
-param_Eul_cg_sf3fk
+param_Eul_cg_sf3fk_rot
 
 
 if strcmpi(Case, 'wave')

@@ -14,11 +14,11 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-nparticles=625; % numbers of particles
+nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_roughsmall'
+ini='_roughsmall_rot'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 end
@@ -28,6 +28,10 @@ end
 if strcmpi(ini, '_roughsmall')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion/';
 end
+if strcmpi(ini, '_roughsmall_rot')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_rot/';
+end
+
 if strcmpi(ini, '_cruise')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
 end
