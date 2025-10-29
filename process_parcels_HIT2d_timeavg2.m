@@ -393,11 +393,11 @@ dist_axis
 % outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
 %     'timeavg3.mat']
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    'timeavg4.mat']
+    'timeavg5.mat']
 save(outputname,'SF3_mean','dist_axis','Th_all','nvaild_time')
 
 
-clear;clf;clc
+clear;
 % load test2500_1.mat
 % load test.mat
 % load HIT2d_pars_P10000T150timeavg2.mat
@@ -406,8 +406,8 @@ clear;clf;clc
 % load HIT2d_pars_P10000T150timeavg3.mat
 % load HIT2d_pars_P22500T150timeavg3.mat
 % load HIT2d_pars_P10000T150timeavg4.mat
-load HIT2d_pars_P22500T150timeavg4.mat
-% load HIT2d_pars_P62500T150timeavg4.mat
+% load HIT2d_pars_P22500T150timeavg4.mat
+load HIT2d_pars_P62500T150timeavg4.mat
 
 
 kf1=1./dist_axis'.*2.*pi
@@ -430,7 +430,9 @@ kf1=1./dist_axis'.*2.*pi
 % for version 4 for 62500 (30000)
 str1=0.05;
 en1=5;
-lambda_opt_idx=[100,10,1,1e-1,1e-2];
+lambda_opt_idx=[1000,100,10,1,1e-1,1e-2];
+% lambda_opt_idx=[100,10,1,1e-1];
+
 
 % str1=0.01;
 % en1=5;
@@ -457,7 +459,7 @@ dist_axis=dist_axis_coarse;
 
 % lambda_opt_idx=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
 %     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15];
-clf
+% clf
 [SpecFlux,Vt,ebs,kf,lf]=Fk_fitting_SF3_Lcurve(SF3_mean(1:end),dist_axis(1:end),str1,en1, ...
     'log','RLS',lambda_opt_idx,kf1,0);
 
