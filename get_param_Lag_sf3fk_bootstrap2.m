@@ -1,7 +1,8 @@
 
 function [SpecFlux_Lagm,Vt_Lagm,ebs_Lagm,kf_Lag,...
     lf_Lag,CI_ebs,CI_Vt,...
-    CI_SpecFlux,Th_Lag]=get_param_Lag_sf3fk_bootstrap2(Case,ini,nparticles,lambda,timerange);
+    CI_SpecFlux,Th_Lag,SF3,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
+    nparticles,lambda,timerange,inv,range1,range2);
 
 % fname=[Case,'_pars_P',num2str(nparticles),'T480bootstrap.mat'];
 % fname=[Case,'_pars_P',num2str(nparticles),'T720bootstrap.mat'];
@@ -19,8 +20,9 @@ kf1=1;
 for jj=1:size(SF3,2)
 [SpecFlux_Lag(:,jj),Vt_Lag(:,jj),ebs_Lag(:,jj),kf_Lag,...
     lf_Lag]=Fk_fitting_SF3_Lcurve(SF3_Lag_all(:,jj), ...
-    dist_axis,2.5e3,200e3,'log','RLS',lambda,kf1,0);
+    dist_axis,range1,range2,'log',inv,lambda,kf1,0);
 end
+% dist_axis,2.5e3,200e3,'log',inv,lambda,kf1,0);
 
 % clear CI_ebs CI_Vt CI_SpecFlux CI_SF3
 % ebs_varp = ebs;

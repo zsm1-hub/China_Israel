@@ -11,7 +11,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
