@@ -1,3 +1,4 @@
+
 % nparticles=[289,625,2500,15376]; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
@@ -5,8 +6,7 @@ input_dir='/meddy/simingzhang/Data/Parcels_data/';
 inv_style='RLS';
 rescale=1;
 fitstr=1;
-lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-    1e-7,1e-8,1e-9,1e-10,1e-11,1e-12];
+lambda=[1e-8,1e-9,1e-10,1e-11,1e-12];
 N=287;dstr=1;dot=201;
 colors={'#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE'};
 colors_rgb = {...
