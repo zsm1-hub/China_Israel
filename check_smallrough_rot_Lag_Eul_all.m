@@ -21,7 +21,8 @@ yy3=-1.4e-8;
 yy4=-1.8e-8;
 timerange=1:2148;
 param_Eul_cg_sf3fk_rot
-
+SF3_E=SF3(2:end);
+r_E=r(2:end);
 
 if strcmpi(Case, 'wave')
     Casemean='Hf';
@@ -221,7 +222,8 @@ hold on
 fill(x_fill2,y_fillSF3_289, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','-','LineWidth',1.5);
-
+b3=semilogx(r_E./1e3,...
+    SF3_E./r_E','LineWidth',1.5,'Color','k');
 grid on
 xlim([1e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])
@@ -331,7 +333,8 @@ hold on
 fill(x_fill2,y_fillSF3_625, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','-','LineWidth',1.5);
-
+semilogx(r_E./1e3,...
+    SF3_E./r_E','LineWidth',1.5,'Color','k');
 grid on
 xlim([1e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])

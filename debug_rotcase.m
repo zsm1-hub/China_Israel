@@ -21,7 +21,8 @@ yy3=-1.4e-8;
 yy4=-1.8e-8;
 timerange=1:2148;
 param_Eul_cg_sf3fk_rot
-
+SF3_E=SF3_mean(2:end);
+r_E=r(2:end);
 
 if strcmpi(Case, 'wave')
     Casemean='Hf';
@@ -222,7 +223,8 @@ hold on
 fill(x_fill2,y_fillSF3_289, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','-','LineWidth',1.5);
-
+b3=semilogx(r_E./1e3,...
+    SF3_E./r_E','LineWidth',1.5,'Color','k');
 grid on
 xlim([1e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])
@@ -233,7 +235,8 @@ xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
 
-legend([b1,b2],{['Lag D3(r)/r'],'fitting'},'Location','southeast')
+legend([b1,b2,b3],{['Lag D3(r)/r'],'fitting',['Eul D3(r)/r']},...
+    'Location','southeast')
 text(0.03, 0.95, ['d) ',Casemean,' P289'], 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
@@ -332,7 +335,8 @@ hold on
 fill(x_fill2,y_fillSF3_625, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','-','LineWidth',1.5);
-
+b3=semilogx(r_E./1e3,...
+    SF3_E./r_E','LineWidth',1.5,'Color','k');
 grid on
 xlim([1e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])
