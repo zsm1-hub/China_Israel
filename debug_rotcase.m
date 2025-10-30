@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 ini='_roughsmall_rot'
 % str1=15;
@@ -30,7 +30,7 @@ if strcmpi(Case, 'wave')
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
     % lambda=[1000,100,10,1,1e-1,1e-2,1e-3];
      lambda=[1e-8,1e-9,1e-10];
-    range1=2e3;
+    range1=4e3;
     % range2=200e3;
     range2=300e3;
 end
@@ -38,8 +38,8 @@ if strcmpi(Case, 'nowave')
     Casemean='Sm';
     % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
-    % lambda=[1e-8,1e-9,1e-10];
-    range1=2e3;
+    lambda=[1e-8,1e-9];
+    range1=4e3;
     range2=300e3;
 end
 
@@ -494,3 +494,5 @@ set(gca,'fontsize',12,'fontweight','bold')
 % 
 % 
 % % saveas(gcf,['Eul_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_',Case],'png')
+
+saveas(gcf,['Eul_Lag_CG_vs_RLS_Fr_',Casemean,'_rot'],'png')
