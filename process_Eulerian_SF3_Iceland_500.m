@@ -80,13 +80,13 @@ disp('***************done**************************')
 clear all;close all;clc
 str1=1;
 end1=500e3;
-cgname='s2sflux_spec_hf_500m.0002.nc';
+cgname='s2sflux_spec_hf_500m_kaiser1.0002.nc';
 filtscale=ncread(cgname,'filtscale');
 Thm_hf=ncread(cgname,'Thm');
 filtscale=filtscale(2:end);
 Thm_hf=Thm_hf(2:end);
 
-cgname='s2sflux_spec_smooth_500m.0002.nc';
+cgname='s2sflux_spec_smooth_500m_kaiser1.0002.nc';
 filtscale=ncread(cgname,'filtscale');
 Thm_sm=ncread(cgname,'Thm');
 filtscale=filtscale(2:end);
@@ -105,7 +105,7 @@ SF3_mean=nanmean(SF3,2);SF3_mean_hf=SF3_mean;
 lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
 
 clear SpecFlux_E;clear kf_E;
-kf1=1./filtscale.*2.*pi;
+kf1=fliplr(1./filtscale'.*2.*pi);
 [SpecFlux_E_hf,Vt_E_hf,ebs_E_hf,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
     r,str1,end1,'fuc','RLS',lambda,kf1,1);
 
@@ -119,7 +119,7 @@ SF3_mean=nanmean(SF3,2);SF3_mean_sm=SF3_mean;
 % lambda=[1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
 %     1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13];
 clear SpecFlux_E;clear kf_E;
-kf1=1./filtscale.*2.*pi;
+kf1=fliplr(1./filtscale'.*2.*pi);
 [SpecFlux_E_sm,Vt_E_sm,ebs_E_sm,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
     r,str1,end1,'fuc','RLS',lambda,kf1,1);
 
@@ -132,10 +132,14 @@ grid on
 
 subplot(2,2,2)
 
-semilogx(filtscale./1e3,Thm_hf)
+semilogx(filtscale./1e3,Thm_hf,'color','b','Linewidth',1.5)
 hold on
-semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_hf);
-semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_sm);
+semilogx(filtscale./1e3,Thm_sm,'color','r','Linewidth',1.5)
+
+semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_hf,'color','b', ...
+    'Linewidth',1.5,'LineStyle','--');
+semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_sm,'color','r', ...
+    'Linewidth',1.5,'Linewidth',1.5,'LineStyle','--');
 
 grid on
 
@@ -148,3 +152,61 @@ subplot(2,2,4)
 semilogx(r./1e3,SF3_mean_sm./r');hold on
 semilogx(lf_E./1e3,Vt_E_sm./lf_E','Marker','+','LineStyle','none')
 grid on
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% analysis %%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear all;close all;clc
+str1=1;
+end1=500e3;
+cgname='s2sflux_spec_hf_500m_kaiser1.0002.nc';
+filtscale=ncread(cgname,'filtscale');
+Thm_hf=ncread(cgname,'Thm');
+filtscale=filtscale(2:end);
+Thm_hf=Thm_hf(2:end);
+
+kc=flipud(1./filtscale);
+Thmc_hf=flipud(Thm_hf);
+kc_mid_s=0.5.*(kc(2:end)+kc(1:end-1));
+dPidk_hf_s=(Thmc_hf(2:end)-Thmc_hf(1:end-1));
+
+cgname='s2sflux_spec_smooth_500m_kaiser1.0002.nc';
+filtscale=ncread(cgname,'filtscale');
+Thm_sm=ncread(cgname,'Thm');
+filtscale=filtscale(2:end);
+Thm_sm=Thm_sm(2:end);
+Thmc_sm=flipud(Thm_sm);
+dPidk_sm_s=(Thmc_sm(2:end)-Thmc_sm(1:end-1));
+
+load wave_500_Eulerian_SF3.mat
+S3L1=vertcat(S3L1_alltime{:});
+S3T1=vertcat(S3T1_alltime{:});
+r=r(2:end);
+SF3=(S3T1(:,2:end)+S3L1(:,2:end))';
+SF3_mean=nanmean(SF3,2);SF3_mean_hf=SF3_mean;
+lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
+
+clear SpecFlux_E;clear kf_E;
+kf1=fliplr(1./filtscale'.*2.*pi);
+[SpecFlux_E_hf,Vt_E_hf,ebs_E_hf,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
+    r,str1,end1,'fuc','RLS',lambda,kf1,0);
+dk_E=v2rho_2d(abs(diff(kf_E)));
+
+
+load nowave_500_Eulerian_SF3.mat
+S3L1=vertcat(S3L1_alltime{:});
+S3T1=vertcat(S3T1_alltime{:});
+r=r(2:end);
+SF3=(S3T1(:,2:end)+S3L1(:,2:end))';
+SF3_mean=nanmean(SF3,2);SF3_mean_sm=SF3_mean;
+
+kf1=fliplr(1./filtscale'.*2.*pi);
+[SpecFlux_E_sm,Vt_E_sm,ebs_E_sm,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
+    r,str1,end1,'fuc','RLS',lambda,kf1,0);
+
+%
+colors={'#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE'};
+
+
+c4=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E_sm(1:end-3).*dk_E(1:end-2),...
+    'LineWidth', 1.5,'Color',colors{5});
+hold on
+c1=semilogx(1./kc_mid_s./1e3,dPidk_sm_s,'LineWidth',1.5,'Color',colors{1});
+
