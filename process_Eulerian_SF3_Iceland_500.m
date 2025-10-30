@@ -152,10 +152,12 @@ subplot(2,2,4)
 semilogx(r./1e3,SF3_mean_sm./r');hold on
 semilogx(lf_E./1e3,Vt_E_sm./lf_E','Marker','+','LineStyle','none')
 grid on
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% analysis %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Eul analysis %%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all;close all;clc
 str1=1;
 end1=500e3;
+win='kaiser';
+inv='RLS';
 cgname='s2sflux_spec_hf_500m_kaiser1.0002.nc';
 filtscale=ncread(cgname,'filtscale');
 Thm_hf=ncread(cgname,'Thm');
@@ -186,8 +188,8 @@ lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
 clear SpecFlux_E;clear kf_E;
 kf1=fliplr(1./filtscale'.*2.*pi);
 [SpecFlux_E_hf,Vt_E_hf,ebs_E_hf,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
-    r,str1,end1,'fuc','RLS',lambda,kf1,0);
-dk_E=v2rho_2d(abs(diff(kf_E)));
+    r,str1,end1,'fuc',inv,lambda,kf1,0);
+dk_E=u2rho_2d(abs(diff(kf_E)));
 
 
 load nowave_500_Eulerian_SF3.mat
@@ -199,14 +201,159 @@ SF3_mean=nanmean(SF3,2);SF3_mean_sm=SF3_mean;
 
 kf1=fliplr(1./filtscale'.*2.*pi);
 [SpecFlux_E_sm,Vt_E_sm,ebs_E_sm,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
-    r,str1,end1,'fuc','RLS',lambda,kf1,0);
+    r,str1,end1,'fuc',inv,lambda,kf1,0);
 
 %
 colors={'#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE'};
 
+screenSize = get(0, 'ScreenSize');
+figure('Position', [0, 0, screenSize(3), screenSize(4)]);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%hf %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%Eul fk%%%%%%%%%%
+subplot(2,3,1)
+b1=semilogx(filtscale./1e3,Thm_hf,'color',colors{1},'Linewidth',1.5)
 
-c4=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E_sm(1:end-3).*dk_E(1:end-2),...
-    'LineWidth', 1.5,'Color',colors{5});
 hold on
-c1=semilogx(1./kc_mid_s./1e3,dPidk_sm_s,'LineWidth',1.5,'Color',colors{1});
+b2=semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_hf,'color','k', ...
+    'Linewidth',1.5);
+grid on
+ylim([-3e-8,5e-8]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % title('Hf: CG vs sf3-RLS flux')
+% legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
+legend([b1,b2],{['Eul CG (',win,')'],['Eul ',inv,'-fitting']})
+text(0.03, 0.95, ['a) Hf Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
 
+%%%%%%%%%%%%%sf3 fitting%%%%%%%%%%
+subplot(2,3,2)
+b1=semilogx(r./1e3,SF3_mean_hf./r','color',colors{1},'Linewidth',1.5)
+
+hold on
+b2=semilogx(lf_E./1e3,Vt_E_hf./lf_E','marker','x','linestyle','none', ...
+    'Linewidth',1.5);
+grid on
+grid on
+ylim([-6e-8,6e-8]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+legend([b1,b2],{['Eul D3(r)/r'],['Eul ',inv,'-fitting']})
+text(0.03, 0.95, ['b) Hf Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+%%%%%%%%%%%%%%% energy injection %%%%%%%%%%%%%%%%%%%
+subplot(2,3,3)
+b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E_hf(1:end-3).*dk_E(1:end-2)',...
+    'LineWidth', 1.5,'Color','k');
+hold on
+b2=semilogx(1./kc_mid_s./1e3,dPidk_hf_s,'LineWidth',1.5,'Color',colors{1});
+
+grid on
+ylim([-15e-9,10e-9]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+legend([b1,b2],{['RLS'],['CG']})
+text(0.03, 0.95, ['c) Hf Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+
+% c4=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E_sm(1:end-3).*dk_E(1:end-2)',...
+%     'LineWidth', 1.5,'Color',colors{5});
+% hold on
+% c1=semilogx(1./kc_mid_s./1e3,dPidk_sm_s,'LineWidth',1.5,'Color',colors{1});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%sm %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%Eul fk%%%%%%%%%%
+subplot(2,3,4)
+b1=semilogx(filtscale./1e3,Thm_sm,'color',colors{2},'Linewidth',1.5)
+
+hold on
+b2=semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_sm,'color','k', ...
+    'Linewidth',1.5);
+grid on
+ylim([-3e-8,5e-8]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % title('Hf: CG vs sf3-RLS flux')
+% legend([b1,b2],{['CG (',win,')'],'SF3-fitting (RLS)'})
+legend([b1,b2],{['Eul CG (',win,')'],['Eul ',inv,'-fitting']})
+text(0.03, 0.95, ['d) Sm Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+%%%%%%%%%%%%%sf3 fitting%%%%%%%%%%
+subplot(2,3,5)
+b1=semilogx(r./1e3,SF3_mean_sm./r','color',colors{1},'Linewidth',1.5)
+
+hold on
+b2=semilogx(lf_E./1e3,Vt_E_sm./lf_E','marker','x','linestyle','none', ...
+    'Linewidth',1.5);
+grid on
+grid on
+ylim([-6e-8,6e-8]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+legend([b1,b2],{['Eul D3(r)/r'],['Eul ',inv,'-fitting']})
+text(0.03, 0.95, ['e) Sm Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+%%%%%%%%%%%%%%% energy injection %%%%%%%%%%%%%%%%%%%
+subplot(2,3,6)
+b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E_sm(1:end-3).*dk_E(1:end-2)',...
+    'LineWidth', 1.5,'Color','k');
+hold on
+b2=semilogx(1./kc_mid_s./1e3,dPidk_sm_s,'LineWidth',1.5,'Color',colors{2});
+
+grid on
+ylim([-15e-9,10e-9]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+legend([b1,b2],{['RLS'],['CG']})
+text(0.03, 0.95, ['f) Sm Eul'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+saveas(gcf,['Eul_CG_vs_RLS_Fr_500m'],'png')
