@@ -43,7 +43,7 @@ end
 
 if strcmpi(ini, '_roughsmall_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_500m/';
-    xscale=[1:18,21:3:48,54:6:114,120:12:228,240:24:336];
+    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
@@ -227,20 +227,40 @@ end
 
 %%
 clear pairs_time
-gamma = 1.3;
 
-dist_bin(1) = 4000; % in m
-dist_bin = gamma.^[0:100]*dist_bin(1);
-id = find(dist_bin>600*10^3,1);
-dist_bin = dist_bin(1:id-1);
-dist_bin(2:end+1) = dist_bin(1:end);
-dist_bin(1) = 0;
-dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+if strcmpi(ini, '_roughsmall_500m')
 
+    gamma = 1.3;
+    
+    dist_bin(1) = 1000; % in m
+    dist_bin = gamma.^[0:100]*dist_bin(1);
+    id = find(dist_bin>600*10^3,1);
+    dist_bin = dist_bin(1:id-1);
+    dist_bin(2:end+1) = dist_bin(1:end);
+    dist_bin(1) = 0;
+    dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+    
+    
+    % Generate vel axis
+    vel_bins = linspace(-2, 2, 50);
+    vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+else
+    gamma = 1.3;
 
-% Generate vel axis
-vel_bins = linspace(-2, 2, 50);
-vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+    dist_bin(1) = 4000; % in m
+    dist_bin = gamma.^[0:100]*dist_bin(1);
+    id = find(dist_bin>600*10^3,1);
+    dist_bin = dist_bin(1:id-1);
+    dist_bin(2:end+1) = dist_bin(1:end);
+    dist_bin(1) = 0;
+    dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+    
+    
+    % Generate vel axis
+    vel_bins = linspace(-2, 2, 50);
+    vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+end
+
 %%
 tic
 
