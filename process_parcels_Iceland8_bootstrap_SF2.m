@@ -40,11 +40,11 @@ if strcmpi(ini, '_cruise')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
     xscale=[2:18,21:3:48,54:6:114];
 end
-
 if strcmpi(ini, '_roughsmall_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_500m/';
     xscale=[1:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
+
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
 % timerange=1:2140;
@@ -52,7 +52,6 @@ end
 % timerange=1:1200;
 % timerange=1:720;
 timerange=1:1940;
-
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
@@ -334,28 +333,38 @@ for i = 1:length(dist_axis)
         blocks_dul = reshape(pairs_sep(i).dul(1:n), [blocksize, numblocks])';
         blocks_dut = reshape(pairs_sep(i).dut(1:n), [blocksize, numblocks])';
         
-        SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
+        SF2ll_samp = blocks_dul.^2; %+ blocks_dul.*blocks_dut.^2;
+        SF2tt_samp = blocks_dut.^2;
         
         % create blocks of bootstrap samples
         %SF3_bs = bootstrp(num_boot, @(x)x', SF3_samp');
         % calculate means of each bootstrap sample
         %SF3 = mean(SF3_bs, 2);
         
-        SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
+        [SF2ll(i,:), bootsamp] = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF2ll_samp);
         % the double mean above first takes mean over the blocks, then averages
         % the different blocks.
+        % the below loop is needed because we want correspondence between
+        % the SF2ll and SF2tt samples
+        for j = 1:num_boot
+            SF2tt(i,j) = mean(mean(SF2tt_samp(bootsamp(:,j),:),2),1);
+        end
+        
     else
-        SF3(i,:) = NaN;
+        SF2ll(i,:) = NaN;
+        SF2tt(i,:) = NaN; 
     end
     % Mean and standard error of the estimates
-    SF3_mean(i) = mean(SF3(i,:));
-    SF3_stderr(i) = std(SF3(i,:)); % boot strap std err is the std of bs estimates
-    
+    SF2ll_mean(i)   = mean(SF2ll(i,:));
+    SF2ll_stderr(i) = std(SF2ll(i,:)); % boot strap std err is the std of bs estimates
+    SF2tt_mean(i)   = mean(SF2tt(i,:));
+    SF2tt_stderr(i) = std(SF2tt(i,:));
 end
 toc
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    ini,'bootstrap.mat']
+    ini,'bootstrap_SF2.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
-save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nsample')
+save(outputname,'SF2ll','SF2tt', 'SF2ll_mean','SF2ll_stderr',...
+    'dof','SF2tt_mean','SF2tt_stderr',...
+     'dist_axis', 'dist_bin','nsample')
 
