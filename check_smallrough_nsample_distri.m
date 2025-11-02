@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 ini='_roughsmall_500m'
 % str1=15;
@@ -46,7 +46,7 @@ if strcmpi(Case, 'wave')
          lambda=[1e-8];
         str1=1;
         end1=24;
-        range1=1e3;
+        range1=1.5e3;
         range2=300e3;
     end
     if strcmpi(ini,'_rough_500m')
@@ -84,7 +84,7 @@ if strcmpi(Case, 'nowave')
         lambda=[1e-9,1e-10];
         str1=1;
         end1=24;
-        range1=1.5e3;
+        range1=1e3;
         range2=300e3;
     end
     if strcmpi(ini,'_rough_500m')
@@ -107,7 +107,10 @@ timerange=1:1940;
     lf_Lag,CI_ebs289,CI_Vt289,...
     CI_SpecFlux289,Th_Lag289,SF3_289,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
     289,lambda,timerange,inv,range1,range2);
-
+fname=[Case,'_pars_P289T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+nsample289=nsample;
+nsample289_distri=nsample289./nansum(nsample289);
 
 SF3_Lag289=nanmean(SF3_289,2);
 for i = 1:size(SF3_Lag289,1)
@@ -119,6 +122,10 @@ end
     lf_Lag,CI_ebs625,CI_Vt625,...
     CI_SpecFlux625,Th_Lag625,SF3_625,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
     625,lambda,timerange,inv,range1,range2);
+fname=[Case,'_pars_P625T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+nsample625=nsample;
+nsample625_distri=nsample625./nansum(nsample625);
 
 SF3_Lag625=nanmean(SF3_625,2);
 for i = 1:size(SF3_Lag625,1)
@@ -131,6 +138,11 @@ end
     lf_Lag,CI_ebs1089,CI_Vt1089,...
     CI_SpecFlux1089,Th_Lag1089,SF3_1089,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
     1089,lambda,timerange,inv,range1,range2);
+fname=[Case,'_pars_P1089T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+nsample1089=nsample;
+nsample1089_distri=nsample1089./nansum(nsample1089);
+
 
 SF3_Lag1089=nanmean(SF3_1089,2);
 for i = 1:size(SF3_Lag1089,1)
@@ -517,3 +529,60 @@ set(gca,'fontsize',12,'fontweight','bold')
 
 
 % saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_2km_',Casemean],'png')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(2)
+semilogx(dist_axis./1e3,...
+    nsample289_distri,'LineWidth',1.5);
+hold on
+semilogx(dist_axis./1e3,...
+    nsample625_distri,'LineWidth',1.5);
+semilogx(dist_axis./1e3,...
+    nsample1089_distri,'LineWidth',1.5);
+
+
+grid on
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+% ylim([-3e-7,2e-7]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{nsample/tot \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+text(0.03, 0.95, ['e) ',Casemean,' P625'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+
+%%%%%%%%%%%%%%%%%
+figure(3)
+semilogx(dist_axis./1e3,...
+    nsample289,'LineWidth',1.5);
+hold on
+semilogx(dist_axis./1e3,...
+    nsample625,'LineWidth',1.5);
+semilogx(dist_axis./1e3,...
+    nsample1089,'LineWidth',1.5);
+
+
+grid on
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+% ylim([-3e-7,2e-7]);
+xlim([0.5e3,1e6]./1e3);
+xticks([1,4,1e1,1e2,200,1e3])
+xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+ylabel('$$\mathbf{nsample/tot \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+text(0.03, 0.95, ['e) ',Casemean,' P625'], 'Units', 'normalized', ...
+     'FontSize', 12, 'FontWeight', 'bold', ...
+     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+     'EdgeColor', [.7,.7,.7], ... % 边框颜色
+     'Margin', 3, ... % 边距
+     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+set(gca,'fontsize',12,'fontweight','bold')
+

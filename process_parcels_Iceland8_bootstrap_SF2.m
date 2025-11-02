@@ -44,6 +44,10 @@ if strcmpi(ini, '_roughsmall_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
+if strcmpi(ini, '_rough_500m')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_rough_500m/';
+    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+end
 
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
@@ -227,7 +231,7 @@ end
 %%
 clear pairs_time
 
-if strcmpi(ini, '_roughsmall_500m')
+if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m')
 
     gamma = 1.3;
     
