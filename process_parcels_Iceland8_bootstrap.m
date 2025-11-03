@@ -138,7 +138,7 @@ traj.trajmat_U=u;traj.trajmat_V=v;
 traj.H=-520.*ones(size(v,1),size(v,2));
 traj.T_axis=linspace(dt, (size(v,1))*dt, size(v,1))./86400;
 
-save([fname(1:end-3),'traj.mat'],'traj');
+save([fname(1:end-3),ini,'traj.mat'],'traj');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 3. Calc pairs of particles' variables 
