@@ -14,11 +14,11 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='nowave'; % wave
-nparticles=625; % numbers of particles
+nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_rough_500m'
+ini='_roughmiddle_500m'
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
     xscale=[2:18,21:3:48,54:6:114];
@@ -48,6 +48,11 @@ end
 
 if strcmpi(ini, '_rough_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_rough_500m/';
+    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+end
+
+if strcmpi(ini, '_roughmiddle_500m')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughmiddle_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
@@ -233,7 +238,7 @@ end
 %%
 clear pairs_time
 
-if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m')
+if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(ini, '_roughmiddle_500m')
 
     gamma = 1.3;
     
