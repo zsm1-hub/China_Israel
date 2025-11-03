@@ -9,7 +9,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
 win='kaiser'
-ini='_roughsmall_500m'
+ini='_rough_500m'
 % str1=15;
 % end1=28;
 % str1=1;
@@ -91,7 +91,7 @@ if strcmpi(Case, 'nowave')
          lambda=[1e-8];
         str1=1;
         end1=24;
-        range1=1.5e3;
+        range1=1e3;
         range2=300e3;
     end
    
@@ -516,4 +516,4 @@ text(0.03, 0.95, ['i) ',Casemean,' P1089'], 'Units', 'normalized', ...
 set(gca,'fontsize',12,'fontweight','bold')
 
 
-% saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_2km_',Casemean],'png')
+saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_500_',Casemean],'png')
