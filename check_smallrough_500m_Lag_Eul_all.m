@@ -9,34 +9,44 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
 win='kaiser'
-ini='_rough_500m'
+% ini='_rough_500m'
+ini='_roughsmall'
+
 % str1=15;
 % end1=28;
 % str1=1;
 % end1=19;
-inv='RLS'
+inv='NNLS'
 yy1=-0.6e-8;
 yy2=-1.0e-8;
 yy3=-1.4e-8;
 yy4=-1.8e-8;
 timerange=1:1940;
-param_Eul_cg_sf3fk_500m
-SF3_E=SF3_mean';
-r_E=r;
+% param_Eul_cg_sf3fk_500m
+% SF3_E=SF3_mean';
+% r_E=r;
+param_Eul_cg_sf3fk
+SF3_E=SF3(2:end)';
+r_E=r(2:end)';
+
+
 
 if strcmpi(Case, 'wave')
     Casemean='Hf';
-    if strcmpi(ini,'rough')
+    if strcmpi(ini,'_rough')
         lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
         1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
-        str1=15;
-        end1=28;
+        % str1=15;
+        % end1=28;
+        str1=1;
+        end1=19;
         range1=2.5e3;
         range2=500e3;
     end
-    if strcmpi(ini,'roughsmall')
-        lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-        1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14];
+    if strcmpi(ini,'_roughsmall')
+        % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+        % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14];
+        lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
         str1=1;
         end1=19;
         range1=2.5e3;
@@ -49,10 +59,11 @@ if strcmpi(Case, 'wave')
         range1=1e3;
         range2=300e3;
     end
-    if strcmpi(ini,'_rough_500m')
+    if strcmpi(ini,'_rough_500m') || strcmpi(ini,'_roughbox100g_500m')
         lambda=[1e-7];
         str1=1;
         end1=24;
+        % end1=17;
         range1=1e3;
         range2=300e3;
     end
@@ -63,7 +74,7 @@ if strcmpi(Case, 'nowave')
     Casemean='Sm';
     % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
-    if strcmpi(ini,'rough')
+    if strcmpi(ini,'_rough')
         lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
         1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
         str1=15;
@@ -75,22 +86,23 @@ if strcmpi(Case, 'nowave')
          lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
      1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,7e-14];
         str1=1;
-        end1=19;
+        end1=18;
         range1=2.5e3;
         range2=300e3;
     end
 
     if strcmpi(ini,'_roughsmall_500m')
-        lambda=[1e-9,1e-10];
+        lambda=[1e-8];
         str1=1;
         end1=24;
-        range1=1.5e3;
+        range1=1e3;
         range2=300e3;
     end
-    if strcmpi(ini,'_rough_500m')
-         lambda=[1e-8];
+    if strcmpi(ini,'_rough_500m') || strcmpi(ini,'_roughbox100g_500m')
+         lambda=[5e-9];
         str1=1;
-        end1=24;
+        % end1=24;
+        end1=15;
         range1=1e3;
         range2=300e3;
     end
@@ -114,28 +126,28 @@ for i = 1:size(SF3_Lag289,1)
     CI_SF3_Lag289(:,i) = prctile(SF3_289(i,:), [95, 5]); 
 end
 
-
-[SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,kf_Lag,...
-    lf_Lag,CI_ebs625,CI_Vt625,...
-    CI_SpecFlux625,Th_Lag625,SF3_625,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    625,lambda,timerange,inv,range1,range2);
-
-SF3_Lag625=nanmean(SF3_625,2);
-for i = 1:size(SF3_Lag625,1)
-    CI_SF3_Lag625(:,i) = prctile(SF3_625(i,:), [95, 5]); 
-end
 % 
+% [SpecFlux_Lag625,Vt_Lag625,ebs_Lag625,kf_Lag,...
+%     lf_Lag,CI_ebs625,CI_Vt625,...
+%     CI_SpecFlux625,Th_Lag625,SF3_625,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
+%     625,lambda,timerange,inv,range1,range2);
+% 
+% SF3_Lag625=nanmean(SF3_625,2);
+% for i = 1:size(SF3_Lag625,1)
+%     CI_SF3_Lag625(:,i) = prctile(SF3_625(i,:), [95, 5]); 
+% end
 % % 
-% timerange=1:720;
-[SpecFlux_Lag1089,Vt_Lag1089,ebs_Lag1089,kf_Lag,...
-    lf_Lag,CI_ebs1089,CI_Vt1089,...
-    CI_SpecFlux1089,Th_Lag1089,SF3_1089,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
-    1089,lambda,timerange,inv,range1,range2);
-
-SF3_Lag1089=nanmean(SF3_1089,2);
-for i = 1:size(SF3_Lag1089,1)
-    CI_SF3_Lag1089(:,i) = prctile(SF3_1089(i,:), [95, 5]); 
-end
+% % % 
+% % timerange=1:720;
+% [SpecFlux_Lag1089,Vt_Lag1089,ebs_Lag1089,kf_Lag,...
+%     lf_Lag,CI_ebs1089,CI_Vt1089,...
+%     CI_SpecFlux1089,Th_Lag1089,SF3_1089,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
+%     1089,lambda,timerange,inv,range1,range2);
+% 
+% SF3_Lag1089=nanmean(SF3_1089,2);
+% for i = 1:size(SF3_Lag1089,1)
+%     CI_SF3_Lag1089(:,i) = prctile(SF3_1089(i,:), [95, 5]); 
+% end
 
 dd1=dist_axis(1:end-1);
 dd1=dd1(str1:end1);
@@ -150,20 +162,20 @@ y_fillebs_289=[CI_ebs289(1,:),...
 
 
 
-cisf3_625=CI_SF3_Lag625(:,1:end-1);
-cisf3_625=cisf3_625(:,str1:end1);
-y_fillSF3_625=[cisf3_625(1,:),...
-    fliplr(cisf3_625(2,:))]./x_fill2./1e3;
-y_fillebs_625=[CI_ebs625(1,:),...
-    fliplr(CI_ebs625(2,:))];
-
-
-cisf3_1089=CI_SF3_Lag1089(:,1:end-1);
-cisf3_1089=cisf3_1089(:,str1:end1);
-y_fillSF3_1089=[cisf3_1089(1,:),...
-    fliplr(cisf3_1089(2,:))]./x_fill2./1e3;
-y_fillebs_1089=[CI_ebs1089(1,:),...
-    fliplr(CI_ebs1089(2,:))];
+% cisf3_625=CI_SF3_Lag625(:,1:end-1);
+% cisf3_625=cisf3_625(:,str1:end1);
+% y_fillSF3_625=[cisf3_625(1,:),...
+%     fliplr(cisf3_625(2,:))]./x_fill2./1e3;
+% y_fillebs_625=[CI_ebs625(1,:),...
+%     fliplr(CI_ebs625(2,:))];
+% 
+% 
+% cisf3_1089=CI_SF3_Lag1089(:,1:end-1);
+% cisf3_1089=cisf3_1089(:,str1:end1);
+% y_fillSF3_1089=[cisf3_1089(1,:),...
+%     fliplr(cisf3_1089(2,:))]./x_fill2./1e3;
+% y_fillebs_1089=[CI_ebs1089(1,:),...
+%     fliplr(CI_ebs1089(2,:))];
 
 
 dk_L=u2rho_2d(abs(diff(kf_Lag)));
@@ -208,7 +220,7 @@ fill(x_fill, [CI_SpecFlux289(1,1:end), fliplr(CI_SpecFlux289(2,1:end))], ...
 
 
 grid on
-ylim([-10e-8,20e-8]);
+ylim([-10e-8,10e-8]);
 xlim([0.5e3,1e6]./1e3);
 % xticks([1,4,1e1,1e2,200,1e3])
 xticks([1,4,1e1,1e2,200,1e3])
@@ -251,7 +263,7 @@ grid on
 xlim([0.5e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
-ylim([-3e-7,2e-7]);
+ylim([-2e-7,2e-7]);
 xlim([0.5e3,1e6]./1e3);
 xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
@@ -297,223 +309,223 @@ set(gca,'fontsize',12,'fontweight','bold')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %625
-subplot(3,3,2)
-
-% patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
-%     'EdgeColor', 'k'); 
-set(gca,'xscale','log')
-hold on
-b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
-hold on
-r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
-
-b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
-    'LineWidth',1.5, ...
-'Color','k');
-r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
-
-B1=semilogx(filtscale./1e3,Th_Lag625,'LineWidth',1.5,'Color',colors{5}, ...
-    'LineStyle','--')
-% hold on
-r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag625);
-
-B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end), ...
-    'LineWidth',1.5,'Color',colors{5})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end));
-
-fill(x_fill, [CI_SpecFlux625(1,1:end), fliplr(CI_SpecFlux625(2,1:end))], ...
-    colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-
-
-grid on
-ylim([-10e-8,20e-8]);
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
-
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-legend([B1,B2],{['Lag CG (',win,')'],['Lag ',inv,'-fitting']})
-text(0.03, 0.95, ['b) ',Casemean,' P625'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
-    'Color',colors{1})
-text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
-text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
-    'Color',colors{5})
-text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
-    'Color',colors{5})
-
-set(gca,'fontsize',12,'fontweight','bold')
-% %%%%%%%%%%%%%%%%%%%%%%%%%debug%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subplot(3,3,5)
-semilogx(dist_axis(str1:end1)./1e3,...
-    SF3_Lag625(str1:end1)./dist_axis(str1:end1)','LineWidth',1.5);
-hold on
-fill(x_fill2,y_fillSF3_625, ...
-     'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','-','LineWidth',1.5);
-semilogx(r_E./1e3,...
-    SF3_E./r_E,'LineWidth',1.5,'Color','k');
-grid on
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
-ylim([-3e-7,2e-7]);
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-text(0.03, 0.95, ['e) ',Casemean,' P625'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subplot(3,3,8)
-set(gca,'xscale','log')
-hold on
-
-c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag625(1:end-3).*dk_L(1:end-2)','LineWidth', ...
-    1.5,'Color',colors{5});
-
-grid on
-ylim([-8e-8,8e-8]);
-% xlim([1e-6,1e-3].*1e3)
-% xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
-% xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-% xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-% legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-%     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, ['h) ',Casemean,' P625'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
-
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 1089
-subplot(3,3,3)
+% subplot(3,3,2)
 % 
-% patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
-%     'EdgeColor', 'k'); 
-set(gca,'xscale','log')
-hold on
-b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
-hold on
-r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
-
-b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
-    'LineWidth',1.5, ...
-'Color','k');
-r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
-
-B1=semilogx(filtscale./1e3,Th_Lag1089,'LineWidth',1.5,'Color',colors{6}, ...
-    'LineStyle','--')
+% % patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
+% %     'EdgeColor', 'k'); 
+% set(gca,'xscale','log')
 % hold on
-r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag1089);
-
-B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag1089(1:end),'LineWidth', ...
-    1.5,'Color',colors{6})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag1089(1:end));
-
-fill(x_fill, [CI_SpecFlux1089(1,1:end), fliplr(CI_SpecFlux1089(2,1:end))], ...
-    colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-
-grid on
-ylim([-10e-8,20e-8]);
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-legend([B1,B2],{['Lag CG (',win,')'],['Lag ',inv,'-fitting']})
-
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-
-text(0.03, 0.95, ['c) ',Casemean,' P1089'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
-    'Color',colors{1})
-text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
-
-text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
-    'Color',colors{6})
-text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
-    'Color',colors{6})
-
-set(gca,'fontsize',12,'fontweight','bold')
-
-
-subplot(3,3,6)
-semilogx(dist_axis(str1:end1)./1e3,...
-    SF3_Lag1089(str1:end1)./dist_axis(str1:end1)','LineWidth',1.5);
-hold on
-fill(x_fill2,y_fillSF3_1089, ...
-     'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-semilogx(lf_Lag./1e3,Vt_Lag1089./lf_Lag','LineStyle','-','LineWidth',1.5);
-semilogx(r_E./1e3,...
-    SF3_E./r_E,'LineWidth',1.5,'Color','k');
-grid on
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-% xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
-ylim([-3e-7,2e-7]);
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-
-% legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
-text(0.03, 0.95, ['f) ',Casemean,' P1089'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subplot(3,3,9)
-set(gca,'xscale','log')
-hold on
-
-c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag1089(1:end-3).*dk_L(1:end-2)','LineWidth', ...
-    1.5,'Color',colors{6});
-
-grid on
-ylim([-8e-8,8e-8]);
-% xlim([1e-6,1e-3].*1e3)
-% xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
-% xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-% xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-% legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-%     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, ['i) ',Casemean,' P1089'], 'Units', 'normalized', ...
-     'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
-     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
-
-
-saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_500_',Casemean],'png')
+% b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
+% hold on
+% r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
+% 
+% b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+%     'LineWidth',1.5, ...
+% 'Color','k');
+% r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
+% 
+% B1=semilogx(filtscale./1e3,Th_Lag625,'LineWidth',1.5,'Color',colors{5}, ...
+%     'LineStyle','--')
+% % hold on
+% r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag625);
+% 
+% B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end), ...
+%     'LineWidth',1.5,'Color',colors{5})
+% r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end));
+% 
+% fill(x_fill, [CI_SpecFlux625(1,1:end), fliplr(CI_SpecFlux625(2,1:end))], ...
+%     colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% 
+% 
+% grid on
+% ylim([-10e-8,20e-8]);
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+% 
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% legend([B1,B2],{['Lag CG (',win,')'],['Lag ',inv,'-fitting']})
+% text(0.03, 0.95, ['b) ',Casemean,' P625'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
+%     'Color',colors{1})
+% text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+% text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
+%     'Color',colors{5})
+% text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+%     'Color',colors{5})
+% 
+% set(gca,'fontsize',12,'fontweight','bold')
+% % %%%%%%%%%%%%%%%%%%%%%%%%%debug%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,5)
+% semilogx(dist_axis(str1:end1)./1e3,...
+%     SF3_Lag625(str1:end1)./dist_axis(str1:end1)','LineWidth',1.5);
+% hold on
+% fill(x_fill2,y_fillSF3_625, ...
+%      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','-','LineWidth',1.5);
+% semilogx(r_E./1e3,...
+%     SF3_E./r_E,'LineWidth',1.5,'Color','k');
+% grid on
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+% ylim([-3e-7,2e-7]);
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% text(0.03, 0.95, ['e) ',Casemean,' P625'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,8)
+% set(gca,'xscale','log')
+% hold on
+% 
+% c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag625(1:end-3).*dk_L(1:end-2)','LineWidth', ...
+%     1.5,'Color',colors{5});
+% 
+% grid on
+% ylim([-8e-8,8e-8]);
+% % xlim([1e-6,1e-3].*1e3)
+% % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
+% % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+% %     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+% text(0.03, 0.95, ['h) ',Casemean,' P625'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
+% % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % 1089
+% subplot(3,3,3)
+% % 
+% % patch(x_coords, y_coords, [0.9 0.9 0.9],'FaceAlpha', 0.3, ...
+% %     'EdgeColor', 'k'); 
+% set(gca,'xscale','log')
+% hold on
+% b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
+% hold on
+% r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
+% 
+% b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+%     'LineWidth',1.5, ...
+% 'Color','k');
+% r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
+% 
+% B1=semilogx(filtscale./1e3,Th_Lag1089,'LineWidth',1.5,'Color',colors{6}, ...
+%     'LineStyle','--')
+% % hold on
+% r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag1089);
+% 
+% B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag1089(1:end),'LineWidth', ...
+%     1.5,'Color',colors{6})
+% r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag1089(1:end));
+% 
+% fill(x_fill, [CI_SpecFlux1089(1,1:end), fliplr(CI_SpecFlux1089(2,1:end))], ...
+%     colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% 
+% grid on
+% ylim([-10e-8,20e-8]);
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% legend([B1,B2],{['Lag CG (',win,')'],['Lag ',inv,'-fitting']})
+% 
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{F(r) \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% 
+% text(0.03, 0.95, ['c) ',Casemean,' P1089'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
+%     'Color',colors{1})
+% text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+% 
+% text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
+%     'Color',colors{6})
+% text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+%     'Color',colors{6})
+% 
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
+% 
+% subplot(3,3,6)
+% semilogx(dist_axis(str1:end1)./1e3,...
+%     SF3_Lag1089(str1:end1)./dist_axis(str1:end1)','LineWidth',1.5);
+% hold on
+% fill(x_fill2,y_fillSF3_1089, ...
+%      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% semilogx(lf_Lag./1e3,Vt_Lag1089./lf_Lag','LineStyle','-','LineWidth',1.5);
+% semilogx(r_E./1e3,...
+%     SF3_E./r_E,'LineWidth',1.5,'Color','k');
+% grid on
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
+% ylim([-3e-7,2e-7]);
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% 
+% % legend([b1,b2],{['Lag D3(r)/r'],'fitting'})
+% text(0.03, 0.95, ['f) ',Casemean,' P1089'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,9)
+% set(gca,'xscale','log')
+% hold on
+% 
+% c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag1089(1:end-3).*dk_L(1:end-2)','LineWidth', ...
+%     1.5,'Color',colors{6});
+% 
+% grid on
+% ylim([-8e-8,8e-8]);
+% % xlim([1e-6,1e-3].*1e3)
+% % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
+% % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+% %     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+% text(0.03, 0.95, ['i) ',Casemean,' P1089'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
+% 
+% saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_500_',Casemean],'png')

@@ -14,12 +14,12 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
-nparticles=289; % numbers of particles
+nparticles=625; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 % ini='_roughbox200g_500m'
-ini='_roughbox100g_500m'
+ini='_roughsmall'
 %%% useless
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
@@ -250,8 +250,10 @@ clear pairs_time
 
 if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(ini, '_roughbox200g_500m') || strcmpi(ini, '_roughbox100g_500m')
 
-    gamma = 1.3;
     
+    % gamma = 1.3;
+    % dist_bin(1) = 1000; % in m
+    gamma = 1.5;
     dist_bin(1) = 1000; % in m
     dist_bin = gamma.^[0:100]*dist_bin(1);
     id = find(dist_bin>600*10^3,1);
