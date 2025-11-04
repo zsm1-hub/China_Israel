@@ -13,48 +13,54 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_roughbox200g_500m'
+% ini='_roughbox200g_500m'
+ini='_roughbox100g_500m'
+%%% useless
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
     xscale=[2:18,21:3:48,54:6:114];
 end
+%%% 2km whole grid
 if strcmpi(ini, '_rough')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
     xscale=[2:18,21:3:48,54:6:114];
 end
+%%% 2km 70*70box~140km
 if strcmpi(ini, '_roughsmall')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion/';
     xscale=[2:18,21:3:48,54:6:114];
 end
+%%% 2km 70*70box~140km
 if strcmpi(ini, '_roughsmall_rot')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_rot/';
     xscale=[2:18,21:3:48,54:6:114];
 end
-
+%%% 2km 70*70box~140km
 if strcmpi(ini, '_cruise')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
     xscale=[2:18,21:3:48,54:6:114];
 end
-
+%%% 500 m 280*280box~140km
 if strcmpi(ini, '_roughsmall_500m') 
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
-
+%%% 500 m whole grid
 if strcmpi(ini, '_rough_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_rough_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
-
+%%% 500 m 200*200box~100km
 if strcmpi(ini, '_roughbox200g_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughbox200g_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
 end
+%%% 500 m 100*100box~50km
 if strcmpi(ini, '_roughbox100g_500m')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughbox100g_500m/';
     xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
@@ -242,7 +248,7 @@ end
 %%
 clear pairs_time
 
-if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(ini, '_roughbox200g_500m')
+if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(ini, '_roughbox200g_500m') || strcmpi(ini, '_roughbox100g_500m')
 
     gamma = 1.3;
     
