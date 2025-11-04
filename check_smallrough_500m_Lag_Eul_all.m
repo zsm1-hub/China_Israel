@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 % ini='_rough_500m'
 ini='_roughsmall'
@@ -16,7 +16,7 @@ ini='_roughsmall'
 % end1=28;
 % str1=1;
 % end1=19;
-inv='NNLS'
+inv='RLS'
 yy1=-0.6e-8;
 yy2=-1.0e-8;
 yy3=-1.4e-8;
@@ -32,7 +32,7 @@ SF3_E=SF3(2:end)';
 r_E=r(2:end)';
 ymin_fk=-3e-8;ymax_fk=5e-8;
 ymin_sf=-1e-7;ymax_sf=1e-7;
-ymin_ebsdk=-2e-8;ymax_ebsdk=4e-8;
+ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
 
 
 
@@ -153,6 +153,8 @@ end
     1089,lambda,timerange,inv,range1,range2);
 dk_L=u2rho_2d(abs(diff(kf_Lag)));
 
+% 1./kf_Lag(1:end-1)./1e3.*2.*pi
+
 SF3_Lag1089=nanmean(SF3_1089,2);
 for i = 1:size(SF3_Lag1089,1)
     CI_SF3_Lag1089(:,i) = prctile(SF3_1089(i,:), [95, 5]); 
@@ -169,6 +171,10 @@ y_fillSF3_289=[cisf3_289(1,:),...
 y_fillebs_289=[CI_ebs289(1,1:end-3).*dk_L(1:end-2)...
     fliplr(CI_ebs289(2,1:end-3).*dk_L(1:end-2))];
 
+r1 = generate_r1_from_r(1./kf_Lag(1:end-2)./1e3.*2.*pi);
+rebs_c=0.5*(r1(1:end-1)+r1(2:end));
+var=fliplr(interp1(filtscale./1e3,Th_Lag289,r1));
+ebs_Lag_cg289=var(2:end)-var(1:end-1);
 
 
 cisf3_625=CI_SF3_Lag625(:,1:end-1);
@@ -297,8 +303,21 @@ hold on
 c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag289(1:end-3).*dk_L(1:end-2)','LineWidth', ...
     1.5,'Color',colors{4});
 hold on
+
 fill(x_fillebs,y_fillebs_289, ...
      colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+    'LineWidth', 1.5,'Color','k');
+b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
+
+% semilogx(1./(kc_mid_s)./1e3,dPidk_s,'LineWidth', ...
+%     1.5,'Color',colors{4},'LineStyle','--');
+% semilogx(1./dk_E./1e3,dPidk_s,'LineWidth', ...
+%     1.5,'Color',colors{1},'LineStyle','-');
+% semilogx(rebs_c,ebs_Lag_cg289,'LineWidth', ...
+%     1.5,'Color',colors{4},'LineStyle','--');
+
+
 grid on
 ylim([ymin_ebsdk,ymax_ebsdk]);
 % xlim([1e-6,1e-3].*1e3)
@@ -407,6 +426,9 @@ hold on
 c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag625(1:end-3).*dk_L(1:end-2)','LineWidth', ...
     1.5,'Color',colors{5});
 hold on
+b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+    'LineWidth', 1.5,'Color','k');
+b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
 fill(x_fillebs,y_fillebs_625, ...
      colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 grid on
@@ -521,6 +543,9 @@ hold on
 c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag1089(1:end-3).*dk_L(1:end-2)','LineWidth', ...
     1.5,'Color',colors{6});
 hold on
+b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+    'LineWidth', 1.5,'Color','k');
+b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
 fill(x_fillebs,y_fillebs_1089, ...
      colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 grid on
