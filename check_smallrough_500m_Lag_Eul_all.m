@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 win='kaiser'
 % ini='_rough_500m'
 ini='_roughsmall'
@@ -21,6 +21,7 @@ yy1=-0.6e-8;
 yy2=-1.0e-8;
 yy3=-1.4e-8;
 yy4=-1.8e-8;
+
 timerange=1:1940;
 % param_Eul_cg_sf3fk_500m
 % SF3_E=SF3_mean';
@@ -32,7 +33,12 @@ SF3_E=SF3(2:end)';
 r_E=r(2:end)';
 ymin_fk=-3e-8;ymax_fk=6e-8;
 ymin_sf=-1e-7;ymax_sf=1e-7;
-ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
+% ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
+ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
+ymin_right = -4e-8;    % 
+ymax_right = 6e-8;  % 
+xmin=1;
+xmax=1e3;
 
 
 
@@ -170,6 +176,8 @@ y_fillSF3_289=[cisf3_289(1,:),...
     fliplr(cisf3_289(2,:))]./x_fill2./1e3;
 y_fillebs_289=[CI_ebs289(1,1:end-3).*dk_L(1:end-2)...
     fliplr(CI_ebs289(2,1:end-3).*dk_L(1:end-2))];
+y_fillEBS_289=[CI_ebs289(1,1:end-1)...
+    fliplr(CI_ebs289(2,1:end-1))];
 
 r1 = generate_r1_from_r(1./kf_Lag(1:end-2)./1e3.*2.*pi);
 rebs_c=0.5*(r1(1:end-1)+r1(2:end));
@@ -183,6 +191,8 @@ y_fillSF3_625=[cisf3_625(1,:),...
     fliplr(cisf3_625(2,:))]./x_fill2./1e3;
 y_fillebs_625=[CI_ebs625(1,1:end-3).*dk_L(1:end-2)...
     fliplr(CI_ebs625(2,1:end-3).*dk_L(1:end-2))];
+y_fillEBS_625=[CI_ebs625(1,1:end-1)...
+    fliplr(CI_ebs625(2,1:end-1))];
 % 
 % 
 cisf3_1089=CI_SF3_Lag1089(:,1:end-1);
@@ -191,7 +201,8 @@ y_fillSF3_1089=[cisf3_1089(1,:),...
     fliplr(cisf3_1089(2,:))]./x_fill2./1e3;
 y_fillebs_1089=[CI_ebs1089(1,1:end-3).*dk_L(1:end-2)...
     fliplr(CI_ebs1089(2,1:end-3).*dk_L(1:end-2))];
-
+y_fillEBS_1089=[CI_ebs1089(1,1:end-1)...
+    fliplr(CI_ebs1089(2,1:end-1))];
 
 dk_L=u2rho_2d(abs(diff(kf_Lag)));
 x_fill = [1./kf_Lag(1:end)./1e3.*2.*pi, fliplr(1./kf_Lag(1:end)./1e3.*2.*pi)];
@@ -237,7 +248,7 @@ fill(x_fill, [CI_SpecFlux289(1,1:end), fliplr(CI_SpecFlux289(2,1:end))], ...
 
 grid on
 ylim([ymin_fk,ymax_fk]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 % xticks([1,4,1e1,1e2,200,1e3])
 xticks([1,4,1e1,1e2,200,1e3])
 
@@ -276,11 +287,11 @@ b2=semilogx(lf_Lag./1e3,Vt_Lag289./lf_Lag','LineStyle','-','LineWidth',1.5);
 b3=semilogx(r_E./1e3,...
     SF3_E./r_E,'LineWidth',1.5,'Color','k');
 grid on
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([ymin_sf,ymax_sf]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
@@ -323,7 +334,7 @@ set(gca,'fontsize',12,'fontweight','bold')
 % % xlim([1e-6,1e-3].*1e3)
 % % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
 % % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-% xlim([0.5e3,1e6]./1e3);
+% xlim([xmin,xmax]);
 % xticks([1,4,1e1,1e2,200,1e3])
 % xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 % % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
@@ -343,22 +354,21 @@ set(gca,'xscale','log')
 hold on
 
 % 保存左侧y轴的颜色和线型设置
-c4 = semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi, ebs_Lag289(1:end-3).*dk_L(1:end-2)', ...
+c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag289(1:end-1), ...
     'LineWidth', 1.5, 'Color', colors{4});
 
 hold on
-
-fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-b1 = semilogx(1./kf_E(1:end-2)./1e3.*2.*pi, ebs_E(1:end-3).*dk_E(1:end-2)', ...
-    'LineWidth', 1.5, 'Color', 'k');
-b2 = semilogx(1./kc_mid_s./1e3, dPidk_s, 'LineWidth', 1.5, 'Color', colors{1});
+fill(x_fill, y_fillEBS_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+%     'LineWidth', 1.5, 'Color', 'k');
 
 grid on
 ylim([ymin_ebsdk, ymax_ebsdk]);
 xlim([0.5e3, 1e6]./1e3);
 xticks([1, 4, 1e1, 1e2, 200, 1e3])
 xlabel('$$\mathbf{r \ [km]}$$', 'Interpreter', 'latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$', 'Interpreter', 'latex')
+ylabel('$$\mathbf{\epsilon_j  \ [m^{3}/s^{3}]}$$', 'Interpreter', 'latex')
 
 % 设置左侧y轴的属性
 left_ax = gca;
@@ -369,28 +379,22 @@ left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
 yyaxis right
 
 % 
-% ymin_right = 0;    % 右侧y轴最小值
-% ymax_right = 100;  % 右侧y轴最大值，根据你的数据调整
-
-% 在右侧y轴上绘制数据（示例，用你的实际数据替换）
-% 假设你有一组新的数据要显示在右侧y轴
-% right_data = your_right_axis_data;  % 你的右侧y轴数据
-% right_x = 1./kf_Lag(1:end-2)./1e3.*2.*pi;  % 使用相同的x坐标
-
-% 示例：绘制一条虚线（用你的实际数据替换）
 w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
     [0.7, 0.5, 0.3], 'LineStyle', '-');
 
-% 设置右侧y轴属性
+% 
 right_ax = gca;
-right_ax.YColor = [0.7, 0.5, 0.3];  % 右侧y轴颜色（例如红色）
-% right_ax.YLim = [ymin_right, ymax_right];
-ylabel('$[m^{3}/s^{3}]$', 'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+right_ax.YColor = [0.7, 0.5, 0.3];  % 
+right_ax.YLim = [ymin_right, ymax_right];
 
-% 切换回左侧y轴以便后续操作
+% right_ax.YLim = [ymin_right, ymax_right];
+ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+
+% 
 yyaxis left
 
-% 继续你的其他设置
+%
 text(0.03, 0.95, ['g) ', Casemean, ' P289'], 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
      'BackgroundColor', [1, 1, 0.8, 0.6], ...
@@ -398,6 +402,8 @@ text(0.03, 0.95, ['g) ', Casemean, ' P289'], 'Units', 'normalized', ...
      'Margin', 3, ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 set(gca, 'fontsize', 12, 'fontweight', 'bold')
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -432,7 +438,7 @@ fill(x_fill, [CI_SpecFlux625(1,1:end), fliplr(CI_SpecFlux625(2,1:end))], ...
 
 grid on
 ylim([ymin_fk,ymax_fk]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 
@@ -465,11 +471,11 @@ semilogx(lf_Lag./1e3,Vt_Lag625./lf_Lag','LineStyle','-','LineWidth',1.5);
 semilogx(r_E./1e3,...
     SF3_E./r_E,'LineWidth',1.5,'Color','k');
 grid on
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([ymin_sf,ymax_sf]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
@@ -481,37 +487,91 @@ text(0.03, 0.95, ['e) ',Casemean,' P625'], 'Units', 'normalized', ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
 set(gca,'fontsize',12,'fontweight','bold')
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,8)
+% set(gca,'xscale','log')
+% hold on
+% 
+% c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag625(1:end-3).*dk_L(1:end-2)','LineWidth', ...
+%     1.5,'Color',colors{5});
+% hold on
+% b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+%     'LineWidth', 1.5,'Color','k');
+% b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
+% fill(x_fillebs,y_fillebs_625, ...
+%      colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% grid on
+% ylim([ymin_ebsdk,ymax_ebsdk]);
+% % xlim([1e-6,1e-3].*1e3)
+% % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
+% % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
+% xlim([xmin,xmax]);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+% %     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+% text(0.03, 0.95, ['h) ',Casemean,' P625'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
 subplot(3,3,8)
 set(gca,'xscale','log')
 hold on
 
-c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag625(1:end-3).*dk_L(1:end-2)','LineWidth', ...
-    1.5,'Color',colors{5});
+% 保存左侧y轴的颜色和线型设置
+c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag625(1:end-1), ...
+    'LineWidth', 1.5, 'Color', colors{5});
+
 hold on
-b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
-    'LineWidth', 1.5,'Color','k');
-b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
-fill(x_fillebs,y_fillebs_625, ...
-     colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+fill(x_fill, y_fillEBS_625, colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+%     'LineWidth', 1.5, 'Color', 'k');
+
 grid on
-ylim([ymin_ebsdk,ymax_ebsdk]);
-% xlim([1e-6,1e-3].*1e3)
-% xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
-% xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-% xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-% legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-%     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, ['h) ',Casemean,' P625'], 'Units', 'normalized', ...
+ylim([ymin_ebsdk, ymax_ebsdk]);
+xlim([0.5e3, 1e6]./1e3);
+xticks([1, 4, 1e1, 1e2, 200, 1e3])
+xlabel('$$\mathbf{r \ [km]}$$', 'Interpreter', 'latex')
+ylabel('$$\mathbf{\epsilon_j  \ [m^{3}/s^{3}]}$$', 'Interpreter', 'latex')
+
+% 设置左侧y轴的属性
+left_ax = gca;
+left_ax.YColor = 'k';  % 左侧y轴颜色
+left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
+
+% 创建右侧y轴
+yyaxis right
+
+% 
+w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+    [0.7, 0.5, 0.3], 'LineStyle', '-');
+
+% 
+right_ax = gca;
+right_ax.YColor = [0.7, 0.5, 0.3];  % 
+right_ax.YLim = [ymin_right, ymax_right];
+
+% right_ax.YLim = [ymin_right, ymax_right];
+ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+
+% 
+yyaxis left
+
+%
+text(0.03, 0.95, ['h) ', Casemean, ' P625'], 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
+     'BackgroundColor', [1, 1, 0.8, 0.6], ...
+     'EdgeColor', [.7,.7,.7], ...
+     'Margin', 3, ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
+set(gca, 'fontsize', 12, 'fontweight', 'bold')
+
 
 % % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % 1089
@@ -544,7 +604,7 @@ fill(x_fill, [CI_SpecFlux1089(1,1:end), fliplr(CI_SpecFlux1089(2,1:end))], ...
 
 grid on
 ylim([ymin_fk,ymax_fk]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 legend([B1,B2],{['Lag CG (',win,')'],['Lag ',inv,'-fitting']})
 
@@ -579,11 +639,11 @@ semilogx(lf_Lag./1e3,Vt_Lag1089./lf_Lag','LineStyle','-','LineWidth',1.5);
 semilogx(r_E./1e3,...
     SF3_E./r_E,'LineWidth',1.5,'Color','k');
 grid on
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 % xticklabels({'10^{0}','4','10^{1}','10^{2}','200','10^{3}'})
 ylim([ymin_sf,ymax_sf]);
-xlim([0.5e3,1e6]./1e3);
+xlim([xmin,xmax]);
 xticks([1,4,1e1,1e2,200,1e3])
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D3(r)/r \ [m^{2}/s^{3}]}$$','Interpreter','latex')
@@ -598,37 +658,92 @@ text(0.03, 0.95, ['f) ',Casemean,' P1089'], 'Units', 'normalized', ...
 set(gca,'fontsize',12,'fontweight','bold')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,9)
+% set(gca,'xscale','log')
+% hold on
+% 
+% c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag1089(1:end-3).*dk_L(1:end-2)','LineWidth', ...
+%     1.5,'Color',colors{6});
+% hold on
+% b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+%     'LineWidth', 1.5,'Color','k');
+% b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
+% fill(x_fillebs,y_fillebs_1089, ...
+%      colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% grid on
+% ylim([ymin_ebsdk,ymax_ebsdk]);
+% % xlim([1e-6,1e-3].*1e3)
+% % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
+% % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
+% xlim([xmin,xmax]);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+% %     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+% text(0.03, 0.95, ['i) ',Casemean,' P1089'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+
 subplot(3,3,9)
 set(gca,'xscale','log')
 hold on
 
-c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag1089(1:end-3).*dk_L(1:end-2)','LineWidth', ...
-    1.5,'Color',colors{6});
+% 保存左侧y轴的颜色和线型设置
+c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag1089(1:end-1), ...
+    'LineWidth', 1.5, 'Color', colors{6});
+
 hold on
-b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
-    'LineWidth', 1.5,'Color','k');
-b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
-fill(x_fillebs,y_fillebs_1089, ...
-     colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+fill(x_fill, y_fillEBS_1089, colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+%     'LineWidth', 1.5, 'Color', 'k');
+
 grid on
-ylim([ymin_ebsdk,ymax_ebsdk]);
-% xlim([1e-6,1e-3].*1e3)
-% xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
-% xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-% xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-% legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-%     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, ['i) ',Casemean,' P1089'], 'Units', 'normalized', ...
+ylim([ymin_ebsdk, ymax_ebsdk]);
+xlim([0.5e3, 1e6]./1e3);
+xticks([1, 4, 1e1, 1e2, 200, 1e3])
+xlabel('$$\mathbf{r \ [km]}$$', 'Interpreter', 'latex')
+ylabel('$$\mathbf{\epsilon_j  \ [m^{3}/s^{3}]}$$', 'Interpreter', 'latex')
+
+% 设置左侧y轴的属性
+left_ax = gca;
+left_ax.YColor = 'k';  % 左侧y轴颜色
+left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
+
+% 创建右侧y轴
+yyaxis right
+
+% 
+w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+    [0.7, 0.5, 0.3], 'LineStyle', '-');
+
+% 
+right_ax = gca;
+right_ax.YColor = [0.7, 0.5, 0.3];  % 
+right_ax.YLim = [ymin_right, ymax_right];
+
+% right_ax.YLim = [ymin_right, ymax_right];
+ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+
+% 
+yyaxis left
+
+%
+text(0.03, 0.95, ['i) ', Casemean, ' P1089'], 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
+     'BackgroundColor', [1, 1, 0.8, 0.6], ...
+     'EdgeColor', [.7,.7,.7], ...
+     'Margin', 3, ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
+set(gca, 'fontsize', 12, 'fontweight', 'bold')
+
 % 
 % 
 % saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_500_',Casemean],'png')
