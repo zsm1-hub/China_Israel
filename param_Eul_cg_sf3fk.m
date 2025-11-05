@@ -26,12 +26,14 @@ if strcmpi(Case, 'wave')
     cgname=['s2sflux_spec_hf_',win,'_corr.0002.nc'];
     % cgname=['s2sflux_spec_hf_',win,'.0002.nc'];
     cgstd='wavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
+    load HF_cospec_windwork.mat
 end
 
 if strcmpi(Case, 'nowave')
     cgname=['s2sflux_spec_smooth_',win,'_corr.0002.nc'];
     % cgname=['s2sflux_spec_smooth_',win,'.0002.nc'];
     cgstd='nowavecase_modified_cg_tukey1_RodivofstrainofCG_Eul_std_.mat'
+    load SM_cospec_windwork.mat
 end
 
 % cgname='s2sflux_spec_smooth.0002.nc';
