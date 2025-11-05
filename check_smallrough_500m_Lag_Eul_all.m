@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 win='kaiser'
 % ini='_rough_500m'
 ini='_roughsmall'
@@ -30,7 +30,7 @@ timerange=1:1940;
 param_Eul_cg_sf3fk
 SF3_E=SF3(2:end)';
 r_E=r(2:end)';
-ymin_fk=-3e-8;ymax_fk=5e-8;
+ymin_fk=-3e-8;ymax_fk=6e-8;
 ymin_sf=-1e-7;ymax_sf=1e-7;
 ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
 
@@ -296,47 +296,109 @@ text(0.03, 0.95, ['d) ',Casemean,' P289'], 'Units', 'normalized', ...
 set(gca,'fontsize',12,'fontweight','bold')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subplot(3,3,7)
+% set(gca,'xscale','log')
+% hold on
+% 
+% c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag289(1:end-3).*dk_L(1:end-2)','LineWidth', ...
+%     1.5,'Color',colors{4});
+% hold on
+% 
+% fill(x_fillebs,y_fillebs_289, ...
+%      colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
+%     'LineWidth', 1.5,'Color','k');
+% b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
+% 
+% % semilogx(1./(kc_mid_s)./1e3,dPidk_s,'LineWidth', ...
+% %     1.5,'Color',colors{4},'LineStyle','--');
+% % semilogx(1./dk_E./1e3,dPidk_s,'LineWidth', ...
+% %     1.5,'Color',colors{1},'LineStyle','-');
+% % semilogx(rebs_c,ebs_Lag_cg289,'LineWidth', ...
+% %     1.5,'Color',colors{4},'LineStyle','--');
+% 
+% 
+% grid on
+% ylim([ymin_ebsdk,ymax_ebsdk]);
+% % xlim([1e-6,1e-3].*1e3)
+% % xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
+% % xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
+% xlim([0.5e3,1e6]./1e3);
+% xticks([1,4,1e1,1e2,200,1e3])
+% xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
+% % xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
+% ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
+% % legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
+% %     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
+% text(0.03, 0.95, ['g) ',Casemean,' P289'], 'Units', 'normalized', ...
+%      'FontSize', 12, 'FontWeight', 'bold', ...
+%      'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
+%      'EdgeColor', [.7,.7,.7], ... % 边框颜色
+%      'Margin', 3, ... % 边距
+%      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
+% set(gca,'fontsize',12,'fontweight','bold')
+% 
 subplot(3,3,7)
 set(gca,'xscale','log')
 hold on
 
-c4=semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi,ebs_Lag289(1:end-3).*dk_L(1:end-2)','LineWidth', ...
-    1.5,'Color',colors{4});
+% 保存左侧y轴的颜色和线型设置
+c4 = semilogx(1./kf_Lag(1:end-2)./1e3.*2.*pi, ebs_Lag289(1:end-3).*dk_L(1:end-2)', ...
+    'LineWidth', 1.5, 'Color', colors{4});
+
 hold on
 
-fill(x_fillebs,y_fillebs_289, ...
-     colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-b1=semilogx(1./kf_E(1:end-2)./1e3.*2.*pi,ebs_E(1:end-3).*dk_E(1:end-2)',...
-    'LineWidth', 1.5,'Color','k');
-b2=semilogx(1./kc_mid_s./1e3,dPidk_s,'LineWidth',1.5,'Color',colors{1});
-
-% semilogx(1./(kc_mid_s)./1e3,dPidk_s,'LineWidth', ...
-%     1.5,'Color',colors{4},'LineStyle','--');
-% semilogx(1./dk_E./1e3,dPidk_s,'LineWidth', ...
-%     1.5,'Color',colors{1},'LineStyle','-');
-% semilogx(rebs_c,ebs_Lag_cg289,'LineWidth', ...
-%     1.5,'Color',colors{4},'LineStyle','--');
-
+fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+b1 = semilogx(1./kf_E(1:end-2)./1e3.*2.*pi, ebs_E(1:end-3).*dk_E(1:end-2)', ...
+    'LineWidth', 1.5, 'Color', 'k');
+b2 = semilogx(1./kc_mid_s./1e3, dPidk_s, 'LineWidth', 1.5, 'Color', colors{1});
 
 grid on
-ylim([ymin_ebsdk,ymax_ebsdk]);
-% xlim([1e-6,1e-3].*1e3)
-% xticks([1e-3,1/200,1e-2,1e-1,1/4,1])
-% xticklabels({'1/1000','1/200','1/100','1/10','1/4','1'})
-xlim([0.5e3,1e6]./1e3);
-xticks([1,4,1e1,1e2,200,1e3])
-xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
-% xlabel('$$\mathbf{k \ [1/km]}$$','Interpreter','latex')
-ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$','Interpreter','latex')
-% legend([c1,c2,c3,c4],{['Eul CG (',win,')'],'Eul SF3-fitting (RLS)', ...
-%     ['Lag CG (',win,')'],'Lag SF3-fitting (RLS)'})
-text(0.03, 0.95, ['g) ',Casemean,' P289'], 'Units', 'normalized', ...
+ylim([ymin_ebsdk, ymax_ebsdk]);
+xlim([0.5e3, 1e6]./1e3);
+xticks([1, 4, 1e1, 1e2, 200, 1e3])
+xlabel('$$\mathbf{r \ [km]}$$', 'Interpreter', 'latex')
+ylabel('$$\mathbf{\epsilon_j*dk_j  \ [m^{2}/s^{3}]}$$', 'Interpreter', 'latex')
+
+% 设置左侧y轴的属性
+left_ax = gca;
+left_ax.YColor = 'k';  % 左侧y轴颜色
+left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
+
+% 创建右侧y轴
+yyaxis right
+
+% 
+% ymin_right = 0;    % 右侧y轴最小值
+% ymax_right = 100;  % 右侧y轴最大值，根据你的数据调整
+
+% 在右侧y轴上绘制数据（示例，用你的实际数据替换）
+% 假设你有一组新的数据要显示在右侧y轴
+% right_data = your_right_axis_data;  % 你的右侧y轴数据
+% right_x = 1./kf_Lag(1:end-2)./1e3.*2.*pi;  % 使用相同的x坐标
+
+% 示例：绘制一条虚线（用你的实际数据替换）
+w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+    [0.7, 0.5, 0.3], 'LineStyle', '-');
+
+% 设置右侧y轴属性
+right_ax = gca;
+right_ax.YColor = [0.7, 0.5, 0.3];  % 右侧y轴颜色（例如红色）
+% right_ax.YLim = [ymin_right, ymax_right];
+ylabel('$[m^{3}/s^{3}]$', 'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+
+% 切换回左侧y轴以便后续操作
+yyaxis left
+
+% 继续你的其他设置
+text(0.03, 0.95, ['g) ', Casemean, ' P289'], 'Units', 'normalized', ...
      'FontSize', 12, 'FontWeight', 'bold', ...
-     'BackgroundColor', [1, 1, 0.8, 0.6], ... % 半透明背景
-     'EdgeColor', [.7,.7,.7], ... % 边框颜色
-     'Margin', 3, ... % 边距
+     'BackgroundColor', [1, 1, 0.8, 0.6], ...
+     'EdgeColor', [.7,.7,.7], ...
+     'Margin', 3, ...
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-set(gca,'fontsize',12,'fontweight','bold')
+set(gca, 'fontsize', 12, 'fontweight', 'bold')
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %625
