@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 Case='nowave'; % wave
 win='kaiser'
 % ini='_rough_500m'
-ini='_roughLASER'
+ini='_roughsmall_rot'
 
 % str1=15;
 % end1=28;
@@ -139,43 +139,43 @@ end
 
 timerange=1:1940;
 
-fname=[Case,'_pars_P',num2str(288),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
+fname=[Case,'_pars_P',num2str(289),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
 load(fname);
 SF2_L289=SF2;
 SF2ll_L289=SF2ll;
 SF2tt_L289=SF2tt;
-tname=[Case,'_pars_P',num2str(288),'T',num2str(89.5),'days',ini,'traj.mat']
+tname=[Case,'_pars_P',num2str(289),'T',num2str(89.5),'days',ini,'traj.mat']
 load(tname)
 lon289=traj.trajmat_X;
 lat289=traj.trajmat_Y;
 
 
-% fname=[Case,'_pars_P',num2str(625),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
-% load(fname);
-% SF2_L625=SF2;
-% SF2ll_L625=SF2ll;
-% SF2tt_L625=SF2tt;
-% tname=[Case,'_pars_P',num2str(625),'T',num2str(89.5),'days',ini,'traj.mat']
-% load(tname)
-% lon625=traj.trajmat_X;
-% lat625=traj.trajmat_Y;
-% 
-% 
-% fname=[Case,'_pars_P',num2str(1089),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
-% load(fname);
-% SF2_L1089=SF2;
-% SF2ll_L1089=SF2ll;
-% SF2tt_L1089=SF2tt;
-% tname=[Case,'_pars_P',num2str(1089),'T',num2str(89.5),'days',ini,'traj.mat']
-% load(tname)
-% lon1089=traj.trajmat_X;
-% lat1089=traj.trajmat_Y;
+fname=[Case,'_pars_P',num2str(625),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+SF2_L625=SF2;
+SF2ll_L625=SF2ll;
+SF2tt_L625=SF2tt;
+tname=[Case,'_pars_P',num2str(625),'T',num2str(89.5),'days',ini,'traj.mat']
+load(tname)
+lon625=traj.trajmat_X;
+lat625=traj.trajmat_Y;
+
+
+fname=[Case,'_pars_P',num2str(1089),'T',num2str(timerange(end)),ini,'bootstrap.mat'];
+load(fname);
+SF2_L1089=SF2;
+SF2ll_L1089=SF2ll;
+SF2tt_L1089=SF2tt;
+tname=[Case,'_pars_P',num2str(1089),'T',num2str(89.5),'days',ini,'traj.mat']
+load(tname)
+lon1089=traj.trajmat_X;
+lat1089=traj.trajmat_Y;
 
 figure(1)
 a1=loglog(rbin./1e3,SF2_E,'LineWidth',1.5,'Color','k');hold on
 a2=loglog(dist_axis./1e3,SF2_L289/2,'LineWidth',1.5,'Color',colors_rgb{4});
-% a3=loglog(dist_axis./1e3,SF2_L625/2,'LineWidth',1.5,'Color',colors_rgb{5});
-% a4=loglog(dist_axis./1e3,SF2_L1089/2,'LineWidth',1.5,'Color',colors_rgb{6});
+a3=loglog(dist_axis./1e3,SF2_L625/2,'LineWidth',1.5,'Color',colors_rgb{5});
+a4=loglog(dist_axis./1e3,SF2_L1089/2,'LineWidth',1.5,'Color',colors_rgb{6});
 grid on
 [x23,y23]=get_line_loglog(2/3,10^0.1,10^-2.5,0.1,0.8)
 [x2,y2]=get_line_loglog(2,10^0.1,10^-2.5,0.1,0.8)
@@ -186,8 +186,8 @@ loglog(x1,y1,'LineWidth',1,'Color','k','LineStyle','--');
 loglog(x2,y2,'LineWidth',1,'Color','k','LineStyle','--');
 xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D2(r) \ [m^{2}/s^{2}]}$$','Interpreter','latex')
-% legend([a1,a2,a3,a4],{['Eul SF2'],['Lag P289'], ...
-%     ['Lag P625'],['Lag P1089']},'Location','southeast')
+legend([a1,a2,a3,a4],{['Eul SF2'],['Lag P289'], ...
+    ['Lag P625'],['Lag P1089']},'Location','southeast')
 set(gca,'fontsize',14,'fontweight','b')
 
 % loglog(rbin,SF2ll_E);hold on
@@ -212,7 +212,7 @@ plot(lon_g(:,end),lat_g(:,end),'LineWidth',1.5,'Color','r','LineStyle','--')
 %     colors_rgb{2},'MarkerEdgeColor','flat')
 a3=scatter(lon289(1,:),lat289(1,:),10,'MarkerFaceColor', ...
     colors_rgb{1},'MarkerEdgeColor','flat')
-% legend([a1,a2,a3],{'1089','625','289'})
+legend([a1,a2,a3],{'1089','625','289'})
 xlabel('Longitude')
 ylabel('Latitude')
 title([Casemean,' initial domain'])
@@ -231,27 +231,27 @@ ylabel('Latitude')
 title([Casemean,' P289'])
 set(gca,'fontsize',14,'fontweight','b')
 
-% figure(4)
-% hold on
-% plot(lon_g(1,:),lat_g(1,:),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(end,:),lat_g(end,:),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(:,1),lat_g(:,1),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(:,end),lat_g(:,end),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon625,lat625,'LineWidth',1.5)
-% xlabel('Longitude')
-% ylabel('Latitude')
-% title([Casemean,' P625'])
-% set(gca,'fontsize',14,'fontweight','b')
-% 
-% figure(5)
-% hold on
-% plot(lon_g(1,:),lat_g(1,:),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(end,:),lat_g(end,:),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(:,1),lat_g(:,1),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon_g(:,end),lat_g(:,end),'LineWidth',1.5,'Color','r','LineStyle','--')
-% plot(lon1089,lat1089,'LineWidth',1.5)
-% xlabel('Longitude')
-% ylabel('Latitude')
-% title([Casemean,' P1089'])
-% set(gca,'fontsize',14,'fontweight','b')
-% 
+figure(4)
+hold on
+plot(lon_g(1,:),lat_g(1,:),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(end,:),lat_g(end,:),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(:,1),lat_g(:,1),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(:,end),lat_g(:,end),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon625,lat625,'LineWidth',1.5)
+xlabel('Longitude')
+ylabel('Latitude')
+title([Casemean,' P625'])
+set(gca,'fontsize',14,'fontweight','b')
+
+figure(5)
+hold on
+plot(lon_g(1,:),lat_g(1,:),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(end,:),lat_g(end,:),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(:,1),lat_g(:,1),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon_g(:,end),lat_g(:,end),'LineWidth',1.5,'Color','r','LineStyle','--')
+plot(lon1089,lat1089,'LineWidth',1.5)
+xlabel('Longitude')
+ylabel('Latitude')
+title([Casemean,' P1089'])
+set(gca,'fontsize',14,'fontweight','b')
+

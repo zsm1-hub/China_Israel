@@ -53,7 +53,7 @@ timerange=1:1940;
 param_Eul_cg_sf3fk_rot
 SF3_E=nanmean(SF3(2:end,:),2);
 r_E=r(2:end)';
-ymin_fk=-3e-8;ymax_fk=6e-8;
+ymin_fk=-3e-8;ymax_fk=3e-8;
 ymin_sf=-1e-7;ymax_sf=1e-7;
 % ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
 ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
@@ -398,23 +398,23 @@ left_ax.YColor = 'k';  % 左侧y轴颜色
 left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
 
 % 创建右侧y轴
-yyaxis right
-
+% yyaxis right
 % 
-w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
-    [0.7, 0.5, 0.3], 'LineStyle', '-');
-
+% % 
+% w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+%     [0.7, 0.5, 0.3], 'LineStyle', '-');
 % 
-right_ax = gca;
-right_ax.YColor = [0.7, 0.5, 0.3];  % 
-right_ax.YLim = [ymin_right, ymax_right];
+% % 
+% right_ax = gca;
+% right_ax.YColor = [0.7, 0.5, 0.3];  % 
+% right_ax.YLim = [ymin_right, ymax_right];
 
 % right_ax.YLim = [ymin_right, ymax_right];
-ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
-    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+% ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+%     'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
 
 % 
-yyaxis left
+% yyaxis left
 
 %
 text(0.03, 0.95, ['g) ', Casemean, ' P289'], 'Units', 'normalized', ...
@@ -567,23 +567,23 @@ left_ax.YColor = 'k';  % 左侧y轴颜色
 left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
 
 % 创建右侧y轴
-yyaxis right
-
+% yyaxis right
 % 
-w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
-    [0.7, 0.5, 0.3], 'LineStyle', '-');
-
+% % 
+% w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+%     [0.7, 0.5, 0.3], 'LineStyle', '-');
 % 
-right_ax = gca;
-right_ax.YColor = [0.7, 0.5, 0.3];  % 
-right_ax.YLim = [ymin_right, ymax_right];
+% % 
+% right_ax = gca;
+% right_ax.YColor = [0.7, 0.5, 0.3];  % 
+% right_ax.YLim = [ymin_right, ymax_right];
 
 % right_ax.YLim = [ymin_right, ymax_right];
-ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
-    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+% ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+%     'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
 
 % 
-yyaxis left
+% yyaxis left
 
 %
 text(0.03, 0.95, ['h) ', Casemean, ' P625'], 'Units', 'normalized', ...
@@ -739,23 +739,23 @@ left_ax.YColor = 'k';  % 左侧y轴颜色
 left_ax.YLim = [ymin_ebsdk, ymax_ebsdk];
 
 % 创建右侧y轴
-yyaxis right
-
+% yyaxis right
 % 
-w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
-    [0.7, 0.5, 0.3], 'LineStyle', '-');
-
+% % 
+% w1 = semilogx(1./K1D./1e3,ww_mean , 'LineWidth', 1.5, 'Color', ...
+%     [0.7, 0.5, 0.3], 'LineStyle', '-');
 % 
-right_ax = gca;
-right_ax.YColor = [0.7, 0.5, 0.3];  % 
-right_ax.YLim = [ymin_right, ymax_right];
+% % 
+% right_ax = gca;
+% right_ax.YColor = [0.7, 0.5, 0.3];  % 
+% right_ax.YLim = [ymin_right, ymax_right];
 
 % right_ax.YLim = [ymin_right, ymax_right];
-ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
-    'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
+% ylabel('$\overline{\hat{\tau_{x}}^{*}\hat{u}+\hat{\tau_{y}}^{*}\hat{v}} \ [m^{3}/s^{3}]$', ...
+%     'Interpreter', 'latex', 'Color', [0.7, 0.5, 0.3])
 
 % 
-yyaxis left
+% yyaxis left
 
 %
 text(0.03, 0.95, ['i) ', Casemean, ' P1089'], 'Units', 'normalized', ...
