@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 Case='wave'; % wave
 win='kaiser'
 % ini='_rough_500m'
-ini='_roughsmall'
+ini='_roughsmall_rot'
 
 % str1=15;
 % end1=28;
@@ -23,20 +23,20 @@ yy3=-1.4e-8;
 yy4=-1.8e-8;
 
 timerange=1:1940;
-%500 m
-param_Eul_cg_sf3fk_500m
-SF3_E=SF3_mean';
-r_E=r;
-ymin_fk=-3e-8;ymax_fk=10e-8;
-ymin_sf=-3e-7;ymax_sf=1e-7;
-% ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
-ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
-ymin_right = -4e-8;    % 
-ymax_right = 6e-8;  % 
-xmin=0.5;
-xmax=1e3;
+% %500 m
+% param_Eul_cg_sf3fk_500m
+% SF3_E=SF3_mean';
+% r_E=r;
+% ymin_fk=-3e-8;ymax_fk=10e-8;
+% ymin_sf=-3e-7;ymax_sf=1e-7;
+% % ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
+% ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
+% ymin_right = -4e-8;    % 
+% ymax_right = 6e-8;  % 
+% xmin=0.5;
+% xmax=1e3;
 
-% 2km param
+% % 2km param
 % param_Eul_cg_sf3fk
 % SF3_E=SF3(2:end)';
 % r_E=r(2:end)';
@@ -48,6 +48,19 @@ xmax=1e3;
 % ymax_right = 6e-8;  % 
 % xmin=1;
 % xmax=1e3;
+
+% 2km param rot
+param_Eul_cg_sf3fk_rot
+SF3_E=nanmean(SF3(2:end,:),2);
+r_E=r(2:end)';
+ymin_fk=-3e-8;ymax_fk=6e-8;
+ymin_sf=-1e-7;ymax_sf=1e-7;
+% ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
+ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
+ymin_right = -4e-8;    % 
+ymax_right = 6e-8;  % 
+xmin=1;
+xmax=1e3;
 
 
 
@@ -62,7 +75,7 @@ if strcmpi(Case, 'wave')
         range1=2.5e3;
         range2=300e3;
     end
-    if strcmpi(ini,'_roughsmall')
+    if strcmpi(ini,'_roughsmall') || strcmpi(ini,'_roughsmall_1mon') || strcmpi(ini,'_roughsmall_2mon') || strcmpi(ini,'_roughsmall_3mon') || strcmpi(ini,'_roughsmall_rot')
         % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
         % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14];
         lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];

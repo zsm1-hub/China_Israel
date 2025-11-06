@@ -25,11 +25,13 @@ if strcmpi(Case, 'wave')
     % cgname='s2sflux_spec_hf.0002.nc';
     cgname=['s2sflux_spec_hf_500m_',win,'1.0002.nc'];
     % cgname=['s2sflux_spec_hf_',win,'.0002.nc'];
+    load HF_cospec_windwork.mat
 end
 
 if strcmpi(Case, 'nowave')
     cgname=['s2sflux_spec_smooth_500m_',win,'1.0002.nc'];
     % cgname=['s2sflux_spec_smooth_',win,'.0002.nc'];
+    load SM_cospec_windwork.mat
 end
 
 % cgname='s2sflux_spec_smooth.0002.nc';
