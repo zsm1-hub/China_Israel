@@ -7,10 +7,10 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 % ini='_rough_500m'
-ini='_roughsmall_1mon'
+ini='_roughsmall'
 
 % str1=15;
 % end1=28;
@@ -130,7 +130,7 @@ if strcmpi(Case, 'nowave')
     if strcmpi(ini,'_roughsmall') || strcmpi(ini,'_roughsmall_rot') || strcmpi(ini,'_roughLASER')
      %     lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
      % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,7e-14];
-         lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
+         lambda=[1e-7,1e-8,1e-9];
         str1=1;
         end1=18;
         range1=2.5e3;
