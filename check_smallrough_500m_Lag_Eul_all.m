@@ -23,36 +23,44 @@ yy3=-1.4e-8;
 yy4=-1.8e-8;
 
 timerange=1:1940;
-% param_Eul_cg_sf3fk_500m
-% SF3_E=SF3_mean';
-% r_E=r;
-
-% 2km param
-param_Eul_cg_sf3fk
-SF3_E=SF3(2:end)';
-r_E=r(2:end)';
-ymin_fk=-3e-8;ymax_fk=6e-8;
-ymin_sf=-1e-7;ymax_sf=1e-7;
+%500 m
+param_Eul_cg_sf3fk_500m
+SF3_E=SF3_mean';
+r_E=r;
+ymin_fk=-3e-8;ymax_fk=10e-8;
+ymin_sf=-3e-7;ymax_sf=1e-7;
 % ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
 ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
 ymin_right = -4e-8;    % 
 ymax_right = 6e-8;  % 
-xmin=1;
+xmin=0.5;
 xmax=1e3;
+
+% 2km param
+% param_Eul_cg_sf3fk
+% SF3_E=SF3(2:end)';
+% r_E=r(2:end)';
+% ymin_fk=-3e-8;ymax_fk=6e-8;
+% ymin_sf=-1e-7;ymax_sf=1e-7;
+% % ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
+% ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
+% ymin_right = -4e-8;    % 
+% ymax_right = 6e-8;  % 
+% xmin=1;
+% xmax=1e3;
 
 
 
 if strcmpi(Case, 'wave')
     Casemean='Hf';
     if strcmpi(ini,'_rough')
-        lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-        1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
+        lambda=[1e-7,1e-8,1e-9];
         % str1=15;
         % end1=28;
         str1=1;
         end1=19;
         range1=2.5e3;
-        range2=500e3;
+        range2=300e3;
     end
     if strcmpi(ini,'_roughsmall')
         % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
@@ -64,10 +72,10 @@ if strcmpi(Case, 'wave')
         range2=300e3;
     end
     if strcmpi(ini,'_roughsmall_500m')
-         lambda=[1e-8];
+        lambda=[1e-8];
         str1=1;
         end1=24;
-        range1=1e3;
+        range1=2e3;
         range2=300e3;
     end
     if strcmpi(ini,'_rough_500m') || strcmpi(ini,'_roughbox100g_500m')
@@ -86,10 +94,11 @@ if strcmpi(Case, 'nowave')
     % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
     % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12,1e-13,1e-14,1e-15,1e-16];
     if strcmpi(ini,'_rough')
-        lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
-        1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
-        str1=15;
-        end1=28;
+        % lambda=[10,1,1e-1,1e-2,1e-3,1e-4,1e-5,1e-6, ...
+        % 1e-7,1e-8,1e-9,1e-10,1e-11,2e-11,1e-12];
+        lambda=[1e-7,1e-8,1e-9];
+        str1=1;
+        end1=19;
         range1=2.5e3;
         range2=300e3;
     end
@@ -360,8 +369,8 @@ c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag289(1:end-1), ...
 hold on
 fill(x_fill, y_fillEBS_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 % fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
-%     'LineWidth', 1.5, 'Color', 'k');
+b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+    'LineWidth', 1.5, 'Color', 'k');
 
 grid on
 ylim([ymin_ebsdk, ymax_ebsdk]);
@@ -529,8 +538,8 @@ c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag625(1:end-1), ...
 hold on
 fill(x_fill, y_fillEBS_625, colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 % fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
-%     'LineWidth', 1.5, 'Color', 'k');
+b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+    'LineWidth', 1.5, 'Color', 'k');
 
 grid on
 ylim([ymin_ebsdk, ymax_ebsdk]);
@@ -701,8 +710,8 @@ c4 = semilogx(1./kf_Lag./1e3.*2.*pi, ebs_Lag1089(1:end-1), ...
 hold on
 fill(x_fill, y_fillEBS_1089, colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 % fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-% b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
-%     'LineWidth', 1.5, 'Color', 'k');
+b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+    'LineWidth', 1.5, 'Color', 'k');
 
 grid on
 ylim([ymin_ebsdk, ymax_ebsdk]);
@@ -746,4 +755,5 @@ set(gca, 'fontsize', 12, 'fontweight', 'bold')
 
 % 
 % 
-% saveas(gcf,['Eul_Lag_CG',win,'_vs_RLS_Fr',ini,'_',inv,'_500_',Casemean],'png')
+saveas(gcf,['Version2_Eul_Lag_CG', ...
+    win,'_vs_RLS_Fr',ini,'_',inv,'_',Casemean],'png')
