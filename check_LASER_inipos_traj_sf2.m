@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 win='kaiser'
 % ini='_rough_500m'
 ini='_roughsmall_rot'
@@ -188,6 +188,7 @@ xlabel('$$\mathbf{r \ [km]}$$','Interpreter','latex')
 ylabel('$$\mathbf{D2(r) \ [m^{2}/s^{2}]}$$','Interpreter','latex')
 legend([a1,a2,a3,a4],{['Eul SF2'],['Lag P289'], ...
     ['Lag P625'],['Lag P1089']},'Location','southeast')
+title('Eul vs Lag: SF2')
 set(gca,'fontsize',14,'fontweight','b')
 
 % loglog(rbin,SF2ll_E);hold on

@@ -58,10 +58,13 @@ kf1=K1D.*2.*pi;
 % kf1=1./filtscale.*2.*pi;
 [SpecFlux_E,Vt_E,ebs_E,kf_E,lf_E]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32, ...
     'fuc','RLS',lambda,kf1);
-
+[SpecFlux_E2,Vt_E2,ebs_E2,kf_E2,lf_E2]=Fk_fitting_SF3(SF3(1:dot)',r(1:dot),0.009,6.32, ...
+    'fuc','RLS',lambda,kf1./2./pi);
 
 a4=semilogx(1./kf_E.*(2.*pi),SpecFlux_E,'LineWidth',2, ...
 'Color','r');
+a5=semilogx(1./kf_E2,SpecFlux_E2,'LineWidth',2, ...
+'Color',colors{4});
 
 text(1/64*2*pi+0.02,-0.9,'Injection scale: $\frac{1}{64} \times 2\pi \approx 0.1$', 'Interpreter', 'latex', ...
     'FontSize',14,'FontWeight','b')
@@ -74,7 +77,8 @@ xlabel('r [m]')
 ylabel('\Pi [m^{2}/s^{3}]')
 
 % legend([a1,a2,a3,a4,a5],{'cg spec','cg uni','fft-specflux','RLS','RLS (angular k)'})
-legend([a1,a2,a3,a4],{'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)'})
+legend([a1,a2,a3,a4,a5],{'FFT specflux','CG (sfilt)','CG (unifilt)', ...
+    'RLS (angular k)','RLS (cyclic k)'})
 % legend([a1,a2,a3,a4,a5], ...
 %     {'FFT specflux','CG (sfilt)','CG (unifilt)','RLS (angular k)',['RLS ', ...
 %     num2str(timerange(1)),'~',num2str(timerange(end))]}, ...
@@ -87,8 +91,9 @@ figure(2)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%load Lag SF3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 str1=0.05;
 en1=5;
-% lambda_opt_idx=[100,10,1,1e-1,1e-2];
-lambda_opt_idx=[8e-1,8e-2,8e-3,8e-4];
+lambda_opt_idx=[100,10,1,1e-1,1e-2];
+% lambda_opt_idx=[1e-1];
+% lambda_opt_idx=[8e-1];
 
 load HIT2d_pars_P10000T150timeavg4.mat
 r_10000=dist_axis;
@@ -132,7 +137,7 @@ xlabel('r [m]')
 ylabel('\Pi [m^{2}/s^{3}]')
 
 
-legend([a1,a2,a3,a4],{'Lag CG P10000','Lag CG P62500','Lag RLS P10000','Lag RLS P62500'})
+legend([a1,a2,a3,a4],{'Lag CG P10000','Lag CG P30000','Lag RLS P10000','Lag RLS P30000'})
 title(['Lag: CG vs RLS cross-scale energy flux'],'Interpreter','latex')
 set(gca,'fontsize',14,'FontWeight','b')
 %% Eul energy injection
@@ -164,19 +169,19 @@ dPidk_s=(Thmc(2:end)-Thmc(1:end-1))
 semilogx(kc_mid_s.*2.*pi,dPidk_s,'LineWidth',1.5,'Color', ...
     'b');
 
-fname='s2sflux_spec_hit_uni.0002.nc';
-ncdisp(fname)
-Thm_Eulerian=ncread(fname,'Thm');
-filtscale=ncread(fname,'filtscale');
-filtscale=filtscale(2:end);
-Thm_Eulerian=Thm_Eulerian(2:end);
-kc=flipud(1./filtscale);
-Thmc=flipud(Thm_Eulerian);
-kc_mid_u=0.5.*(kc(2:end)+kc(1:end-1));
-dPidk_u=(Thmc(2:end)-Thmc(1:end-1))
-% ./(kc(2:end)-kc(1:end-1))
-semilogx(kc_mid_u.*2.*pi,dPidk_u,'LineWidth',1.5,'Color', ...
-    [0.7, 0.9, 0.7]);
+% fname='s2sflux_spec_hit_uni.0002.nc';
+% ncdisp(fname)
+% Thm_Eulerian=ncread(fname,'Thm');
+% filtscale=ncread(fname,'filtscale');
+% filtscale=filtscale(2:end);
+% Thm_Eulerian=Thm_Eulerian(2:end);
+% kc=flipud(1./filtscale);
+% Thmc=flipud(Thm_Eulerian);
+% kc_mid_u=0.5.*(kc(2:end)+kc(1:end-1));
+% dPidk_u=(Thmc(2:end)-Thmc(1:end-1))
+% % ./(kc(2:end)-kc(1:end-1))
+% semilogx(kc_mid_u.*2.*pi,dPidk_u,'LineWidth',1.5,'Color', ...
+%     [0.7, 0.9, 0.7]);
 
 % plot([40.6,25].*2.*pi,[0,-37],'LineWidth',1.0,'Color','k')
 % plot([4.2,0.77].*2.*pi,[0,-37],'LineWidth',1.0,'Color','k')
@@ -205,8 +210,8 @@ semilogx(K1D.*2.*pi,-divFlux_mean,'LineWidth',1.5, ...
 'Color','k');hold on
 semilogx(kc_mid_s.*2.*pi,dPidk_s,'LineWidth',1.5,'Color', ...
     'b');
-semilogx(kc_mid_u.*2.*pi,dPidk_u,'LineWidth',1.5,'Color', ...
-    [0.7, 0.9, 0.7]);
+% semilogx(kc_mid_u.*2.*pi,dPidk_u,'LineWidth',1.5,'Color', ...
+%     [0.7, 0.9, 0.7]);
 semilogx(kf_E,ebs_E(1:end-1).*abs(mean(diff(kf_E))),'LineWidth',1.5, ...
 'Color','r');
 grid on
@@ -277,13 +282,15 @@ set(gca,'fontsize',14,'FontWeight','b')
 %% Eul SF3/3 and fit
 
 figure(5)
-a1=semilogx(r,(SF3)./r,'Color',colors{2},'LineWidth',1.5)
+% a1=semilogx(r,(SF3)./r,'Color',colors{2},'LineWidth',1.5)
+a1=semilogx(r,(SF3)./r,'Color','r','LineWidth',1.5)
 % semilogx(dist_axis./1e3,SF1L,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','--')
 % semilogx(dist_axis./1e3,SF1T,'Marker','x','Color',colors{ii},'LineWidth',1.5,'LineStyle','-.')
 hold on
-a2=semilogx(lf_E,Vt_E./lf_E','Color',colors{2},'LineWidth',1.5,'LineStyle','none', ...
+% a2=semilogx(lf_E,Vt_E./lf_E','Color',colors{2},'LineWidth',1.5,'LineStyle','none', ...
+%     'marker','+')
+a2=semilogx(lf_E,Vt_E./lf_E','Color','r','LineWidth',1.5,'LineStyle','none', ...
     'marker','+')
-
 % semilogx(r_10000,SF3_10000./r_10000','LineWidth',1.5,'Color',[0.8, 0.5, 0.2])
 % semilogx(lf_L,Vt_L10000./lf_L','Linestyle', ...
 %     'none','Color',[0.8, 0.5, 0.2],'Marker','+','LineWidth',1.5)
@@ -329,7 +336,7 @@ a2=semilogx(lf_L,Vt_L10000./lf_L','Linestyle', ...
 a3=semilogx(r_62500,SF3_62500./r_62500','LineWidth',1.5,'Color',[0.5, 0.6, 0.4])
 a4=semilogx(lf_L,Vt_L62500./lf_L','Linestyle', ...
     'none','Color',[0.5, 0.6, 0.4],'Marker','+','LineWidth',1.5)
-a5=semilogx(r,(SF3)./r,'Color',colors{2},'LineWidth',1.5)
+a5=semilogx(r,(SF3)./r,'Color','r','LineWidth',1.5)
 
 
 grid on
