@@ -13,15 +13,16 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 % ini='_roughbox200g_500m'
-ini='_roughLASER'
-timerange=1:1940;
-
+ini='_roughsmall_2mon'
+% timerange=1:1940;
+% timerange=1:720;
+timerange=720:1940;
 %%% useless
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
@@ -43,10 +44,10 @@ if strcmpi(ini, '_roughLASER')
     xscale=[2:18,21:3:48,54:6:114];
 end
 %%% 2month 140km box but in smallregion
-if strcmpi(ini, '_2month_roughsmall')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_2month_roughsmall/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
+% if strcmpi(ini, '_2month_roughsmall')
+%     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_2month_roughsmall/';
+%     xscale=[2:18,21:3:48,54:6:114];
+% end
 
 %%% 2km 70*70box~140km rot
 if strcmpi(ini, '_roughsmall_rot')

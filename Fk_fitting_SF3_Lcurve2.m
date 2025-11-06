@@ -1,4 +1,4 @@
-function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve(SF3, ...
+function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve2(SF3, ...
     dist_axis, mindist, maxdist, kftype, inv_style, lambda_vec, kf1,plt)
     % Fk_fitting_SF3_Lcurve - 计算谱通量和能量注入密度，仅绘制L曲线
     %
@@ -43,6 +43,9 @@ function [SpecFlux, Vt, ebs, kf, lf, lambda_opt] = Fk_fitting_SF3_Lcurve(SF3, ..
     else
         kf = kf1;
     end
+    a1=kf(1:2:end);
+    clear kf
+    kf=a1;
     
     dk = diff(kf);
     kf = 0.5*(kf(1:end-1) + kf(2:end));
