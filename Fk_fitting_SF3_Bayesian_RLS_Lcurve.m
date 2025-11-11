@@ -55,10 +55,10 @@ R=R';
 Y=SF3_Lag(ns:ne);
 Y_std=std(SF3(ns:ne,:), 0, 2);
 
-% fac0 = logspace(-15, -1, 80);  
-% po = logspace(-15, -1, 80); 
-fac0 = logspace(-8, -3, 80);  
-po = logspace(-7, -4, 80); 
+fac0 = logspace(-15, -1, 80);  
+po = logspace(-15, -1, 80); 
+% fac0 = logspace(-8, -3, 80);  
+% po = logspace(-7, -4, 80); 
 
 dkf = diff(kf);
 kf = 0.5*(kf(1:end-1) + kf(2:end)); % mid point wavenumber vec r*1
@@ -86,6 +86,6 @@ H = defH(kf, dkf);
 Fxx = errorsFlux(Cxx, H);
 Fk_error=sqrt(diag(Fxx));
 
-eps_error=diag(Cxx);
+eps_error=sqrt(diag(Cxx));
 
 return
