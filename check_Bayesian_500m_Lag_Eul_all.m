@@ -8,7 +8,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
+Case='nowave'; % wave
 win='kaiser'
 % ini='_rough_500m'
 ini='_rough'
@@ -365,6 +365,7 @@ hold on
 [x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*2.*pi)'),...
     fliplr((eps_Lag289(2:end)+eps_error289(2:end))'),...
     fliplr((eps_Lag289(2:end)-eps_error289(2:end))'));
+
 fill(x_fill2, y_fill2, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 % fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
@@ -540,8 +541,11 @@ c4 = semilogx(1./kf_Lag./1e3.*2.*pi, eps_Lag625(2:end), ...
     'LineWidth', 1.5, 'Color', colors{5});
 
 hold on
-% fill(x_fill, y_fillEBS_625, colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-% fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*2.*pi)'),...
+    fliplr((eps_Lag625(2:end)+eps_error625(2:end))'),...
+    fliplr((eps_Lag625(2:end)-eps_error625(2:end))'));
+fill(x_fill2, y_fill2, colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+
 b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
     'LineWidth', 1.5, 'Color', 'k');
 
@@ -649,7 +653,7 @@ semilogx(dist_axis./1e3,...
 hold on
 [x_fill,y_fill]=get_shadow(dist_axis',(SF3_Lag1089+SF3_Lag1089_std)',...
     (SF3_Lag1089-SF3_Lag1089_std)');
-fill(x_fill2,y_fill2, ...
+fill(x_fill,y_fill, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 semilogx(dist_axis./1e3,Vt_Lag1089./dist_axis,'LineStyle','-','LineWidth',1.5);
 semilogx(r_E./1e3,...
@@ -717,8 +721,11 @@ c4 = semilogx(1./kf_Lag./1e3.*2.*pi, eps_Lag1089(2:end), ...
     'LineWidth', 1.5, 'Color', colors{6});
 
 hold on
-% fill(x_fill, y_fillEBS_1089, colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-% fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*2.*pi)'),...
+    fliplr((eps_Lag1089(2:end)+eps_error1089(2:end))'),...
+    fliplr((eps_Lag1089(2:end)-eps_error1089(2:end))'));
+fill(x_fill2, y_fill2, colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+
 b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
     'LineWidth', 1.5, 'Color', 'k');
 
