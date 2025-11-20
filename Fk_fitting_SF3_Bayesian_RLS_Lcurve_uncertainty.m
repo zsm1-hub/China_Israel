@@ -59,8 +59,10 @@ Y_std=std(SF3(ns:ne,:), 0, 2);
 % 
 % fac0 = logspace(-15, -1, 80);  
 % po = logspace(-15, -1, 80); 
-fac0 = logspace(-15, -7, 80);  
-po = logspace(-15, -7, 80); 
+% fac0 = logspace(-15, -7, 80);  
+% po = logspace(-15, -7, 80); 
+fac0 = logspace(-20, -7, 80);  
+po = logspace(-20, -7, 80); 
 % fac0 = 1e-20;  
 % po = 1e-20; 
 
@@ -100,5 +102,5 @@ Fk_uncertainty.aleatoric = Fk_aleatoric_std;
 % Fk_error=sqrt(diag(Fxx));
 % 
 eps_error=sqrt(diag(Cxx));
-% plot_Fk_uncertainty(kf, Fk, Fk_uncertainty);
+plot_Fk_uncertainty(kf, Fk, Fk_uncertainty);
 return

@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='wave'; % wave
 win='kaiser'
-ini='_rough'
+ini='_roughsmall'
 % ini='_rough'
 
 % str1=15;
@@ -197,6 +197,10 @@ range2=500e3;
     optimal_fac289,optimal_po289,...
     Th_Lag289,Th_Lag289_std]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty(Case,289,...
     timerange,ini,range1,range2,2);
+Fk_uncert_289_total=Fk_uncert_289.total;
+Fk_uncert_289_epistemic=Fk_uncert_289.epistemic;
+Fk_uncert_289_aleatoric=Fk_uncert_289.aleatoric;
+
 % x_fill289_kf,y_fill289
 
 [dist_axis,SF3_Lag625,SF3_Lag625_std,kf_Lag,dkf,...
@@ -204,12 +208,18 @@ range2=500e3;
     optimal_fac625,optimal_po625,...
     Th_Lag625,Th_Lag625_std]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty(Case,625,...
     timerange,ini,range1,range2,2);
+Fk_uncert_625_total=Fk_uncert_625.total;
+Fk_uncert_625_epistemic=Fk_uncert_625.epistemic;
+Fk_uncert_625_aleatoric=Fk_uncert_625.aleatoric;
 
 [dist_axis,SF3_Lag1089,SF3_Lag1089_std,kf_Lag,dkf,...
     Vt_Lag1089,eps_Lag1089,SpecFlux_Lag1089,Fk_uncert_1089,eps_error1089,...
     optimal_fac1089,optimal_po1089,...
     Th_Lag1089,Th_Lag1089_std]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty(Case,1089,...
     timerange,ini,range1,range2,2);
+Fk_uncert_1089_total=Fk_uncert_1089.total;
+Fk_uncert_1089_epistemic=Fk_uncert_1089.epistemic;
+Fk_uncert_1089_aleatoric=Fk_uncert_1089.aleatoric;
 % 
 
 if strcmpi(Case, 'nowave')
@@ -248,7 +258,10 @@ r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end));
 %     (SpecFlux_Lag289+Fk_error289)',(SpecFlux_Lag289-Fk_error289)');
 % fill(x_fill, y_fill, ...
 %     colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag289+Fk_uncert_289.epistemic)
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag289+Fk_uncert_289.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag289-Fk_uncert_289.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag289+Fk_uncert_289.aleatoric,'m')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag289-Fk_uncert_289.aleatoric,'m')
 
 grid on
 ylim([ymin_fk,ymax_fk]);
@@ -449,6 +462,12 @@ r_RLS_Lag = findXatYZero(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625);
 fill(x_fill, y_fill, ...
     colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625+Fk_uncert_625.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625-Fk_uncert_625.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625+Fk_uncert_625.aleatoric,'m')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625-Fk_uncert_625.aleatoric,'m')
+
+
 grid on
 ylim([ymin_fk,ymax_fk]);
 xlim([xmin,xmax]);
@@ -623,6 +642,10 @@ r_RLS_Lag = findXatYZero(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089);
 %     (SpecFlux_Lag1089+Fk_error1089)',(SpecFlux_Lag1089-Fk_error1089)');
 % fill(x_fill, y_fill, ...
 %     colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089+Fk_uncert_1089.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089-Fk_uncert_1089.epistemic,'g')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089+Fk_uncert_1089.aleatoric,'m')
+semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089-Fk_uncert_1089.aleatoric,'m')
 
 grid on
 ylim([ymin_fk,ymax_fk]);
@@ -777,4 +800,18 @@ set(gca, 'fontsize', 12, 'fontweight', 'bold')
 % 
 % saveas(gcf,['Version4_Bayesian_Eul_Lag_CG', ...
 %     win,'_vs_RLS_Fr',ini,'_',inv,'_',Casemean],'png')
-save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'.mat'])
+% save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'.mat'])
+
+
+figure(2)
+subplot(2,2,1)
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_289.epistemic)
+hold on
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_625.epistemic)
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_1089.epistemic)
+
+subplot(2,2,2)
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_289.aleatoric)
+hold on
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_625.aleatoric)
+semilogx(1./kf_Lag.*2.*pi./1e3,Fk_uncert_1089.aleatoric)
