@@ -10,7 +10,12 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='nowave'; % wave
 win='kaiser'
-ini='_roughsmall'
+ini='_rough'
+npoint=9;
+
+% ini='_roughsmall_500m'
+% npoint=6;
+
 % ini='_rough'
 
 % str1=15;
@@ -41,6 +46,8 @@ timerange=1:1940;
 
 % % 2km param
 param_Eul_cg_sf3fk
+% param_Eul_cg_sf3fk_no2pi
+
 SF3_E=SF3(2:end)';
 r_E=r(2:end)';
 % ymin_fk=-2e-8;ymax_fk=2e-8;
@@ -48,8 +55,6 @@ ymin_fk=-3e-8;ymax_fk=6e-8;
 ymin_sf=-1e-7;ymax_sf=1e-7;
 % ymin_ebsdk=-3e-8;ymax_ebsdk=3e-8;
 ymin_ebsdk=-2e-4;ymax_ebsdk=3e-4;
-
-
 xmin=1;
 xmax=1e3;
 
@@ -191,8 +196,25 @@ end
 %     lf_Lag,CI_ebs289,CI_Vt289,...
 %     CI_SpecFlux289,Th_Lag289,SF3_289,dist_axis]=get_param_Lag_sf3fk_bootstrap2(Case,ini, ...
 %     289,lambda,timerange,inv,range1,range2);
-range1=1e3;
-range2=500e3;
+% range2=200e3;
+
+%orgi
+% range1=2.5e3;
+% range2=500e3;
+range1=2.5e3;
+% range1=1e3;
+range2=200e3;
+
+% %less point 
+% range1=2.5e3;
+% range2=200e3;
+
+% %without 2pi
+% range1=1e3;
+% range2=200e3;
+% if buyong shao yu 2e3的点，则没有forward cascade
+
+
 % [dist_axis,SF3_Lag289,SF3_Lag289_std,kf_Lag,dkf,...
 %     Vt_Lag289,eps_Lag289,SpecFlux_Lag289,Fk_error289,eps_error289,...
 %     optimal_fac289,optimal_po289,...
@@ -202,8 +224,8 @@ range2=500e3;
  %    optimal_fac, optimal_po, Th_Lag, Th_Lag_std, bootstrap_results]
 
 [dist_axis,SF3_Lag289,SF3_Lag289_std,optimal_fac289,optimal_po289,...
-    Th_Lag289,Th_Lag289_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty3(Case,289,...
-    timerange,ini,range1,range2,2,500,900);
+    Th_Lag289,Th_Lag289_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty4(Case,289,...
+    timerange,ini,range1,range2,npoint,500,900);
 % x_fill289_kf,y_fill289
 kf_Lag=bootstrap_results.kf_final;
 SpecFlux_Lag289=nanmean(bootstrap_results.Fk_all,2);
@@ -213,8 +235,8 @@ eps_Lag289=nanmean(bootstrap_results.eps_all,2);
 eps_error289=std(bootstrap_results.eps_all,0,2);
 
 [dist_axis,SF3_Lag625,SF3_Lag625_std,optimal_fac625,optimal_po625,...
-    Th_Lag625,Th_Lag625_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty3(Case,625,...
-    timerange,ini,range1,range2,2,500,900);
+    Th_Lag625,Th_Lag625_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty4(Case,625,...
+    timerange,ini,range1,range2,npoint,500,900);
 
 SpecFlux_Lag625=nanmean(bootstrap_results.Fk_all,2);
 Fk_error625=std(bootstrap_results.Fk_all,0,2);
@@ -223,8 +245,8 @@ eps_Lag625=nanmean(bootstrap_results.eps_all,2);
 eps_error625=std(bootstrap_results.eps_all,0,2);
 
 [dist_axis,SF3_Lag1089,SF3_Lag1089_std,optimal_fac1089,optimal_po1089,...
-    Th_Lag1089,Th_Lag1089_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty3(Case,1089,...
-    timerange,ini,range1,range2,2,500,900);
+    Th_Lag1089,Th_Lag1089_std,bootstrap_results]=Fk_fitting_SF3_Bayesian_RLS_Lcurve_uncertainty4(Case,1089,...
+    timerange,ini,range1,range2,npoint,500,900);
 
 SpecFlux_Lag1089=nanmean(bootstrap_results.Fk_all,2);
 Fk_error1089=std(bootstrap_results.Fk_all,0,2);
@@ -237,6 +259,9 @@ if strcmpi(Case, 'nowave')
     colors_rgb{1}=colors_rgb{2};
     colors{1}=colors{2};
 end
+% rescale=2*pi;
+rescale=2*pi;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 % patch(x_coords, y_coords, [0.9 0.9 0.9], 'EdgeColor', 'none'); % 中灰色，无边线
@@ -251,21 +276,21 @@ set(gca,'xscale','log')
 hold on
 b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
 hold on
-r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
+% r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
 
-b2=semilogx(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end), ...
+b2=semilogx(1./kf_E(dstr:end)./1e3.*rescale,SpecFlux_E(dstr:end), ...
     'LineWidth',1.5, ...
 'Color','k');
-r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
+% r_RLS_eul = findXatYZero(1./kf_E(dstr:end)./1e3.*2.*pi,SpecFlux_E(dstr:end));
 
 B1=semilogx(filtscale./1e3,Th_Lag289,'LineWidth',1.5,'Color',colors{4}, ...
     'LineStyle','--')
 % hold on
-r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag289);
+% r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag289);
 
-B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end),'LineWidth',1.5,'Color',colors{4})
-r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end));
-[x_fill,y_fill]=get_shadow((1./kf_Lag.*2.*pi./1e3)',...
+B2=semilogx(1./kf_Lag(1:end).*rescale./1e3,SpecFlux_Lag289(1:end),'LineWidth',1.5,'Color',colors{4})
+% r_RLS_Lag = findXatYZero(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag289(1:end));
+[x_fill,y_fill]=get_shadow((1./kf_Lag.*rescale./1e3)',...
     (SpecFlux_Lag289+10*Fk_error289)',(SpecFlux_Lag289-10*Fk_error289)');
 fill(x_fill, y_fill, ...
     colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
@@ -291,15 +316,18 @@ text(0.03, 0.95, ['a) ',Casemean,' P289'], 'Units', 'normalized', ...
      'EdgeColor', [.7,.7,.7], ... % 边框颜色
      'Margin', 3, ... % 边距
      'VerticalAlignment', 'top', 'HorizontalAlignment', 'left')
-text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
-    'Color',colors{1})
-text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
-text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
-    'Color',colors{4})
-text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
-    'Color',colors{4})
+% text(10^0.1,yy1,['$\mathbf{\ r_{CG \ Eul}= }$',num2str(r_cg_eul)],'Interpreter','latex', ...
+%     'Color',colors{1})
+% text(10^0.1,yy2,['$\mathbf{\ r_{fit \ Eul}= }$',num2str(r_RLS_eul)],'Interpreter','latex')
+% text(10^0.1,yy3,['$\mathbf{\ r_{CG \ Lag}= }$',num2str(r_cg_Lag)],'Interpreter','latex', ...
+%     'Color',colors{4})
+% text(10^0.1,yy4,['$\mathbf{\ r_{fit \ Lag}= }$',num2str(r_RLS_Lag)],'Interpreter','latex', ...
+%     'Color',colors{4})
 
 set(gca,'fontsize',12,'fontweight','bold')
+xpatch = [100, xmax, xmax, 100];
+ypatch = [ymin_fk, ymin_fk, ymax_fk, ymax_fk];
+patch(xpatch, ypatch, [0.7 0.7 0.7], 'FaceAlpha', 0.7, 'EdgeColor', 'none');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%debug%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 subplot(3,3,4)
@@ -312,8 +340,8 @@ fill(x_fill./1e3,y_fill./x_fill, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 b2=semilogx(dist_axis./1e3,Vt_Lag289./dist_axis,'LineStyle','-','LineWidth',1.5);
 
-b3=semilogx(r_E./1e3,...
-    SF3_E./r_E,'LineWidth',1.5,'Color','k');
+b3=semilogx(r_E(1:108)./1e3,...
+    SF3_E(1:108)./r_E(1:108),'LineWidth',1.5,'Color','k');
 b4=semilogx(R_check./1e3,...
     SF3_check./R_check,'LineWidth',1.5,'Color','m');
 grid on
@@ -384,7 +412,7 @@ set(gca,'xscale','log')
 hold on
 
 % 
-c4 = semilogx(1./kf_Lag./1e3.*2.*pi, eps_Lag289(2:end), ...
+c4 = semilogx(1./kf_Lag./1e3.*rescale, eps_Lag289(2:end), ...
     'LineWidth', 1.5, 'Color', colors{4});
 
 hold on
@@ -394,7 +422,7 @@ hold on
 
 fill(x_fill2, y_fill2, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 % fill(x_fillebs, y_fillebs_289, colors_rgb{4}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+b1 = semilogx(1./kf_E./1e3.*rescale, ebs_E(1:end-1), ...
     'LineWidth', 1.5, 'Color', 'k');
 
 grid on
@@ -452,19 +480,19 @@ b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
 hold on
 r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
 
-b2=semilogx(1./kf_E./1e3.*2.*pi,SpecFlux_E, ...
+b2=semilogx(1./kf_E./1e3.*rescale,SpecFlux_E, ...
     'LineWidth',1.5, ...
 'Color','k');
-r_RLS_eul = findXatYZero(1./kf_E./1e3.*2.*pi,SpecFlux_E);
+r_RLS_eul = findXatYZero(1./kf_E./1e3.*rescale,SpecFlux_E);
 
 B1=semilogx(filtscale./1e3,Th_Lag625,'LineWidth',1.5,'Color',colors{5}, ...
     'LineStyle','--')
 % hold on
 r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag625);
 
-B2=semilogx(1./kf_Lag(1:end).*2.*pi./1e3,SpecFlux_Lag625(1:end), ...
+B2=semilogx(1./kf_Lag(1:end).*rescale./1e3,SpecFlux_Lag625(1:end), ...
     'LineWidth',1.5,'Color',colors{5})
-r_RLS_Lag = findXatYZero(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag625);
+r_RLS_Lag = findXatYZero(1./kf_Lag.*rescale./1e3,SpecFlux_Lag625);
 % [x_fill,y_fill]=get_shadow((1./kf_Lag.*2.*pi./1e3)',...
 %     (SpecFlux_Lag625+Fk_error625)',(SpecFlux_Lag625-Fk_error625)');
 fill(x_fill, y_fill, ...
@@ -505,8 +533,8 @@ hold on
 fill(x_fill./1e3,y_fill./x_fill, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 semilogx(dist_axis./1e3,Vt_Lag625./dist_axis,'LineStyle','-','LineWidth',1.5);
-semilogx(r_E./1e3,...
-    SF3_E./r_E,'LineWidth',1.5,'Color','k');
+semilogx(r_E(1:108)./1e3,...
+    SF3_E(1:108)./r_E(1:108),'LineWidth',1.5,'Color','k');
 semilogx(R_check./1e3,...
     SF3_check./R_check,'LineWidth',1.5,'Color','m');
 grid on
@@ -562,16 +590,16 @@ set(gca,'xscale','log')
 hold on
 
 % 保存左侧y轴的颜色和线型设置
-c4 = semilogx(1./kf_Lag./1e3.*2.*pi, eps_Lag625(2:end), ...
+c4 = semilogx(1./kf_Lag./1e3.*rescale, eps_Lag625(2:end), ...
     'LineWidth', 1.5, 'Color', colors{5});
 
 hold on
-[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*2.*pi)'),...
+[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*rescale)'),...
     fliplr((eps_Lag625(2:end)+eps_error625(2:end))'),...
     fliplr((eps_Lag625(2:end)-eps_error625(2:end))'));
 % fill(x_fill2, y_fill2, colors_rgb{5}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
-b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+b1 = semilogx(1./kf_E./1e3.*rescale, ebs_E(1:end-1), ...
     'LineWidth', 1.5, 'Color', 'k');
 
 grid on
@@ -627,20 +655,20 @@ b1=semilogx(filtscale./1e3,Thm_Eulerian,'LineWidth',1.5,'Color',colors{1});
 hold on
 r_cg_eul = findXatYZero(filtscale./1e3, Thm_Eulerian);
 
-b2=semilogx(1./kf_E./1e3.*2.*pi,SpecFlux_E, ...
+b2=semilogx(1./kf_E./1e3.*rescale,SpecFlux_E, ...
     'LineWidth',1.5, ...
 'Color','k');
-r_RLS_eul = findXatYZero(1./kf_E./1e3.*2.*pi,SpecFlux_E);
+r_RLS_eul = findXatYZero(1./kf_E./1e3.*rescale,SpecFlux_E);
 
 B1=semilogx(filtscale./1e3,Th_Lag1089,'LineWidth',1.5,'Color',colors{6}, ...
     'LineStyle','--')
 % hold on
 r_cg_Lag = findXatYZero(filtscale./1e3,Th_Lag1089);
 
-B2=semilogx(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089,'LineWidth', ...
+B2=semilogx(1./kf_Lag.*rescale./1e3,SpecFlux_Lag1089,'LineWidth', ...
     1.5,'Color',colors{6})
-r_RLS_Lag = findXatYZero(1./kf_Lag.*2.*pi./1e3,SpecFlux_Lag1089);
-[x_fill,y_fill]=get_shadow((1./kf_Lag.*2.*pi./1e3)',...
+r_RLS_Lag = findXatYZero(1./kf_Lag.*rescale./1e3,SpecFlux_Lag1089);
+[x_fill,y_fill]=get_shadow((1./kf_Lag.*rescale./1e3)',...
     (SpecFlux_Lag1089+Fk_error1089)',(SpecFlux_Lag1089-Fk_error1089)');
 % fill(x_fill, y_fill, ...
 %     colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
@@ -681,8 +709,8 @@ hold on
 fill(x_fill,y_fill, ...
      'b', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 semilogx(dist_axis./1e3,Vt_Lag1089./dist_axis,'LineStyle','-','LineWidth',1.5);
-semilogx(r_E./1e3,...
-    SF3_E./r_E,'LineWidth',1.5,'Color','k');
+semilogx(r_E(1:108)./1e3,...
+    SF3_E(1:108)./r_E(1:108),'LineWidth',1.5,'Color','k');
 semilogx(R_check./1e3,...
     SF3_check./R_check,'LineWidth',1.5,'Color','m');
 grid on
@@ -742,16 +770,16 @@ set(gca,'xscale','log')
 hold on
 
 % 保存左侧y轴的颜色和线型设置
-c4 = semilogx(1./kf_Lag./1e3.*2.*pi, eps_Lag1089(2:end), ...
+c4 = semilogx(1./kf_Lag./1e3.*rescale, eps_Lag1089(2:end), ...
     'LineWidth', 1.5, 'Color', colors{6});
 
 hold on
-[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*2.*pi)'),...
+[x_fill2,y_fill2]=get_shadow(fliplr((1./kf_Lag./1e3.*rescale)'),...
     fliplr((eps_Lag1089(2:end)+eps_error1089(2:end))'),...
     fliplr((eps_Lag1089(2:end)-eps_error1089(2:end))'));
 % fill(x_fill2, y_fill2, colors_rgb{6}, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
-b1 = semilogx(1./kf_E./1e3.*2.*pi, ebs_E(1:end-1), ...
+b1 = semilogx(1./kf_E./1e3.*rescale, ebs_E(1:end-1), ...
     'LineWidth', 1.5, 'Color', 'k');
 
 grid on
@@ -796,6 +824,18 @@ set(gca, 'fontsize', 12, 'fontweight', 'bold')
 
 % 
 
-saveas(gcf,['Version3_Bayesian_Eul_Lag_CG', ...
-    win,'_vs_RLS_Fr',ini,'_',inv,'_',Casemean],'png')
-save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'.mat'])
+% saveas(gcf,['Version3_Bayesian_Eul_Lag_CG', ...
+%     win,'_vs_RLS_Fr',ini,'_',inv,'_',Casemean],'png')
+% save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'.mat'])
+% save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'_no2pi.mat'])
+% save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'_lesspoint.mat'])
+
+% save(['plot_Iceland_Bayesian',win,'_',ini,'_',Casemean,'_lesspoint_modi_eul.mat'])
+
+% figure(2)
+% semilogx(kf_Lag,SpecFlux_Lag1089);hold on
+% semilogx(1./filtscale.*2.*pi,Th_Lag1089)
+% 
+% 
+% semilogx(1./filtscale.*2.*pi,Thm_Eulerian)
+% semilogx(kf_E,SpecFlux_E)
