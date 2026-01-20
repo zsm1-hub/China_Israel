@@ -12,7 +12,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='nowave'; % wave
+Case='wave'; % wave
 nparticles=289; % numbers of particles
 days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
@@ -29,11 +29,11 @@ if strcmpi(ini, '_roughsmall')
 end
 if strcmpi(ini, '_cruise')
     % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion17/';
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
 end
 % input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
 % timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-timerange=1:2140;
+timerange=200:1940;
 % timerange=1:960;
 % timerange=1:1200;
 % timerange=1:720;
@@ -197,7 +197,7 @@ clear pairs_time;
 pairs_time=clear_nan_in_pairs_time(p1);
 clear p1
 %% error
-Ttot = days*24*3600;
+Ttot = (1940-200).*3600;
 tpts = length(pairs_time);
 %
 npairs = zeros(tpts,1);
@@ -239,20 +239,40 @@ end
 %%
 clear pairs_time
 
-gamma = 1.5;
+if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(ini, '_roughbox200g_500m') || strcmpi(ini, '_roughbox100g_500m')
 
-dist_bin(1) = 10; % in m
-dist_bin = gamma.^[0:100]*dist_bin(1);
-id = find(dist_bin>1000*10^3,1);
-dist_bin = dist_bin(1:id);
-dist_bin(2:end+1) = dist_bin(1:end);
-dist_bin(1) = 0;
-dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+    
+    % gamma = 1.3;
+    % dist_bin(1) = 1000; % in m
+    gamma = 1.3;
+    dist_bin(1) = 1000; % in m
+    dist_bin = gamma.^[0:100]*dist_bin(1);
+    id = find(dist_bin>600*10^3,1);
+    dist_bin = dist_bin(1:id-1);
+    dist_bin(2:end+1) = dist_bin(1:end);
+    dist_bin(1) = 0;
+    dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+    
+    
+    % Generate vel axis
+    vel_bins = linspace(-2, 2, 50);
+    vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+else
+    gamma = 1.3;
 
-
-% Generate vel axis
-vel_bins = linspace(-2, 2, 50);
-vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+    dist_bin(1) = 4000; % in m
+    dist_bin = gamma.^[0:100]*dist_bin(1);
+    id = find(dist_bin>600*10^3,1);
+    dist_bin = dist_bin(1:id-1);
+    dist_bin(2:end+1) = dist_bin(1:end);
+    dist_bin(1) = 0;
+    dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
+    
+    
+    % Generate vel axis
+    vel_bins = linspace(-2, 2, 50);
+    vel_axis = 0.5*(vel_bins(1:end-1) + vel_bins(2:end));
+end
 %%
 tic
 
@@ -363,9 +383,16 @@ for i = 1:length(dist_axis)
     
 end
 toc
+% outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
+%     ini,'bootstrap.mat']
+% % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+% save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
+%      'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nSamples')
+
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
     ini,'bootstrap.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nSamples')
+     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nsample')
+
 
