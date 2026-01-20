@@ -7,7 +7,7 @@ addpath('/meddy/simingzhang/Data/RB_iceland_data')
 addpath('/meddy/simingzhang/Data/PYC');
 input_dir='/meddy/simingzhang/Data/RB_iceland_data/';
 % Case='wave';
-Case='SWC2km_tide';
+Case='wave';
 
 if strcmpi(Case, 'wave')
     fname=[input_dir,'z_niskin2km_his_hf_depth_500m_grd.0002.nc'];
@@ -42,11 +42,12 @@ u1=u2rho_3d(permute(u,[3,2,1]));
 v=(squeeze(ncread(fname,'v')));
 v1=v2rho_3d(permute(v,[3,2,1]));
 
-
+% u1=u1(:,85:195,85:195);
+% v1=v1(:,85:195,85:195);
 N=size(u1,2);
 
 for t = 1:size(u1,1)
-    u2=squeeze(u1(t,:,:));
+   u2=squeeze(u1(t,:,:));
     v2=squeeze(v1(t,:,:));
     % [X, Y] = meshgrid(-N/2:N/2-1, -N/2:N/2-1);
     [S3L(t,:,:),S3T(t,:,:)]=test4_calc_SF3(u2,v2,N);
@@ -67,19 +68,20 @@ end
 
 S3L1=squeeze(nanmean(S3L,1));
 S3T1=squeeze(nanmean(S3T,1));
-outputname=[Case,'_Eulerian_SF3.mat']
+outputname=[Case,'small_Eulerian_SF3_small.mat']
 save(outputname,'S3L1','S3T1','xscale','S3L1_alltime','S3T1_alltime');
 
 disp('***************done**************************')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
-% load wave_Eulerian_SF3.mat
-load SWC2km_tide_Eulerian_SF3.mat
+% load wave_Eulerian_SF3_small.mat
+load wavesmall_Eulerian_SF3_small.mat
+% load SWC2km_tide_Eulerian_SF3.mat
 % magn=8e-4;
 
 xscale1=xscale;
-N=241;
+N=111;
 [r,~,~,~]=calc_radial(S3L1,S3T1,N,xscale1);
 SF3=(S3T1_alltime+S3L1_alltime)';
 SF3_mean=nanmean(SF3,2);
@@ -88,7 +90,7 @@ SF3_mean=nanmean(SF3,2);
 lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
 % lambda=[1e-7,1e-8,1e-9,1e-10,1e-11];
 
-fname='s2sflux_spec_SWC2km_tide.0002.nc'
+fname='s2sflux_spec_hf_kaiser_corr.0002.nc '
 % fname='s2sflux_spec_SWC2km_tide.0002_kaiser.nc'
 
 filtscale=ncread(fname,'filtscale');
@@ -98,16 +100,16 @@ Thm=ncread(fname,'Thm');
 clear SpecFlux_E;clear kf_E;
 kf1=fliplr(1./filtscale'.*2.*pi);
 
-ns = find(r >= 2.5e3, 1);
+ns = find(r >= 1.5e3, 1);
 ne = find(r <= 200e3, 1, 'last');
 
 R = r(ns:ne); 
-kf1 = logspace(log10(1/max(R))-log10(2.*pi), log10(1/min(R)), 10).*2.*pi;
-% kf1 = logspace(log10(1/max(R)), log10(1/min(R)), 20).*2.*pi;
+% kf1 = logspace(log10(1/max(R))-log10(2.*pi), log10(1/min(R)), 10).*2.*pi;
+kf1 = logspace(log10(1/max(R)), log10(1/min(R)), 20).*2.*pi;
 % kf1 = logspace(log10(1/max(R)), log10(1/min(R))+log10(2.*pi), 20);
 
 [SpecFlux_E_hf,Vt_E_hf,ebs_E_hf,kf_E,lf_E]=Fk_fitting_SF3_Lcurve(SF3_mean, ...
-    r,2.5e3,200e3,'fuc','RLS',lambda,kf1,1);
+    r,2.5e3,200e3,'log','RLS',lambda,kf1,1);
 rescale=2.*pi;
 % rescale=1;
 figure(1)
@@ -121,6 +123,31 @@ semilogx(r,SF3_mean./r');hold on
 semilogx(lf_E,Vt_E_hf./lf_E');
 
 subplot(2,2,3)
-semilogx(1./kf_E.*rescale,ebs_E_hf(2:end).*kf_E');hold on
+semilogx(1./kf_E.*rescale./1e3,ebs_E_hf(2:end).*kf_E');hold on
+
+%%%%%%%%%%%%%%%%
+clear
+% load wave_Eulerian_SF3_small.mat
+load wavesmall_Eulerian_SF3_small.mat
+% load SWC2km_tide_Eulerian_SF3.mat
+% magn=8e-4;
+
+xscale1=xscale;
+N=111;
+[r1,~,~,~]=calc_radial(S3L1,S3T1,N,xscale1);
+SF3=(S3T1_alltime+S3L1_alltime)';
+SF3_mean1=nanmean(SF3,2);
+
+load wave_Eulerian_SF3.mat
+xscale1=xscale;
+N=287;
+[r,~,~,~]=calc_radial(S3L1,S3T1,N,xscale1);
+SF3=(S3T1_alltime+S3L1_alltime)';
+SF3_mean=nanmean(SF3,2);
 
 
+semilogx(r,SF3_mean./r');hold on
+semilogx(r1,SF3_mean1./r1');
+ylim([-1e-7,1e-7])
+load wave_pars_P289T1940_roughsmallbootstrap.mat
+semilogx(dist_axis,SF3_mean./dist_axis');

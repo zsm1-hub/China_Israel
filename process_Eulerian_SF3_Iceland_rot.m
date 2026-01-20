@@ -5,15 +5,23 @@ addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
 addpath('/meddy/simingzhang/Data/Parcels_data')
 addpath(genpath('/meddy/simingzhang/Data/RB_iceland_data'))
 input_dir='/meddy/simingzhang/Data/RB_iceland_data/';
-Case='wave_rot';
+Case='wave_div';
 nworkers=4;
 
 if strcmpi(Case, 'wave_rot')
     fname=[input_dir,'iceland_wave/','rot_helmholtz.0002.nc'];
 end
 
+if strcmpi(Case, 'wave_div')
+    fname=[input_dir,'iceland_wave/','div_helmholtz.0002.nc'];
+end
+
 if strcmpi(Case, 'nowave_rot')
     fname=[input_dir,'iceland_no_wave/','rot_helmholtz.0002.nc'];
+end
+
+if strcmpi(Case, 'nowave_div')
+    fname=[input_dir,'iceland_no_wave/','div_helmholtz.0002.nc'];
 end
 
 gname=[input_dir,'niskin2km_500m_grd.nc'];
@@ -83,7 +91,7 @@ str1=1;
 end1=500e3;
 
 % load cg
-cgname='s2sflux_spec_hfrot.0002.nc';
+cgname='s2sflux_spec_hfdiv.0002.nc';
 filtscale=ncread(cgname,'filtscale');
 Thm_hf=ncread(cgname,'Thm');
 filtscale=filtscale(2:end);
@@ -96,7 +104,7 @@ filtscale=filtscale(2:end);
 Thm_sm=Thm_sm(2:end);
 
 % load Eul SF3 and fit
-load wave_rot_Eulerian_SF3.mat
+load wave_div_Eulerian_SF3.mat
 % double(S3T1_alltime)
 S3L1=vertcat(S3L1_alltime{:});
 S3T1=vertcat(S3T1_alltime{:});
@@ -130,9 +138,9 @@ figure(1)
 
 semilogx(filtscale./1e3,Thm_hf);
 hold on
-semilogx(filtscale./1e3,Thm_sm);
+% semilogx(filtscale./1e3,Thm_sm);
 
-% semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_hf);
+semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_hf);
 % semilogx(1./kf_E.*2.*pi./1e3,SpecFlux_E_sm);
 % 
 % subplot(2,2,4)
@@ -144,3 +152,12 @@ semilogx(filtscale./1e3,Thm_sm);
 % semilogx(r./1e3,SF3_mean_hf./r');hold on
 % semilogx(lf_E./1e3,Vt_E_hf./lf_E','Marker','+','LineStyle','none')
 % grid on
+figure(2)
+load wave_Eulerian_SF3.mat
+N=287;
+[r,~,~,~]=calc_radial(S3L1,S3T1,N,xscale);
+semilogx(r,nanmean(S3L1_alltime,1)./r);hold on
+semilogx(r,nanmean(S3T1_alltime,1)./r);hold on
+
+load wave_pars_P289T1940_roughbootstrap.mat
+

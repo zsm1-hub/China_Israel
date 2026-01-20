@@ -19,17 +19,17 @@ days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 % ini='_roughbox200g_500m'
-ini='_roughsmall_2mon'
-% timerange=1:1940;
+ini='_cruise'
+timerange=1:1940;
 % timerange=1:720;
-timerange=720:1940;
+% timerange=1220:1940;
 %%% useless
 if strcmpi(ini, '_grid')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
     xscale=[2:18,21:3:48,54:6:114];
 end
 %%% 2km whole grid
-if strcmpi(ini, '_rough')
+if strcmpi(ini, '_rough') || strcmpi(ini, '_rough_1mon') || strcmpi(ini, '_rough_2mon')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
     xscale=[2:18,21:3:48,54:6:114];
 end
@@ -52,6 +52,11 @@ end
 %%% 2km 70*70box~140km rot
 if strcmpi(ini, '_roughsmall_rot')
     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_rot/';
+    xscale=[2:18,21:3:48,54:6:114];
+end
+
+if strcmpi(ini, '_roughsmall_div')
+    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_div/';
     xscale=[2:18,21:3:48,54:6:114];
 end
 %%% 2km 70*70box~140km
@@ -221,7 +226,10 @@ clear pairs_time;
 pairs_time=clear_nan_in_pairs_time(p1);
 clear p1
 %% error
-Ttot = days*24*3600;
+% Ttot = days*24*3600;
+Ttot = 1940*3600;
+% Ttot = 720*3600;
+% Ttot = 1220*3600;
 tpts = length(pairs_time);
 %
 npairs = zeros(tpts,1);
@@ -268,7 +276,7 @@ if strcmpi(ini, '_roughsmall_500m') || strcmpi(ini, '_rough_500m') || strcmpi(in
     
     % gamma = 1.3;
     % dist_bin(1) = 1000; % in m
-    gamma = 1.5;
+    gamma = 1.3;
     dist_bin(1) = 1000; % in m
     dist_bin = gamma.^[0:100]*dist_bin(1);
     id = find(dist_bin>600*10^3,1);

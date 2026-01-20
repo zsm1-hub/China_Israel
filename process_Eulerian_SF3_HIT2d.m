@@ -9,7 +9,7 @@ tic
 
 % load('two_dim_Parameters.mat')
 addpath('E:\hitd\2dturbulence_w_alp01')
-load HIT2D_Parameters
+load E:\hitd\2dturbulence_w_alp01\HIT2D_Parameters
 
 Nt=199;
 rescale=2.*pi./512;
@@ -82,8 +82,8 @@ S3L1=squeeze(nanmean(S3L,1));
 S3T1=squeeze(nanmean(S3T,1));
 [r,SF3,S3L1,S3T1]=calc_radial(S3L1,S3T1,N,xscale);
 for j=1:Nt
-    S3L2=S3L(j,:);
-    S3T2=S3T(j,:);
+    S3L2=S3L(j,:,:);
+    S3T2=S3T(j,:,:);
     [r,SF3_time(j,:),S3L1_time(j,:),S3T1_time(j,:)]=calc_radial(S3L2,S3T2,N,xscale);
     disp(j)
 end
