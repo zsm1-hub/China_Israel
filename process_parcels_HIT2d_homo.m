@@ -228,8 +228,8 @@ parfor ii = 1:num_chunks
     
     % 预分配 pairs_time 数组
     pairs_time = struct('dist', cell(1, length(traj.T_axis)), ...
-                       'dul', cell(1, length(traj.T_axis)), ...
-                       'dut', cell(1, length(traj.T_axis)));
+                       'uls', cell(1, length(traj.T_axis)), ...
+                       'ul', cell(1, length(traj.T_axis)));
     
     for i = 1:length(traj.T_axis)
         % 使用逻辑索引替代 find 提高效率
