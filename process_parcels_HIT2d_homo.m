@@ -258,7 +258,7 @@ parfor ii = 1:num_chunks
             [uy1,uy2] = my_pdist(V, @dist_du_u);
             
             pairs_time(i).uls = ux1.*rx + uy1.*ry;
-	    pairs_time(i).ul = ux2.*rx + uy2.*ry;
+	  		pairs_time(i).ul = ux2.*rx + uy2.*ry;
         else
             pairs_time(i).ul = NaN;
             pairs_time(i).uls = NaN;
