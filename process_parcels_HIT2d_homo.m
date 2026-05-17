@@ -254,8 +254,8 @@ parfor ii = 1:num_chunks
             rx = rx./magr; 
             ry = ry./magr;
             
-            ux1,ux2 = pdist(U, @dist_du_u);
-            uy1,uy2 = pdist(V, @dist_du_u);
+            ux1,ux2 = my_pdist(U, @dist_du_u);
+            uy1,uy2 = my_pdist(V, @dist_du_u);
             
             pairs_time(i).uls = ux1.*rx + uy1.*ry;
 	    pairs_time(i).ul = ux2.*rx + uy2.*ry;
