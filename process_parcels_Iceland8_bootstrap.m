@@ -227,7 +227,7 @@ pairs_time=clear_nan_in_pairs_time(p1);
 clear p1
 %% error
 % Ttot = days*24*3600;
-Ttot = 1940*3600;
+Ttot = length(timerange)*3600;
 % Ttot = 720*3600;
 % Ttot = 1220*3600;
 tpts = length(pairs_time);
