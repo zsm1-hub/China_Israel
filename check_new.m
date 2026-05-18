@@ -3,7 +3,8 @@ clear all;close all;clc
 % addpath('D:\LIN2023\model\RoyBarkan\LLC4320/')
 % addpath('D:\LIN2023\crocotools\Preprocessingtools') % add function "spheric_dist.m"
 % 
-addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
+% addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
+addpath('/meddy/simingzhang/Analysis/matlab/bak/China_Israel')
 addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          1. Basic setup and read data
