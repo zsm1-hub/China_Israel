@@ -19,7 +19,7 @@ days=89.5;  % days
 dt=3600; % s  Advection_RK4 delta_t drift时间间隔
 % input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
 % ini='_roughbox200g_500m'
-ini='_cruise'
+ini='_roughsmall'
 timerange=1:1940;
 % timerange=1:720;
 % timerange=1220:1940;
@@ -382,7 +382,7 @@ num_boot = 1000;
 SF3 = zeros(length(dist_axis), num_boot);
 SF3_mean = zeros(length(dist_axis),1);
 SF3_stderr = zeros(length(dist_axis),1);
-
+SF1l = zeros(length(dist_axis), num_boot);
 %%
 tic
 for i = 1:length(dist_axis)
@@ -400,17 +400,19 @@ for i = 1:length(dist_axis)
         blocks_dut = reshape(pairs_sep(i).dut(1:n), [blocksize, numblocks])';
         
         SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
-        
+        SF1l_samp = blocks_dul;
         % create blocks of bootstrap samples
         %SF3_bs = bootstrp(num_boot, @(x)x', SF3_samp');
         % calculate means of each bootstrap sample
         %SF3 = mean(SF3_bs, 2);
         
         SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
+        SF1l(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF1l_samp);
         % the double mean above first takes mean over the blocks, then averages
         % the different blocks.
     else
         SF3(i,:) = NaN;
+        SF1l(i,:) = NaN;
     end
     % Mean and standard error of the estimates
     SF3_mean(i) = mean(SF3(i,:));
@@ -419,8 +421,8 @@ for i = 1:length(dist_axis)
 end
 toc
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    ini,'bootstrap.mat']
+    ini,'bootstrapv2.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','Th_all','nsample')
+     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','SF1l','Th_all','nsample')
 
