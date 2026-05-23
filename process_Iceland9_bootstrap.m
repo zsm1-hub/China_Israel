@@ -219,7 +219,7 @@ toc
 
 p1=pairs_time;
 clear pairs_time;
-pairs_time=clear_nan_in_pairs_time(p1);
+pairs_time=clear_nan_new(p1);
 clear p1
 
 Ttot = length(timerange)*3600;
