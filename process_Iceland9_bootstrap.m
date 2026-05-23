@@ -236,7 +236,7 @@ end
 dul = zeros(sum(npairs),1);
 dut = zeros(sum(npairs),1);
 dist = zeros(sum(npairs),1);
-
+theta = zeros(sum(npairs),1);
 %
 % estimate num of pairs
 
@@ -250,7 +250,7 @@ for i = 1:tpts % time loop
         dist(empty1) = pairs_time(i).dist;
         dul(empty1) = pairs_time(i).dul;
         dut(empty1) = pairs_time(i).dut;
-        dut(empty1) = pairs_time(i).theta;
+        theta(empty1) = pairs_time(i).theta;
         empty1 = empty1+1;
     end
     
@@ -305,7 +305,7 @@ end
 %%
 tic
 
-pairs_sep = struct('dul', 'dut');
+pairs_sep = struct('dul', 'dut','theta');
 
 for i = 1:length(dist_axis)
     disp(i)
@@ -313,6 +313,7 @@ for i = 1:length(dist_axis)
     
     pairs_sep(i).dul = dul(id);
     pairs_sep(i).dut = dut(id);
+    pairs_sep(i).theta = theta(id);
 end
 toc
 %% add by zsm
