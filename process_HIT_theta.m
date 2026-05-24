@@ -256,7 +256,7 @@ save([Case,'P',num2str(nparticles),ini,'nsamp.mat'], ...
     'nsample','dist_axis','dist_bin');
 %%
 % Compute mean SF2 to use for estimating DOF
-nbins = 8;
+nbins = 16;
 theta_edges = linspace(-pi, pi, nbins+1);
 theta_mid   = theta_edges(1:end-1) + diff(theta_edges)/2;
 dul_theta = NaN(length(dist_axis), nbins);
@@ -272,11 +272,11 @@ for i = 1:length(dist_axis)
               theta_i <  theta_edges(j+1);
         
         if sum(idx) > 1
-            dul_theta(i,j) = nanmean(dul_i(idx));
-            dut_theta(i,j) = nanmean(dut_i(idx));
+            pairs_sep(i).tbin(j).dul=nanmean(dul_i(idx));
+            pairs_sep(i).tbin(j).dut=nanmean(dut_i(idx));
         else
-            dul_theta(i,j) = NaN;
-            dut_theta(i,j) = NaN;
+            pairs_sep(i).tbin(j).dul=nan;
+            pairs_sep(i).tbin(j).dut=nan;
         end
     end
 end
@@ -284,8 +284,7 @@ end
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
     'theta.mat']
 disp(outputname)
-save(outputname,'dul_theta','dut_theta',...
-     'dist_axis', 'dist_bin','theta_mid')
+save(outputname,'pairs_sep','dist_axis','theta_mid')
 
 
 
