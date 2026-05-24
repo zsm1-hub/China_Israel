@@ -272,11 +272,13 @@ for i = 1:length(dist_axis)
               theta_i <  theta_edges(j+1);
         
         if sum(idx) > 1
-            pairs_sep(i).tbin(j).dul=nanmean(dul_i(idx));
-            pairs_sep(i).tbin(j).dut=nanmean(dut_i(idx));
+            dull(i,j)=nanmean(dul_i(idx));
+            dull2(i,j)=nanmean(dul_i(idx).^2);
+            dull3(i,j)=nanmean(dul_i(idx).^3);
         else
-            pairs_sep(i).tbin(j).dul=nan;
-            pairs_sep(i).tbin(j).dut=nan;
+            dull(i,j)=nan;
+            dull2(i,j)=nan;
+            dull3(i,j)=nan;
         end
     end
 end
@@ -284,7 +286,7 @@ end
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
     'theta.mat']
 disp(outputname)
-save(outputname,'pairs_sep','dist_axis','theta_mid')
+save(outputname,'dull','dull2','dull3','dist_axis','theta_mid')
 
 
 
