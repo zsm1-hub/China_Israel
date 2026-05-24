@@ -324,6 +324,37 @@ save([Case,'P',num2str(nparticles),ini,'nsamp.mat'], ...
     'nsample','dist_axis','dist_bin');
 %%
 % Compute mean SF2 to use for estimating DOF
+nbins = 8;
+theta_edges = linspace(-pi, pi, nbins+1);
+theta_mid   = theta_edges(1:end-1) + diff(theta_edges)/2;
+dul_theta = NaN(length(dist_axis), nbins);
+dut_theta = NaN(length(dist_axis), nbins);
+for i = 1:length(dist_axis)
+    
+    dul_i   = pairs_sep(i).dul;
+    dut_i   = pairs_sep(i).dut;
+    theta_i = pairs_sep(i).theta;
+    
+    for j = 1:nbins
+        idx = theta_i >= theta_edges(j) & ...
+              theta_i <  theta_edges(j+1);
+        
+        if sum(idx) > 1
+            dul_theta(i,j) = nanmean(dul_i(idx));
+            dut_theta(i,j) = nanmean(dut_i(idx));
+        else
+            dul_theta(i,j) = NaN;
+            dut_theta(i,j) = NaN;
+        end
+    end
+end
+outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
+    ini,'theta.mat']
+% [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+save(outputname,'dul_theta','dut_theta',...
+     'dist_axis', 'dist_bin')
+
+%----------------------------------------------- end of test, change by zsm ---------------------------------
 
 for i = 1:length(dist_axis)
     %pairs_per_bin(i) = length(id);
