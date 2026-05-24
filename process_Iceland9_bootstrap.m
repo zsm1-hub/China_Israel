@@ -352,7 +352,7 @@ outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(e
     ini,'theta.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'dul_theta','dut_theta',...
-     'dist_axis', 'dist_bin')
+     'dist_axis', 'dist_bin','theta_mid')
 
 %----------------------------------------------- end of test, change by zsm ---------------------------------
 
