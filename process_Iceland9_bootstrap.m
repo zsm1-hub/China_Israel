@@ -324,7 +324,7 @@ save([Case,'P',num2str(nparticles),ini,'nsamp.mat'], ...
     'nsample','dist_axis','dist_bin');
 %%
 % Compute mean SF2 to use for estimating DOF
-nbins = 8;
+nbins = 16;
 theta_edges = linspace(-pi, pi, nbins+1);
 theta_mid   = theta_edges(1:end-1) + diff(theta_edges)/2;
 dul_theta = NaN(length(dist_axis), nbins);
@@ -356,101 +356,4 @@ save(outputname,'dul_theta','dut_theta',...
 
 %----------------------------------------------- end of test, change by zsm ---------------------------------
 
-for i = 1:length(dist_axis)
-    %pairs_per_bin(i) = length(id);
-    %SF1l(i) = nanmean(pairs_sep(i).dul.^1);
-    %SF1t(i) = nanmean(pairs_sep(i).dut.^1);
-    
-    SF2ll(i) = nanmean(pairs_sep(i).dul.^2);
-    SF2tt(i) = nanmean(pairs_sep(i).dut.^2);
-    Theta(i) = nanmean(pairs_sep(i).theta);
-    %SF2lt(i) = nanmean(pairs_sep(i).dut.*pairs_sep(i).dul);
-    
-    %SF3lll(i) = nanmean(pairs_sep(i).dul.^3);
-    %SF3ltt(i) = nanmean(pairs_sep(i).dul.*pairs_sep(i).dut.^2);
-end
-SF2=SF2ll+SF2tt;
 
-%% test for setting up block bootstrap
-
-test_flag =0 ;
-if test_flag == 1
-    ts = 1:12;
-    blockSize = 2;
-    numBlocks = length(ts) / blockSize;           % must be integer
-    %blocks = reshape(ts, [numBlocks,blockSize])  % reshape into non-overlapping blocks
-    blocks = reshape(ts, [blockSize, numBlocks])';
-    nSamples = 10;
-    samples = bootstrp(1, @(x)x', blocks);
-    % the funny x' thing happens because the data is being converted to a row vector
-    
-end
-%% Degree of freedom using time of process and total length of experiment
-%
-%%%%%%
-%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%
-Tscale_tot = 1./(((SF2ll +SF2tt).^0.5)./dist_axis);
-Tscale_ll = 1./(((SF2ll).^0.5)./dist_axis);
-Tscale_tt = 1./(((SF2tt).^0.5)./dist_axis);
-
-dof = ceil(Ttot./Tscale_tot); % this is essentially T_tot/T_scale(r)
-
-%%
-for i = 1:length(pairs_sep)
-    npairs_sep(i) = length(pairs_sep(i).dul);
-    n_blocks_sep(i) =  dof(i); % number of blocks at that separation (basically the dof)
-    nsamps_per_block_sep(i) = ceil(npairs_sep(i)/ n_blocks_sep(i));
-end
-
-
-clear SF3 SF3_mean SF3_stderr
-
-num_boot = 1000;
-SF3 = zeros(length(dist_axis), num_boot);
-SF3_mean = zeros(length(dist_axis),1);
-SF3_stderr = zeros(length(dist_axis),1);
-SF1l = zeros(length(dist_axis), num_boot);
-%%
-tic
-for i = 1:length(dist_axis)
-    
-    
-    disp(i)
-    blocksize = nsamps_per_block_sep(i);
-    %blocksize = 1;
-    numblocks = floor(npairs_sep(i)/ blocksize);
-    
-    if npairs_sep(i)>10
-        n = numblocks*blocksize;
-        
-        blocks_dul = reshape(pairs_sep(i).dul(1:n), [blocksize, numblocks])';
-        blocks_dut = reshape(pairs_sep(i).dut(1:n), [blocksize, numblocks])';
-        
-        SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
-        SF1l_samp = blocks_dul;
-        % create blocks of bootstrap samples
-        %SF3_bs = bootstrp(num_boot, @(x)x', SF3_samp');
-        % calculate means of each bootstrap sample
-        %SF3 = mean(SF3_bs, 2);
-        
-        SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
-        SF1l(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF1l_samp);
-        % the double mean above first takes mean over the blocks, then averages
-        % the different blocks.
-    else
-        SF3(i,:) = NaN;
-        SF1l(i,:) = NaN;
-    end
-    % Mean and standard error of the estimates
-    SF3_mean(i) = mean(SF3(i,:));
-    SF3_stderr(i) = std(SF3(i,:)); % boot strap std err is the std of bs estimates
-    
-end
-toc
-outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    ini,'bootstrapv3.mat']
-% [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
-save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
-     'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','SF1l','Th_all','nsample')
