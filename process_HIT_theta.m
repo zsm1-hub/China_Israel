@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='HIT2d'; % wave
 nparticles=62500; % numbers of particles
-num_to_select = 300;
+num_to_select = 1000;
 
 
 days=89.5;  % days
@@ -225,7 +225,7 @@ dist_bin(2:end+1) = dist_bin(1:end);
 dist_bin(1) = dist_bin(3)-dist_bin(2); 
 dist_axis = 0.5*(dist_bin(1:end-1) + dist_bin(2:end));
 
-nbins = 8;
+nbins = 16;
 theta_edges = linspace(-pi, pi, nbins+1);
 theta_mid   = theta_edges(1:end-1) + diff(theta_edges)/2;
 
