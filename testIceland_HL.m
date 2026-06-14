@@ -401,20 +401,20 @@ for i = 1:length(dist_axis)
         blocks_dul = reshape(pairs_sep(i).dul(1:n), [blocksize, numblocks])';
         blocks_dut = reshape(pairs_sep(i).dut(1:n), [blocksize, numblocks])';
         
-        SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
+        %SF3_samp = blocks_dul.^3 + blocks_dul.*blocks_dut.^2;
         SF1l_samp = blocks_dul;
         SF2l_samp = blocks_dul.^2;
         SF3l_samp = blocks_dul.^3;
         
         
-        SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
+        %SF3(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3_samp);
         SF1l(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF1l_samp);
         SF2l(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF2l_samp);
         SF3l(i,:) = bootstrp(num_boot, @(x)mean(mean(x,2),1), SF3l_samp);
         % the double mean above first takes mean over the blocks, then averages
         % the different blocks.
     else
-        SF3(i,:) = NaN;
+        %SF3(i,:) = NaN;
         SF1l(i,:) = NaN;
         SF2l(i,:) = NaN;
         SF3l(i,:) = NaN;
