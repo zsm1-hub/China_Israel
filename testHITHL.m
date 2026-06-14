@@ -10,7 +10,7 @@ addpath('/meddy/simingzhang/Data/Parcels_data')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Case='HIT2d'; % wave
 nparticles=62500; % numbers of particles
-num_to_select = 1000;
+num_to_select = 7000;
 % nparticles=10000; % numbers of particles
 % num_to_select = 10000;
 days=89.5;  % days
@@ -363,7 +363,7 @@ for i = 1:length(dist_axis)
 end
 toc
 outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    ini,'bootstrapHL.mat']
+    ini,'bootstrapHL2.mat']
 % [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
 save(outputname,'SF3','SF3_mean', 'SF3_stderr', 'dof',...
      'dist_axis', 'dist_bin','SF2','SF2ll','SF2tt','SF1l','SF2l','SF3l','Th_all','nsample')
