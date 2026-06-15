@@ -396,6 +396,9 @@ outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(e
     'timeavg5.mat']
 save(outputname,'SF3_mean','dist_axis','Th_all','nvaild_time')
 
+outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
+    'timeavg6.mat']
+save(outputname,'SF3_mean','dist_axis','Th_all','nvaild_time','SF1l_time','SF2ll_time','SF3lll_time')
 
 clear;
 % load test2500_1.mat
