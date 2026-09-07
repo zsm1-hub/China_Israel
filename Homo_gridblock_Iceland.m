@@ -1,180 +1,308 @@
-%   data source: Iceland (wave and no wave case)
-%   utility: import parcels data to calc SF2,SF3
-%   doesn't use bootstrap to resample,insteadly, calc time-mean SF2 and SF3 directly
-%   code writer: zsm, modified from Balwada 2022 sciadv supplyment
+%% ============================================================
+% Iceland Lagrangian structure functions
+% + grid-index spatial homogeneity
+% + optional original block bootstrap
+%
+% Spatial homogeneity:
+%
+% H_L^n(r) =
+% std_space(local_SF_n) /
+% (abs(mean_space(local_SF_n)) + rms_space(local_SF_n))
+%
+% local_SF_n is first calculated in each spatial block.
+%
+% Pair distance and direction definitions retain the original:
+%   dist_geo.m
+%   dist_rx.m
+%   dist_ry.m
+%   dist_du.m
+%% ============================================================
 
-%%%%%%%%%%%% test dist_bin code ########################
-clear all;close all;clc
-% addpath('D:\LIN2023\model\RoyBarkan\LLC4320/')
-% addpath('D:\LIN2023\crocotools\Preprocessingtools') % add function "spheric_dist.m"
-% 
-addpath('/meddy/simingzhang/Analysis/matlab/Parcels_SF/')
-addpath('/meddy/simingzhang/Data/Parcels_data')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                          1. Basic setup and read data
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Case='wave'; % wave
-nparticles=289; % numbers of particles
-days=89.5;  % days
-dt=3600; % s  Advection_RK4 delta_t drift时间间隔
-% input_dir='D:\LIN2023\model\RoyBarkan\LLC4320/'; % drift所在文件夹
-ini='_roughsmall'
-timerange=1:1940;
+clear;
+close all;
+clc;
 
+%% ============================================================
+% 1. Paths and settings
+%% ============================================================
+
+addpath( ...
+    '/meddy/simingzhang/Analysis/matlab/Parcels_SF/');
+
+addpath( ...
+    '/meddy/simingzhang/Data/Parcels_data');
+
+addpath(genpath( ...
+    '/meddy/simingzhang/Data/RB_iceland_data'));
+
+Case = 'wave';             % 'wave' or 'nowave'
+nparticles = 289;
+days = 89.5;
+dt = 3600;                 % seconds
+
+ini = '_roughsmall';
+timerange = 1:1940;
+
+% Spatial-block settings
 nblock_I = 4;
 nblock_J = 4;
 min_pairs = 500;
 
+% At least this many valid spatial blocks are required for H
+min_valid_blocks = 8;
 
-%%% useless
+% true: also perform the original bootstrap calculation
+% false: calculate only overall SF and spatial homogeneity
+do_bootstrap = true;
+
+num_boot = 1000;
+
+%% ============================================================
+% 2. Select input directory
+%% ============================================================
+
 if strcmpi(ini, '_grid')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
-    xscale=[2:18,21:3:48,54:6:114];
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_spectukey/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_rough') || ...
+       strcmpi(ini, '_rough_1mon') || ...
+       strcmpi(ini, '_rough_2mon')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughdistr_tukey/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_roughsmall') || ...
+       strcmpi(ini, '_roughsmall_1mon') || ...
+       strcmpi(ini, '_roughsmall_2mon') || ...
+       strcmpi(ini, '_roughsmall_3mon')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughsmallregion/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_roughLASER')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughLASER/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_roughsmall_rot')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughsmallregion_rot/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_roughsmall_div')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughsmallregion_div/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_cruise')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_cruise_roughsmallregion/";
+
+    xscale = [2:18,21:3:48,54:6:114];
+
+elseif strcmpi(ini, '_roughsmall_500m')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughsmallregion_500m/";
+
+    xscale = ...
+        [2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+
+elseif strcmpi(ini, '_rough_500m')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_rough_500m/";
+
+    xscale = ...
+        [2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+
+elseif strcmpi(ini, '_roughbox200g_500m')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughbox200g_500m/";
+
+    xscale = ...
+        [2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+
+elseif strcmpi(ini, '_roughbox100g_500m')
+
+    input_dir = ...
+        '/meddy/simingzhang/Data/Parcels_data/' + ...
+        "tranV_onetime_roughbox100g_500m/";
+
+    xscale = ...
+        [2:18,21:3:48,54:6:114,120:12:228,240:24:336];
+
+else
+
+    error('Unknown ini setting: %s',ini);
 end
-%%% 2km whole grid
-if strcmpi(ini, '_rough') || strcmpi(ini, '_rough_1mon') || strcmpi(ini, '_rough_2mon')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughdistr_tukey/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
-%%% 2km 70*70box~140km
-if strcmpi(ini, '_roughsmall') || strcmpi(ini, '_roughsmall_1mon') || strcmpi(ini, '_roughsmall_2mon') || strcmpi(ini, '_roughsmall_3mon')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
-%%% 2km LASER but in smallregion
-if strcmpi(ini, '_roughLASER')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughLASER/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
-%%% 2month 140km box but in smallregion
-% if strcmpi(ini, '_2month_roughsmall')
-%     input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_2month_roughsmall/';
-%     xscale=[2:18,21:3:48,54:6:114];
-% end
 
-%%% 2km 70*70box~140km rot
-if strcmpi(ini, '_roughsmall_rot')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_rot/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
+input_dir = char(input_dir);
 
-if strcmpi(ini, '_roughsmall_div')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_div/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
-%%% 2km 70*70box~140km
-if strcmpi(ini, '_cruise')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_cruise_roughsmallregion/';
-    xscale=[2:18,21:3:48,54:6:114];
-end
-%%% 500 m 280*280box~140km
-if strcmpi(ini, '_roughsmall_500m') 
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughsmallregion_500m/';
-    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
-end
-%%% 500 m whole grid
-if strcmpi(ini, '_rough_500m')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_rough_500m/';
-    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
-end
-%%% 500 m 200*200box~100km
-if strcmpi(ini, '_roughbox200g_500m')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughbox200g_500m/';
-    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
-end
-%%% 500 m 100*100box~50km
-if strcmpi(ini, '_roughbox100g_500m')
-    input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_roughbox100g_500m/';
-    xscale=[2:18,21:3:48,54:6:114,120:12:228,240:24:336];
-end
-% input_dir='/meddy/simingzhang/Data/Parcels_data/tranV_onetime_spectukey/';
-% timerange=24*10:24*11-6; % 计算结构函数用的时间范围
-% timerange=1:2140;
-% timerange=1:960;
-% timerange=1:1200;
-% timerange=1:720;
-% timerange=1:1428;
-% timerange=1:720;
+%% ============================================================
+% 3. Build trajectory filename
+%% ============================================================
 
+if strcmpi(Case,'wave')
 
-if strcmpi(Case, 'wave')
-    fname=[input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+    fname = [ ...
+        input_dir, ...
+        'wave_pars_P',num2str(nparticles), ...
+        'T',num2str(days),'days.nc'];
+
+elseif strcmpi(Case,'nowave')
+
+    fname = [ ...
+        input_dir, ...
+        'nowave_pars_P',num2str(nparticles), ...
+        'T',num2str(days),'days.nc'];
+
+else
+
+    error('Case must be wave or nowave.');
 end
 
-if strcmpi(Case, 'nowave')
-    fname=[input_dir,'nowave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
+fprintf('Input file:\n%s\n',fname);
+
+%% ============================================================
+% 4. Read trajectories
+%% ============================================================
+
+lon_all = ncread(fname,'lon');
+lat_all = ncread(fname,'lat');
+
+ue = ncread(fname,'ue');
+ve = ncread(fname,'ve');
+
+lon_all = lon_all(timerange,:);
+lat_all = lat_all(timerange,:);
+
+ue = ue(timerange,:);
+ve = ve(timerange,:);
+
+nPositionTime = size(lon_all,1);
+nParticle = size(lon_all,2);
+
+if nParticle ~= nparticles
+    warning( ...
+        'Expected %d particles but file contains %d.', ...
+        nparticles,nParticle);
 end
 
-lon=ncread(fname,'lon');
-lat=ncread(fname,'lat');
+%% ============================================================
+% 5. Read th variables without creating th2, th3, ... arrays
+%
+% This produces the same Th_all but avoids keeping all 38
+% large th* arrays in memory.
+%% ============================================================
 
-% ue=ncread(fname,'ue').*1852.*60.*cos(lat.*pi./180);
-% ve=ncread(fname,'ve').*1852.*60;
+Th_all = nan(length(xscale),length(timerange));
 
-ue=ncread(fname,'ue');
-ve=ncread(fname,'ve');
+for iii = 1:length(xscale)
 
-lon=lon(timerange,:);
-lat=lat(timerange,:);
-ue=ue(timerange,:);
-ve=ve(timerange,:);
+    pistr = ['th',num2str(xscale(iii))];
 
-% xscale=[2:18,21:3:48,54:6:114];
-PI=zeros(1,length(xscale));
-for iii=1:length(xscale)
-    pistr=['th',num2str(xscale(iii))];
-    eval(['th',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
-    % eval(['Th(',num2str(iii),')=nanmean(','th',num2str(xscale(iii)),'(:));'])
-    eval(['Th_all(',num2str(iii),',:)=nanmean(','th', ...
-        num2str(xscale(iii)),'(timerange,:),2);'])
+    th_tmp = ncread(fname,pistr);
+
+    Th_all(iii,:) = mean( ...
+        th_tmp(timerange,:), ...
+        2, ...
+        'omitnan');
+
+    clear th_tmp;
 end
-%%%%%%%%%%%%%%%%check right?%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% save([oname(1:end-3),'traj.mat'],'lons','lats','ues','ves','Th_all')
 
-% read coarse-graining
-% xscale=[2,4,6,8,10,12,16,20,30,50,60,100];
-% PI=zeros(1,length(xscale));
-% for iii=1:length(xscale)
-%     pistr=['pi',num2str(xscale(iii))];
-%     eval(['pi',num2str(xscale(iii)),'=ncread(fname,','''',pistr,'''',');'])
-%     eval(['PI(',num2str(iii),')=nanmean(','pi',num2str(xscale(iii)),'(:));'])
-% end
-% semilogx(xscale,PI)
+%% ============================================================
+% 6. Calculate Lagrangian velocity
+%
+% This is retained from the original calculation.
+%% ============================================================
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%              2. Calc Lagrangian Velocity and save *traj.mat
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+nTime = nPositionTime-1;
 
+Utraj = nan(nTime,nParticle);
+Vtraj = nan(nTime,nParticle);
 
-for t=1:size(lon,1)-1
-    U(t,:)=(spheric_dist(lat(t,:),lat(t,:),lon(t,:),lon(t+1,:)))./dt.*...
-        sign(lon(t+1,:)-lon(t,:));
-    V(t,:)=(spheric_dist(lat(t+1,:),lat(t,:),lon(t,:),lon(t,:)))./dt.*...
-        sign(lat(t+1,:)-lat(t,:));
+for t = 1:nTime
+
+    Utraj(t,:) = ...
+        spheric_dist( ...
+            lat_all(t,:), ...
+            lat_all(t,:), ...
+            lon_all(t,:), ...
+            lon_all(t+1,:)) ...
+        ./dt ...
+        .*sign(lon_all(t+1,:)-lon_all(t,:));
+
+    Vtraj(t,:) = ...
+        spheric_dist( ...
+            lat_all(t+1,:), ...
+            lat_all(t,:), ...
+            lon_all(t,:), ...
+            lon_all(t,:)) ...
+        ./dt ...
+        .*sign(lat_all(t+1,:)-lat_all(t,:));
 end
-lon(end,:)=[];lat(end,:)=[];
 
-lon=lon;
-lat=lat;
-u=U;
-v=V;
-%%%%%%%%%%%%%%%%%%%%%there is a 2D experiment, So I assuming H=-501
-%%%%%%%%%%%%%%%%%%%%%H 没有意义, 只是在Balwada的code里面只采样了500米以上的粒子
+% Align position time with velocity time
+lon = lon_all(1:nTime,:);
+lat = lat_all(1:nTime,:);
 
-traj=struct();
-traj.trajmat_X=lon;traj.trajmat_Y=lat;
-traj.trajmat_U=u;traj.trajmat_V=v;
-traj.H=-520.*ones(size(v,1),size(v,2));
-traj.T_axis=linspace(dt, (size(v,1))*dt, size(v,1))./86400;
-%%%%%%%%%%%%%%%%%%%% read grid %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath('/meddy/simingzhang/Data/RB_iceland_data'))
-gname='/meddy/simingzhang/Data/RB_iceland_data/niskin2km_500m_grd.nc'
-lon_rho=ncread(gname,'lon_rho');
-lat_rho=ncread(gname,'lat_rho');
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear lon_all lat_all;
+
+%% ============================================================
+% 7. Read rotated model grid
+%% ============================================================
+
+gname = ...
+    '/meddy/simingzhang/Data/RB_iceland_data/' + ...
+    "niskin2km_500m_grd.nc";
+
+gname = char(gname);
+
+lon_rho = ncread(gname,'lon_rho');
+lat_rho = ncread(gname,'lat_rho');
+
+if ~isequal(size(lon_rho),size(lat_rho))
+    error('lon_rho and lat_rho have different sizes.');
+end
+
 [nI,nJ] = size(lon_rho);
 
-%% Build lon/lat -> continuous I/J mapping
+fprintf('Grid size: %d x %d\n',nI,nJ);
+
+%% ============================================================
+% 8. Geographic coordinates -> continuous grid indices
+%
+% 'none' prevents points outside the model grid from being
+% forced into an edge block.
+%% ============================================================
 
 [Igrid,Jgrid] = ndgrid(1:nI,1:nJ);
 
@@ -187,280 +315,662 @@ FI = scatteredInterpolant( ...
     lat_rho(valid_grid), ...
     Igrid(valid_grid), ...
     'linear', ...
-    'nearest');
+    'none');
 
 FJ = scatteredInterpolant( ...
     lon_rho(valid_grid), ...
     lat_rho(valid_grid), ...
     Jgrid(valid_grid), ...
     'linear', ...
-    'nearest');
+    'none');
 
-%% Check mapping using initial particle positions
+%% ============================================================
+% 9. Determine particle-covered grid-index region
+%
+% This avoids dividing the entire 287x287 model domain when
+% particles occupy only a smaller release/analysis region.
+%
+% The range is determined from all valid particle positions
+% during the selected time interval.
+%% ============================================================
 
-I_initial = FI(lon(1,:),lat(1,:));
-J_initial = FJ(lon(1,:),lat(1,:));
+lon_vector = lon(:);
+lat_vector = lat(:);
 
+valid_position = ...
+    isfinite(lon_vector) & ...
+    isfinite(lat_vector);
 
-%% Define blocks in grid-index space
+I_particle_all = FI( ...
+    lon_vector(valid_position), ...
+    lat_vector(valid_position));
 
-I_edges = round( ...
-    linspace(1,nI+1,nblock_I+1));
+J_particle_all = FJ( ...
+    lon_vector(valid_position), ...
+    lat_vector(valid_position));
 
-J_edges = round( ...
-    linspace(1,nJ+1,nblock_J+1));
+valid_index = ...
+    isfinite(I_particle_all) & ...
+    isfinite(J_particle_all);
+
+if ~any(valid_index)
+    error('Particle positions cannot be mapped to the model grid.');
+end
+
+I_min = max(1,floor(min(I_particle_all(valid_index))));
+I_max = min(nI,ceil(max(I_particle_all(valid_index))));
+
+J_min = max(1,floor(min(J_particle_all(valid_index))));
+J_max = min(nJ,ceil(max(J_particle_all(valid_index))));
+
+clear lon_vector lat_vector;
+clear I_particle_all J_particle_all;
+clear valid_position valid_index;
+
+I_edges = linspace( ...
+    I_min,I_max+eps(I_max),nblock_I+1);
+
+J_edges = linspace( ...
+    J_min,J_max+eps(J_max),nblock_J+1);
 
 nBlock = nblock_I*nblock_J;
 
-fprintf('Grid: %d x %d\n',nI,nJ);
-fprintf('Blocks: %d x %d\n',nblock_I,nblock_J);
-fprintf('I block edges:\n');
-disp(I_edges);
-fprintf('J block edges:\n');
-disp(J_edges);
+fprintf( ...
+    'Particle-covered I range: %.1f to %.1f\n', ...
+    I_min,I_max);
 
-%% Use your existing distance bins if available
+fprintf( ...
+    'Particle-covered J range: %.1f to %.1f\n', ...
+    J_min,J_max);
 
-if ~exist('dist_bin','var')
+fprintf( ...
+    'Blocks: %d x %d = %d\n', ...
+    nblock_I,nblock_J,nBlock);
 
-    gamma = 1.3;
-    rmin = 4000;
-    rmax = 600e3;
+%% ============================================================
+% 10. Use the original distance-bin construction
+%% ============================================================
 
-    dist_bin = rmin * gamma.^(0:100);
-    dist_bin = dist_bin(dist_bin <= rmax);
-    dist_bin = unique([0,dist_bin]);
+gamma = 1.3;
+
+is_500m = ...
+    strcmpi(ini,'_roughsmall_500m') || ...
+    strcmpi(ini,'_rough_500m') || ...
+    strcmpi(ini,'_roughbox200g_500m') || ...
+    strcmpi(ini,'_roughbox100g_500m');
+
+if is_500m
+    first_edge = 1000;
+else
+    first_edge = 4000;
 end
 
-dist_axis = 0.5 * ...
-    (dist_bin(1:end-1) + dist_bin(2:end));
+dist_bin = first_edge*gamma.^(0:100);
+
+first_large = find(dist_bin>600e3,1);
+
+if isempty(first_large)
+    error('Distance-bin vector does not reach 600 km.');
+end
+
+dist_bin = dist_bin(1:first_large-1);
+
+dist_bin(2:end+1) = dist_bin(1:end);
+dist_bin(1) = 0;
+
+dist_axis = ...
+    0.5*(dist_bin(1:end-1)+dist_bin(2:end));
 
 nScale = length(dist_axis);
 
-%% Pair indices generated only once
+%% ============================================================
+% 11. Streaming accumulators
+%
+% H calculation retains only nScale x nBlock arrays.
+%% ============================================================
 
-nParticle = size(lon,2);
-
-[pair_i,pair_j] = ...
-    find(triu(true(nParticle),1));
-
-%% Streaming accumulators
-
-sum_SF1 = zeros(nScale,nBlock);
-sum_SF2 = zeros(nScale,nBlock);
-sum_SF3 = zeros(nScale,nBlock);
+sum_SF1_block = zeros(nScale,nBlock);
+sum_SF2_block = zeros(nScale,nBlock);
+sum_SF3_block = zeros(nScale,nBlock);
 
 pair_count = zeros(nScale,nBlock);
 
-%% Main loop
+% Overall structure functions
+sum_SF1_total = zeros(nScale,1);
+sum_SF2ll_total = zeros(nScale,1);
+sum_SF2tt_total = zeros(nScale,1);
+sum_SF3lll_total = zeros(nScale,1);
+sum_SF3ltt_total = zeros(nScale,1);
+count_total = zeros(nScale,1);
 
-nTime = size(lon,1);
+%% ============================================================
+% 12. Optional pair storage for original bootstrap
+%
+% Only enabled when do_bootstrap=true.
+%% ============================================================
+
+if do_bootstrap
+
+    pairs_sep = repmat( ...
+        struct('dul',[],'dut',[]), ...
+        nScale,1);
+end
+
+%% ============================================================
+% 13. Main pair calculation
+%
+% The original pdist definitions are retained exactly.
+%% ============================================================
+
+tic;
 
 for it = 1:nTime
 
-    if mod(it,100) == 0
-        fprintf('time %d/%d\n',it,nTime);
+    if mod(it,100)==0
+        fprintf('Time %d / %d\n',it,nTime);
     end
 
-    valid_particle = ...
+    id = find( ...
         isfinite(lon(it,:)) & ...
         isfinite(lat(it,:)) & ...
-        isfinite(U(it,:)) & ...
-        isfinite(V(it,:));
+        isfinite(Utraj(it,:)) & ...
+        isfinite(Vtraj(it,:)));
 
-    valid_pair = ...
-        valid_particle(pair_i) & ...
-        valid_particle(pair_j);
+    nCurrent = length(id);
 
-    if ~any(valid_pair)
+    if nCurrent<2
         continue;
     end
 
-    pi = pair_i(valid_pair);
-    pj = pair_j(valid_pair);
+    X = lon(it,id)';
+    Y = lat(it,id)';
 
-    lon1 = lon(it,pi)';
-    lon2 = lon(it,pj)';
+    U_now = Utraj(it,id)';
+    V_now = Vtraj(it,id)';
 
-    lat1 = lat(it,pi)';
-    lat2 = lat(it,pj)';
+    Xvec = [X,Y];
 
-    u1 = U(it,pi)';
-    u2 = U(it,pj)';
+    % Original pair calculations
+    dist_now = pdist(Xvec,@dist_geo);
+    rx = pdist(Xvec,@dist_rx);
+    ry = pdist(Xvec,@dist_ry);
 
-    v1 = V(it,pi)';
-    v2 = V(it,pj)';
+    magr = sqrt(rx.^2+ry.^2);
 
-    %% Pair distance
+    dux = pdist(U_now,@dist_du);
+    duy = pdist(V_now,@dist_du);
 
-    d = spheric_dist( ...
-        lat1,lat2,lon1,lon2);
+    % Convert all pdist outputs to columns
+    dist_now = dist_now(:);
+    rx = rx(:);
+    ry = ry(:);
+    magr = magr(:);
+    dux = dux(:);
+    duy = duy(:);
 
-    %% Pair direction
+    % nchoosek order is:
+    % (1,2), (1,3), ..., (1,N), (2,3), ...
+    % which matches pdist pair order.
+    pair_local = nchoosek(1:nCurrent,2);
 
-    rx = spheric_dist( ...
-        lat1,lat1,lon1,lon2);
+    pair_a = pair_local(:,1);
+    pair_b = pair_local(:,2);
 
-    ry = spheric_dist( ...
-        lat1,lat2,lon1,lon1);
+    if size(pair_local,1)~=length(dist_now)
+        error('Pair-index order/length does not match pdist.');
+    end
 
-    magr = sqrt(rx.^2 + ry.^2);
+    good_pair = ...
+        isfinite(dist_now) & ...
+        isfinite(rx) & ...
+        isfinite(ry) & ...
+        isfinite(magr) & ...
+        isfinite(dux) & ...
+        isfinite(duy) & ...
+        magr>0;
+
+    if ~any(good_pair)
+        continue;
+    end
+
+    dist_now = dist_now(good_pair);
+
+    rx = rx(good_pair)./magr(good_pair);
+    ry = ry(good_pair)./magr(good_pair);
+
+    dux = dux(good_pair);
+    duy = duy(good_pair);
+
+    pair_a = pair_a(good_pair);
+    pair_b = pair_b(good_pair);
+
+    % Same longitudinal/transverse definitions as original
+    dul = dux.*rx+duy.*ry;
+    dut = duy.*rx-dux.*ry;
+
+    % Pair midpoint in longitude/latitude
+    lon_mid = ...
+        0.5*(X(pair_a)+X(pair_b));
+
+    lat_mid = ...
+        0.5*(Y(pair_a)+Y(pair_b));
+
+    % Map midpoint into continuous rotated-grid indices
+    I_mid = FI(lon_mid,lat_mid);
+    J_mid = FJ(lon_mid,lat_mid);
+
+    % Separation bin
+    scale_id = discretize(dist_now,dist_bin);
+
+    % Spatial block in grid-index space
+    block_I = discretize(I_mid,I_edges);
+    block_J = discretize(J_mid,J_edges);
+
+    block_id = ...
+        (block_I-1)*nblock_J+block_J;
 
     good = ...
-        isfinite(d) & ...
-        isfinite(magr) & ...
-        magr > 0;
+        isfinite(scale_id) & ...
+        isfinite(block_id) & ...
+        isfinite(dul) & ...
+        isfinite(dut) & ...
+        scale_id>=1 & ...
+        scale_id<=nScale & ...
+        block_id>=1 & ...
+        block_id<=nBlock;
 
     if ~any(good)
         continue;
     end
 
-    d = d(good);
+    scale_id = scale_id(good);
+    block_id = block_id(good);
 
-    rx = rx(good) ./ magr(good);
-    ry = ry(good) ./ magr(good);
+    dul = dul(good);
+    dut = dut(good);
 
-    %% Velocity increments
+    %% Samples used by the structure functions
 
-    dux = u2(good) - u1(good);
-    duy = v2(good) - v1(good);
+    sf1_sample = dul;
+    sf2ll_sample = dul.^2;
+    sf2tt_sample = dut.^2;
+    sf3lll_sample = dul.^3;
+    sf3ltt_sample = dul.*dut.^2;
 
-    dul = dux .* rx + duy .* ry;
-    dut = duy .* rx - dux .* ry;
+    % Appendix-C H_L^3 currently uses the longitudinal moment:
+    sf3_homogeneity_sample = sf3lll_sample;
 
-    %% Pair midpoint
+    % If you want H for the full 2-D energy-flux combination,
+    % replace the previous line with:
+    %
+    % sf3_homogeneity_sample = ...
+    %     sf3lll_sample+sf3ltt_sample;
 
-    lon_mid = 0.5 * ...
-        (lon1(good) + lon2(good));
+    %% Overall SF accumulators
 
-    lat_mid = 0.5 * ...
-        (lat1(good) + lat2(good));
+    sum_SF1_total = sum_SF1_total+accumarray( ...
+        scale_id,sf1_sample,[nScale,1],@sum,0);
 
-    %% Convert midpoint to grid-index coordinates
+    sum_SF2ll_total = sum_SF2ll_total+accumarray( ...
+        scale_id,sf2ll_sample,[nScale,1],@sum,0);
 
-    I_mid = FI(lon_mid,lat_mid);
-    J_mid = FJ(lon_mid,lat_mid);
+    sum_SF2tt_total = sum_SF2tt_total+accumarray( ...
+        scale_id,sf2tt_sample,[nScale,1],@sum,0);
 
-    %% Assign scale and spatial block
+    sum_SF3lll_total = sum_SF3lll_total+accumarray( ...
+        scale_id,sf3lll_sample,[nScale,1],@sum,0);
 
-    scale_id = discretize(d,dist_bin);
+    sum_SF3ltt_total = sum_SF3ltt_total+accumarray( ...
+        scale_id,sf3ltt_sample,[nScale,1],@sum,0);
 
-    block_I = discretize(I_mid,I_edges);
-    block_J = discretize(J_mid,J_edges);
+    count_total = count_total+accumarray( ...
+        scale_id,ones(size(scale_id)), ...
+        [nScale,1],@sum,0);
 
-    block_I(I_mid == I_edges(end)) = nblock_I;
-    block_J(J_mid == J_edges(end)) = nblock_J;
-
-    block_id = ...
-        (block_I - 1) * nblock_J + block_J;
-
-    good2 = ...
-        isfinite(scale_id) & ...
-        isfinite(block_id) & ...
-        scale_id >= 1 & ...
-        scale_id <= nScale & ...
-        block_id >= 1 & ...
-        block_id <= nBlock & ...
-        isfinite(dul);
-
-    if ~any(good2)
-        continue;
-    end
-
-    scale_id = scale_id(good2);
-    block_id = block_id(good2);
-
-    dul_use = dul(good2);
+    %% Spatial block accumulators
 
     linear_id = sub2ind( ...
         [nScale,nBlock], ...
         scale_id,block_id);
 
-    %% Accumulate SF1
+    temp = accumarray( ...
+        linear_id,sf1_sample, ...
+        [nScale*nBlock,1],@sum,0);
 
-    tmp = accumarray( ...
-        linear_id, ...
-        dul_use, ...
-        [nScale*nBlock,1], ...
-        @sum,0);
+    sum_SF1_block = sum_SF1_block+ ...
+        reshape(temp,nScale,nBlock);
 
-    sum_SF1 = sum_SF1 + ...
-        reshape(tmp,nScale,nBlock);
+    temp = accumarray( ...
+        linear_id,sf2ll_sample, ...
+        [nScale*nBlock,1],@sum,0);
 
-    %% Accumulate SF2
+    sum_SF2_block = sum_SF2_block+ ...
+        reshape(temp,nScale,nBlock);
 
-    tmp = accumarray( ...
-        linear_id, ...
-        dul_use.^2, ...
-        [nScale*nBlock,1], ...
-        @sum,0);
+    temp = accumarray( ...
+        linear_id,sf3_homogeneity_sample, ...
+        [nScale*nBlock,1],@sum,0);
 
-    sum_SF2 = sum_SF2 + ...
-        reshape(tmp,nScale,nBlock);
+    sum_SF3_block = sum_SF3_block+ ...
+        reshape(temp,nScale,nBlock);
 
-    %% Accumulate SF3
+    temp = accumarray( ...
+        linear_id,ones(size(linear_id)), ...
+        [nScale*nBlock,1],@sum,0);
 
-    % Longitudinal SF3:
-    sf3_use = dul_use.^3;
+    pair_count = pair_count+ ...
+        reshape(temp,nScale,nBlock);
 
-    % If your paper uses the 2-D expression:
-    %
-    % dut_use = dut(good2);
-    % sf3_use = dul_use.^3 + dul_use .* dut_use.^2;
+    %% Optional storage for original bootstrap
 
-    tmp = accumarray( ...
-        linear_id, ...
-        sf3_use, ...
-        [nScale*nBlock,1], ...
-        @sum,0);
+    if do_bootstrap
 
-    sum_SF3 = sum_SF3 + ...
-        reshape(tmp,nScale,nBlock);
+        for ir = unique(scale_id(:))'
 
-    %% Pair count
+            in_scale = scale_id==ir;
 
-    tmp = accumarray( ...
-        linear_id, ...
-        1, ...
-        [nScale*nBlock,1], ...
-        @sum,0);
+            pairs_sep(ir).dul = [ ...
+                pairs_sep(ir).dul; ...
+                dul(in_scale)];
 
-    pair_count = pair_count + ...
-        reshape(tmp,nScale,nBlock);
+            pairs_sep(ir).dut = [ ...
+                pairs_sep(ir).dut; ...
+                dut(in_scale)];
+        end
+    end
 end
 
-%% Local structure functions
+pair_runtime = toc;
+
+fprintf( ...
+    'Pair calculation completed in %.1f seconds.\n', ...
+    pair_runtime);
+
+%% ============================================================
+% 14. Overall SF calculations
+%% ============================================================
+
+SF1 = nan(nScale,1);
+SF2ll = nan(nScale,1);
+SF2tt = nan(nScale,1);
+SF3lll = nan(nScale,1);
+SF3ltt = nan(nScale,1);
+
+valid_total = count_total>0;
+
+SF1(valid_total) = ...
+    sum_SF1_total(valid_total) ./ ...
+    count_total(valid_total);
+
+SF2ll(valid_total) = ...
+    sum_SF2ll_total(valid_total) ./ ...
+    count_total(valid_total);
+
+SF2tt(valid_total) = ...
+    sum_SF2tt_total(valid_total) ./ ...
+    count_total(valid_total);
+
+SF3lll(valid_total) = ...
+    sum_SF3lll_total(valid_total) ./ ...
+    count_total(valid_total);
+
+SF3ltt(valid_total) = ...
+    sum_SF3ltt_total(valid_total) ./ ...
+    count_total(valid_total);
+
+SF2 = SF2ll+SF2tt;
+
+% Full 2-D third-order structure function
+SF3 = SF3lll+SF3ltt;
+
+%% ============================================================
+% 15. Local structure functions in spatial blocks
+%% ============================================================
 
 local_SF1 = nan(nScale,nBlock);
 local_SF2 = nan(nScale,nBlock);
 local_SF3 = nan(nScale,nBlock);
 
-valid = pair_count >= min_pairs;
+valid_local = pair_count>=min_pairs;
 
-local_SF1(valid) = ...
-    sum_SF1(valid) ./ pair_count(valid);
+local_SF1(valid_local) = ...
+    sum_SF1_block(valid_local) ./ ...
+    pair_count(valid_local);
 
-local_SF2(valid) = ...
-    sum_SF2(valid) ./ pair_count(valid);
+local_SF2(valid_local) = ...
+    sum_SF2_block(valid_local) ./ ...
+    pair_count(valid_local);
 
-local_SF3(valid) = ...
-    sum_SF3(valid) ./ pair_count(valid);
+local_SF3(valid_local) = ...
+    sum_SF3_block(valid_local) ./ ...
+    pair_count(valid_local);
 
-%% Calculate homogeneity
+%% ============================================================
+% 16. Spatial homogeneity
+%% ============================================================
 
 [H1,mean_SF1,std_SF1,rms_SF1,nvalid1] = ...
-    calculate_H(local_SF1,pair_count,min_pairs);
+    calculate_H( ...
+        local_SF1, ...
+        pair_count, ...
+        min_pairs, ...
+        min_valid_blocks);
 
 [H2,mean_SF2,std_SF2,rms_SF2,nvalid2] = ...
-    calculate_H(local_SF2,pair_count,min_pairs);
+    calculate_H( ...
+        local_SF2, ...
+        pair_count, ...
+        min_pairs, ...
+        min_valid_blocks);
 
 [H3,mean_SF3,std_SF3,rms_SF3,nvalid3] = ...
-    calculate_H(local_SF3,pair_count,min_pairs);
+    calculate_H( ...
+        local_SF3, ...
+        pair_count, ...
+        min_pairs, ...
+        min_valid_blocks);
 
-outputname=[input_dir,Case,'_pars_P',num2str(nparticles),'T',num2str(timerange(end)),...
-    ini,'gridBlockHL.mat']
-% [input_dir,'wave_pars_P',num2str(nparticles),'T',num2str(days),'days.nc'];
-save(outputname,'H1','mean_SF1','std_SF1','rms_SF1','nvalid1',...
-      'H2','mean_SF2','std_SF2','rms_SF2','nvalid2',...
-      'H3','mean_SF3','std_SF3','rms_SF3','nvalid3',...
-     'dist_axis')
+%% ============================================================
+% 17. Optional original bootstrap
+%% ============================================================
+
+if do_bootstrap
+
+    Ttot = nTime*dt;
+
+    Tscale_tot = ...
+        dist_axis(:) ./ sqrt(SF2ll+SF2tt);
+
+    dof = ones(nScale,1);
+
+    valid_dof = ...
+        isfinite(Tscale_tot) & ...
+        Tscale_tot>0;
+
+    dof(valid_dof) = ceil( ...
+        Ttot ./ Tscale_tot(valid_dof));
+
+    dof = max(dof,1);
+
+    SF1l = nan(nScale,num_boot);
+    SF2l = nan(nScale,num_boot);
+    SF3l = nan(nScale,num_boot);
+
+    SF3full_boot = nan(nScale,num_boot);
+
+    nsample = zeros(nScale,1);
+
+    tic;
+
+    for ir = 1:nScale
+
+        fprintf( ...
+            'Bootstrap scale %d / %d\n', ...
+            ir,nScale);
+
+        dul_bin = pairs_sep(ir).dul;
+        dut_bin = pairs_sep(ir).dut;
+
+        nsample(ir) = numel(dul_bin);
+
+        if nsample(ir)<=10
+            continue;
+        end
+
+        n_blocks = min( ...
+            dof(ir), ...
+            nsample(ir));
+
+        blocksize = floor( ...
+            nsample(ir)/n_blocks);
+
+        if blocksize<1
+            continue;
+        end
+
+        n_use = n_blocks*blocksize;
+
+        % Randomize once before reshaping.
+        % This avoids arbitrary dependence on append order.
+        random_order = randperm(nsample(ir),n_use);
+
+        dul_use = dul_bin(random_order);
+        dut_use = dut_bin(random_order);
+
+        blocks_dul = reshape( ...
+            dul_use, ...
+            blocksize,n_blocks)';
+
+        blocks_dut = reshape( ...
+            dut_use, ...
+            blocksize,n_blocks)';
+
+        SF1l_sample = blocks_dul;
+        SF2l_sample = blocks_dul.^2;
+        SF3l_sample = blocks_dul.^3;
+
+        SF3full_sample = ...
+            blocks_dul.^3 + ...
+            blocks_dul.*blocks_dut.^2;
+
+        SF1l(ir,:) = bootstrp( ...
+            num_boot, ...
+            @(x) mean(x(:),'omitnan'), ...
+            SF1l_sample);
+
+        SF2l(ir,:) = bootstrp( ...
+            num_boot, ...
+            @(x) mean(x(:),'omitnan'), ...
+            SF2l_sample);
+
+        SF3l(ir,:) = bootstrp( ...
+            num_boot, ...
+            @(x) mean(x(:),'omitnan'), ...
+            SF3l_sample);
+
+        SF3full_boot(ir,:) = bootstrp( ...
+            num_boot, ...
+            @(x) mean(x(:),'omitnan'), ...
+            SF3full_sample);
+    end
+
+    bootstrap_runtime = toc;
+
+    fprintf( ...
+        'Bootstrap completed in %.1f seconds.\n', ...
+        bootstrap_runtime);
+
+    SF3_mean = mean( ...
+        SF3full_boot,2,'omitnan');
+
+    SF3_stderr = std( ...
+        SF3full_boot,0,2,'omitnan');
+
+else
+
+    dof = [];
+    SF1l = [];
+    SF2l = [];
+    SF3l = [];
+    SF3full_boot = [];
+    SF3_mean = [];
+    SF3_stderr = [];
+    nsample = [];
+    bootstrap_runtime = NaN;
+end
+
+%% ============================================================
+% 18. Save result
+%% ============================================================
+
+outputname = [ ...
+    input_dir, ...
+    Case, ...
+    '_pars_P', ...
+    num2str(nparticles), ...
+    'T', ...
+    num2str(timerange(end)), ...
+    ini, ...
+    'gridBlockHL.mat'];
+
+save( ...
+    outputname, ...
+    'Case', ...
+    'nparticles', ...
+    'days', ...
+    'dt', ...
+    'timerange', ...
+    'xscale', ...
+    'Th_all', ...
+    'dist_axis', ...
+    'dist_bin', ...
+    'SF1', ...
+    'SF2', ...
+    'SF2ll', ...
+    'SF2tt', ...
+    'SF3', ...
+    'SF3lll', ...
+    'SF3ltt', ...
+    'count_total', ...
+    'local_SF1', ...
+    'local_SF2', ...
+    'local_SF3', ...
+    'H1', ...
+    'H2', ...
+    'H3', ...
+    'mean_SF1', ...
+    'mean_SF2', ...
+    'mean_SF3', ...
+    'std_SF1', ...
+    'std_SF2', ...
+    'std_SF3', ...
+    'rms_SF1', ...
+    'rms_SF2', ...
+    'rms_SF3', ...
+    'nvalid1', ...
+    'nvalid2', ...
+    'nvalid3', ...
+    'pair_count', ...
+    'I_edges', ...
+    'J_edges', ...
+    'I_min', ...
+    'I_max', ...
+    'J_min', ...
+    'J_max', ...
+    'nblock_I', ...
+    'nblock_J', ...
+    'nBlock', ...
+    'min_pairs', ...
+    'min_valid_blocks', ...
+    'do_bootstrap', ...
+    'num_boot', ...
+    'dof', ...
+    'SF1l', ...
+    'SF2l', ...
+    'SF3l', ...
+    'SF3full_boot', ...
+    'SF3_mean', ...
+    'SF3_stderr', ...
+    'nsample', ...
+    'pair_runtime', ...
+    'bootstrap_runtime');
