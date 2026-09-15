@@ -5,6 +5,7 @@ import numpy as np
 import xarray as xr
 from scipy.interpolate import LinearNDInterpolator
 from scipy.io import savemat
+from tqdm import tqdm
 
 EARTH_RADIUS = 6367442.76
 
@@ -114,11 +115,9 @@ def run_iceland(cfg):
     t0 = time.perf_counter(); rng = np.random.default_rng(cfg.get("random_seed"))
     tr = np.asarray(cfg["timerange_matlab"], int)-1; npart = cfg["nparticles"]
     fname = Path(cfg["input_dir"])/f'{cfg["case"]}_pars_P{npart}T{cfg["days"]:g}days.nc'
-    xscale = np.asarray(cfg["xscale"], int)
     with xr.open_dataset(fname, decode_times=False) as ds:
         lon0 = matlab_layout(ds.lon.values, npart, "lon")[tr]; lat0 = matlab_layout(ds.lat.values, npart, "lat")[tr]
         _ = matlab_layout(ds.ue.values, npart, "ue")[tr]; _ = matlab_layout(ds.ve.values, npart, "ve")[tr]
-        Th_all = np.vstack([np.nanmean(matlab_layout(ds[f"th{s}"].values, npart, f"th{s}")[tr], axis=1) for s in xscale])
     dt = cfg["dt"]
     U = spheric_dist(lat0[:-1], lat0[:-1], lon0[:-1], lon0[1:])/dt*np.sign(lon0[1:]-lon0[:-1])
     V = spheric_dist(lat0[1:], lat0[:-1], lon0[:-1], lon0[:-1])/dt*np.sign(lat0[1:]-lat0[:-1])
@@ -134,11 +133,23 @@ def run_iceland(cfg):
     imin, imax = max(1, np.floor(ia[ok].min())), min(ni, np.ceil(ia[ok].max()))
     jmin, jmax = max(1, np.floor(ja[ok].min())), min(nj, np.ceil(ja[ok].max()))
     ie = np.linspace(imin, np.nextafter(imax, np.inf), cfg["nblock_I"]+1); je = np.linspace(jmin, np.nextafter(jmax, np.inf), cfg["nblock_J"]+1)
-    is500 = cfg["ini"] in {"_roughsmall_500m","_rough_500m","_roughbox200g_500m","_roughbox100g_500m"}
-    db, da = matlab_bins(1000.0 if is500 else 4000.0, 1.3, 600e3); ns, nb = da.size, cfg["nblock_I"]*cfg["nblock_J"]
+    r_requested_km = np.asarray(cfg["r_requested_km"], float).ravel()
+    r_requested_km = np.sort(np.unique(r_requested_km[np.isfinite(r_requested_km) & (r_requested_km > 0)]))
+    if r_requested_km.size < 2:
+        raise ValueError("r_requested_km must contain at least two positive scales")
+    lr = np.log(r_requested_km)
+    le = np.empty(lr.size + 1); le[1:-1] = 0.5*(lr[:-1] + lr[1:])
+    le[0] = lr[0] - 0.5*(lr[1]-lr[0]); le[-1] = lr[-1] + 0.5*(lr[-1]-lr[-2])
+    db, da = np.exp(le)*1000.0, r_requested_km*1000.0
+    ns, nb = da.size, cfg["nblock_I"]*cfg["nblock_J"]
     sums = [np.zeros(ns) for _ in range(5)]; bsums = [np.zeros((ns, nb)) for _ in range(3)]; counts = np.zeros(ns); pcount = np.zeros((ns, nb))
     pairs = [[[], []] for _ in range(ns)] if cfg["do_bootstrap"] else None
-    for it in range(ntime):
+    for it in tqdm(
+        range(ntime),
+        total=ntime,
+        desc="Iceland Lagrangian pair statistics",
+        unit="time"
+    ):
         valid = np.isfinite(lon[it]) & np.isfinite(lat[it]) & np.isfinite(U[it]) & np.isfinite(V[it]); ids = np.flatnonzero(valid)
         if ids.size < 2: continue
         x,y,u,v = lon[it,ids],lat[it,ids],U[it,ids],V[it,ids]; ii,jj,d,dl,dtr = condensed_pairs(x,y,u,v,True)
@@ -153,11 +164,10 @@ def run_iceland(cfg):
         if pairs is not None:
             for ir in np.unique(si):
                 q=si==ir; pairs[ir][0].append(dl[q]); pairs[ir][1].append(dtr[q])
-        if (it+1)%100==0: print(f"time {it+1}/{ntime}")
     pair_runtime=time.perf_counter()-t0
     overall, local, hs = finish_statistics(sums,counts,bsums,pcount,cfg["min_pairs"],cfg["min_valid_blocks"])
     SF1,SF2ll,SF2tt,SF3lll,SF3ltt=overall; SF2=SF2ll+SF2tt; SF3=SF3lll+SF3ltt
-    out={"Case":cfg["case"],"nparticles":npart,"days":cfg["days"],"dt":dt,"timerange":tr+1,"xscale":xscale,"Th_all":Th_all,"dist_axis":da,"dist_bin":db,
+    out={"Case":cfg["case"],"nparticles":npart,"days":cfg["days"],"dt":dt,"timerange":tr+1,"r_requested_km":r_requested_km,"dist_axis":da/1000.0,"dist_bin":db/1000.0,
          "SF1":SF1,"SF2":SF2,"SF2ll":SF2ll,"SF2tt":SF2tt,"SF3":SF3,"SF3lll":SF3lll,"SF3ltt":SF3ltt,"count_total":counts,
          "local_SF1":local[0],"local_SF2":local[1],"local_SF3":local[2],"pair_count":pcount,"I_edges":ie,"J_edges":je,"I_min":imin,"I_max":imax,"J_min":jmin,"J_max":jmax,
          "nblock_I":cfg["nblock_I"],"nblock_J":cfg["nblock_J"],"nBlock":nb,"min_pairs":cfg["min_pairs"],"min_valid_blocks":cfg["min_valid_blocks"],"do_bootstrap":cfg["do_bootstrap"],"num_boot":cfg["num_boot"],"pair_runtime":pair_runtime}
