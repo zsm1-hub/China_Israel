@@ -6,6 +6,7 @@ import xarray as xr
 from scipy.interpolate import LinearNDInterpolator
 from scipy.io import savemat
 from tqdm import tqdm
+from third_order_diagnostics import init_third_order, update_third_order, finish_third_order
 
 EARTH_RADIUS = 6367442.76
 
@@ -166,8 +167,11 @@ def run_iceland(cfg):
     ns, nb = da.size, cfg["nblock_I"]*cfg["nblock_J"]
     sums = [np.zeros(ns) for _ in range(5)]; bsums = [np.zeros((ns, nb)) for _ in range(3)]; counts = np.zeros(ns); pcount = np.zeros((ns, nb))
     pairs = [[[], []] for _ in range(ns)] if cfg["do_bootstrap"] else None
-    pdf_reservoir_size = int(cfg.get('third_pdf_reservoir_size', 0) or 0)
-    pdf_samples = [[] for _ in range(ns)] if pdf_reservoir_size > 0 else None
+    third_diag = init_third_order(
+        ns,
+        reservoir_size=int(cfg.get("third_pdf_reservoir_size", 100_000)),
+        random_seed=int(cfg.get("third_pdf_random_seed", 12345)),
+    )
     for it in tqdm(
         range(ntime),
         total=ntime,
@@ -188,10 +192,7 @@ def run_iceland(cfg):
         if pairs is not None:
             for ir in np.unique(si):
                 q=si==ir; pairs[ir][0].append(dl[q]); pairs[ir][1].append(dtr[q])
-        if pdf_samples is not None:
-            for ir in np.unique(si):
-                q = si == ir
-                pdf_samples[ir].append(dl[q])
+        update_third_order(third_diag, si, dl, dtr)
     pair_runtime=time.perf_counter()-t0
     overall, local, hs = finish_statistics(sums,counts,bsums,pcount,cfg["min_pairs"],cfg["min_valid_blocks"])
     SF1,SF2ll,SF2tt,SF3lll,SF3ltt=overall; SF2=SF2ll+SF2tt; SF3=SF3lll+SF3ltt
@@ -201,16 +202,7 @@ def run_iceland(cfg):
          "nblock_I":cfg["nblock_I"],"nblock_J":cfg["nblock_J"],"nBlock":nb,"min_pairs":cfg["min_pairs"],"min_valid_blocks":cfg["min_valid_blocks"],"do_bootstrap":cfg["do_bootstrap"],"num_boot":cfg["num_boot"],"pair_runtime":pair_runtime}
     for k,h in zip(("1","2","3"),hs):
         for name,val in zip(("H","mean_SF","std_SF","rms_SF","nvalid"),h): out[name+k]=val
-    if pdf_samples is not None:
-        reservoir = np.full((ns, pdf_reservoir_size), np.nan, dtype=float)
-        reservoir_count = np.zeros(ns, dtype=int)
-        for ir in range(ns):
-            if pdf_samples[ir]:
-                values = np.concatenate(pdf_samples[ir])
-                nsave = min(values.size, pdf_reservoir_size)
-                reservoir[ir, :nsave] = values[:nsave]
-                reservoir_count[ir] = nsave
-        out.update({"dl_reservoir": reservoir, "dl_reservoir_count": reservoir_count, "third_pdf_reservoir_size": pdf_reservoir_size})
+    out.update(finish_third_order(third_diag))
     if pairs is not None:
         bt=time.perf_counter(); nboot=cfg["num_boot"]; matrices=[np.full((ns,nboot),np.nan) for _ in range(4)]; dof=np.ones(ns); good=np.isfinite(SF2)&(SF2>0); dof[good]=np.ceil((ntime*dt)/(da[good]/np.sqrt(SF2[good]))); dof=np.maximum(dof,1); sample=np.zeros(ns)
         for ir,p in enumerate(pairs):
